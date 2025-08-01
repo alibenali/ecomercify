@@ -1,1 +1,8 @@
 Dashly-1.5.0/
+.env
+venv/
+db.sqlite3
+media/
+staticfiles/
+*.pyc
+__pycache__/

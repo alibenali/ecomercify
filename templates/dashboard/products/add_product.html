@@ -1,0 +1,119 @@
+{% extends "../layouts/base.html" %}
+{% load static %}
+{% block title %}Products{% endblock %}
+
+{% block content %}
+
+<div class="container mt-5">
+  <h2 class="mb-4">Add New Product</h2>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Base Product Fields -->
+    <div class="mb-3">
+      <label class="form-label">Product Name</label>
+      <input type="text" name="name" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">SKU</label>
+      <input type="text" name="SKU" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Price</label>
+      <input type="number" step="0.01" name="price" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Stock Quantity</label>
+      <input type="number" name="stock_quantity" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Image</label>
+      <input type="file" name="image" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Description</label>
+      <textarea name="description" class="form-control" rows="3"></textarea>
+    </div>
+
+    <hr>
+
+    <!-- Variants Section -->
+    <h4>Variants (Optional)</h4>
+    <div id="variants-container"></div>
+
+    <button type="button" class="btn btn-outline-primary mt-3" onclick="addVariant()">+ Add Variant</button>
+
+    <hr>
+
+    <button type="submit" class="btn btn-success mt-3">Save Product</button>
+  </form>
+</div>
+
+<script>
+  let variantCount = 0;
+
+  function addVariant() {
+    const variantHTML = `
+      <div class="card variant-card" data-variant-index="${variantCount}">
+        <div class="card-body">
+          <h5 class="card-title">Variant #${variantCount + 1}</h5>
+
+          <div class="mb-2">
+            <label>Variant SKU</label>
+            <input type="text" name="variants[${variantCount}][SKU]" class="form-control">
+          </div>
+
+          <div class="mb-2">
+            <label>Price</label>
+            <input type="number" step="0.01" name="variants[${variantCount}][price]" class="form-control">
+          </div>
+
+          <div class="mb-2">
+            <label>Stock</label>
+            <input type="number" name="variants[${variantCount}][stock_quantity]" class="form-control">
+          </div>
+
+          <div class="mb-2">
+            <label>Image</label>
+            <input type="file" name="variants[${variantCount}][image]" class="form-control">
+          </div>
+
+          <div class="option-container mb-3">
+            <h6>Options</h6>
+            <div id="options-${variantCount}"></div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addOption(${variantCount})">+ Add Option</button>
+          </div>
+
+          <button type="button" class="btn btn-sm btn-danger" onclick="removeVariant(this)">Remove Variant</button>
+        </div>
+      </div>
+    `;
+    document.getElementById("variants-container").insertAdjacentHTML("beforeend", variantHTML);
+    variantCount++;
+  }
+
+  function addOption(variantIndex) {
+    const optionHTML = `
+      <div class="row option-group">
+        <div class="col-md-5">
+          <input type="text" name="variants[${variantIndex}][options][][name]" class="form-control" placeholder="Option Name (e.g., Color)">
+        </div>
+        <div class="col-md-5">
+          <input type="text" name="variants[${variantIndex}][options][][value]" class="form-control" placeholder="Option Value (e.g., Red)">
+        </div>
+        <div class="col-md-2">
+          <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-group').remove()">×</button>
+        </div>
+      </div>
+    `;
+    document.getElementById(`options-${variantIndex}`).insertAdjacentHTML("beforeend", optionHTML);
+  }
+
+  function removeVariant(button) {
+    button.closest('.variant-card').remove();
+  }
+</script>
+
+</body>
+</html>
+{% endblock %}

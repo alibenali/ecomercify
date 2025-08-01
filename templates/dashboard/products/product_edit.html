@@ -1,0 +1,179 @@
+{% extends "../layouts/base.html" %}
+{% load static %}
+{% block title %}Edit Product{% endblock %}
+{% block content %}
+
+<div class="container mt-5">
+  <h2>Edit Product</h2>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Base Product Fields -->
+    <div class="mb-3">
+      <label>Product Name</label>
+      <input type="text" name="name" value="{{ product.name }}" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label>SKU</label>
+      <input type="text" name="SKU" value="{{ product.SKU }}" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label>Price</label>
+      <input type="number" step="0.01" name="price" value="{{ product.price }}" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label>Stock Quantity</label>
+      <input type="number" name="stock_quantity" value="{{ product.stock_quantity }}" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label>Description</label>
+      <textarea name="description" class="form-control">{{ product.description }}</textarea>
+    </div>
+    <div class="mb-3">
+      <label>Image</label>
+      <input type="file" name="image" class="form-control">
+      {% if product.image %}
+        <img src="{{ product.image.url }}" width="100" class="mt-2">
+      {% endif %}
+    </div>
+
+    <hr>
+
+    <!-- Existing Variants -->
+    <h4>Existing Variants</h4>
+    {% for variant in product.variants.all %}
+    <input type="hidden" name="variant_ids[]" value="{{ variant.id }}">
+    <input type="hidden" name="variant_delete[]" value="false">
+    <div class="card variant-card mb-3" data-existing-variant="true">
+      <div class="card-body">
+        <label>Variant SKU</label>
+        <input type="text" name="variant_SKUs[]" value="{{ variant.SKU }}" class="form-control mb-2">
+
+        <label>Price</label>
+        <input type="number" step="0.01" name="variant_prices[]" value="{{ variant.price }}" class="form-control mb-2">
+
+        <label>Stock</label>
+        <input type="number" name="variant_stocks[]" value="{{ variant.stock_quantity }}" class="form-control mb-2">
+
+        <label>Image</label>
+        <input type="file" name="variant_images[]" class="form-control mb-2">
+        {% if variant.image %}
+          <img src="{{ variant.image.url }}" width="100" class="mb-2">
+        {% endif %}
+
+        <h6>Options</h6>
+        {% for option in variant.options.all %}
+        <div class="row option-group mb-2">
+          <input type="hidden" name="option_ids_{{ variant.id }}[]" value="{{ option.id }}">
+          <div class="col-md-5">
+            <input type="text" name="option_names_{{ variant.id }}[]" value="{{ option.name }}" class="form-control">
+          </div>
+          <div class="col-md-5">
+            <input type="text" name="option_values_{{ variant.id }}[]" value="{{ option.value }}" class="form-control">
+          </div>
+          <div class="col-md-2">
+            <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-group').remove()">×</button>
+          </div>
+        </div>
+        {% endfor %}
+        <div id="options-{{ variant.id }}"></div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addOption('{{ variant.id }}')">+ Add Option</button>
+
+        <button type="button" class="btn btn-sm btn-danger mt-2" onclick="markVariantDeleted(this)">🗑 Delete Variant</button>
+      </div>
+    </div>
+    {% endfor %}
+
+    <!-- Add New Variants -->
+    <hr>
+    <h4>Add New Variants</h4>
+    <div id="variants-container"></div>
+    <button type="button" class="btn btn-outline-primary" onclick="addVariant()">+ Add Variant</button>
+
+    <hr>
+    <button type="submit" class="btn btn-success">Save Changes</button>
+  </form>
+</div>
+
+<script>
+let variantCount = 0;
+
+function addVariant() {
+  const index = variantCount;
+  const html = `
+    <div class="card variant-card mt-3">
+      <div class="card-body">
+        <h5 class="card-title">New Variant</h5>
+        <div class="mb-2">
+          <label>SKU</label>
+          <input type="text" name="new_variants[${index}][SKU]" class="form-control">
+        </div>
+        <div class="mb-2">
+          <label>Price</label>
+          <input type="number" step="0.01" name="new_variants[${index}][price]" class="form-control">
+        </div>
+        <div class="mb-2">
+          <label>Stock</label>
+          <input type="number" name="new_variants[${index}][stock_quantity]" class="form-control">
+        </div>
+        <div class="mb-2">
+          <label>Image</label>
+          <input type="file" name="new_variants[${index}][image]" class="form-control">
+        </div>
+
+        <h6>Options</h6>
+        <div id="new-options-${index}"></div>
+        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addNewOption(${index})">+ Add Option</button>
+      </div>
+    </div>
+  `;
+  document.getElementById("variants-container").insertAdjacentHTML("beforeend", html);
+  variantCount++;
+}
+
+function addNewOption(index) {
+  const html = `
+    <div class="row option-group mb-2">
+      <div class="col-md-5">
+        <input type="text" name="new_variants[${index}][options][][name]" class="form-control" placeholder="Option Name">
+      </div>
+      <div class="col-md-5">
+        <input type="text" name="new_variants[${index}][options][][value]" class="form-control" placeholder="Option Value">
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-group').remove()">×</button>
+      </div>
+    </div>
+  `;
+  document.getElementById(`new-options-${index}`).insertAdjacentHTML("beforeend", html);
+}
+
+function addOption(variantId) {
+  const html = `
+    <div class="row option-group mb-2">
+      <div class="col-md-5">
+        <input type="text" name="option_names_${variantId}[]" class="form-control" placeholder="Option Name">
+      </div>
+      <div class="col-md-5">
+        <input type="text" name="option_values_${variantId}[]" class="form-control" placeholder="Option Value">
+      </div>
+      <div class="col-md-2">
+        <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-group').remove()">×</button>
+      </div>
+    </div>
+  `;
+  document.getElementById(`options-${variantId}`).insertAdjacentHTML("beforeend", html);
+}
+
+function markVariantDeleted(button) {
+  const card = button.closest('.variant-card');
+  const deleteInput = card.querySelector('input[name="variant_delete[]"]');
+  deleteInput.value = "true";
+  card.style.opacity = 0.4;
+  card.querySelectorAll("input, textarea, select, button").forEach(el => {
+    if (el !== deleteInput) el.disabled = true;
+  });
+}
+</script>
+
+{% endblock %}

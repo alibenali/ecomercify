@@ -1,0 +1,51 @@
+<form 
+    hx-post="{% url 'orders:edit_client_info' order.id %}" 
+    hx-target="#client_information_{{ order.id }}"
+    hx-swap="outerHTML"
+    class="small-form">
+
+    <div class="mb-2">
+        <label for="full_name" class="form-label">Full Name</label>
+        <input type="text" name="full_name" value="{{ order.full_name }}" class="form-control form-control-sm">
+    </div>
+
+    <div class="mb-2">
+        <label for="phone_number" class="form-label">Phone Number</label>
+        <input type="text" name="phone_number" value="{{ order.phone_number }}" class="form-control form-control-sm">
+    </div>
+
+    <div class="mb-2">
+        <label for="address" class="form-label">Address</label>
+        <input type="text" name="address" value="{{ order.address }}" class="form-control form-control-sm">
+    </div>
+
+    <div class="mb-2">
+        <label for="state" class="form-label">State</label>
+        <input type="text" name="state" value="{{ order.state }}" class="form-control form-control-sm">
+    </div>
+
+    <div class="mb-2">
+        <label for="city" class="form-label">City</label>
+        <input type="text" name="city" value="{{ order.city }}" class="form-control form-control-sm">
+    </div>
+
+    <div class="mb-2">
+        <label for="delivery_method" class="form-label">Home Delivery</label>
+        <select name="delivery_method" class="form-control form-control-sm">
+            <option value="home_delivery" {% if order.delivery_method == "home_delivery" %}selected{% endif %}>Home delivery</option>
+            <option value="stop_desk" {% if order.delivery_method == "stop_desk" %}selected{% endif %}>Stop desk</option>
+        </select>
+    </div>
+
+    <div class="d-flex justify-content-between mt-2">
+        <button type="submit" class="btn btn-success btn-sm">Save</button>
+        <button 
+            type="button" 
+            class="btn btn-secondary btn-sm"
+            hx-get="{% url 'orders:order_client_info' order.id %}" 
+            hx-target="#client_information_{{ order.id }}" 
+            hx-swap="outerHTML">
+            Cancel
+        </button>
+    </div>
+</form>

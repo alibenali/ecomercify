@@ -1,0 +1,48 @@
+{% load static %}
+<div class="card shadow-sm mb-4" id="client_information_{{ order.id }}">
+    <div class="card-body text-center">
+        <div class="d-flex justify-content-between mb-3">
+            <h5 class="card-title mb-0">Client Information</h5>
+        </div>
+
+        <div id="clientInfo_{{order.id}}" class="collapse show">
+            <div class="mb-3">
+                <p class="mb-2">
+                    <img src="{% static 'images/svgs/user.svg' %}" alt="User Icon">
+                    {{ order.full_name }}
+                </p>
+                <p class="mb-2">
+                    <img src="{% static 'images/svgs/phone.svg' %}" alt="Phone Icon">
+                    <a href="tel:{{ order.phone_number }}" class="text-decoration-none">{{ order.phone_number }}</a>
+                </p>
+                <p class="mb-2">
+                    <img src="{% static 'images/svgs/home.svg' %}" alt="Home Icon">
+                    {{ order.address }}
+                </p>
+                <p class="mb-2">
+                    <img src="{% static 'images/svgs/MAP.svg' %}" alt="Map Icon">
+                    {{ order.state }} - {{ order.city }}
+                </p>
+                <p class="mb-2">
+                    <img src="{% static 'images/svgs/mail.svg' %}" alt="Mail Icon">
+                    {{ order.delivery_method }}
+                </p>
+                <p class="mb-2">
+                    <img src="{% static 'images/svgs/router.svg' %}" alt="Router Icon">
+                    {{ order.ip_address }}
+                </p>
+                <p class="mb-2">
+                    <img src="{% static 'images/svgs/bill.svg' %}" alt="Bill Icon">
+                    {{ order.http_referer }}
+                </p>
+            </div>
+            <button 
+                class="btn btn-primary btn-sm" 
+                hx-get="{% url 'orders:edit_client_info' order.id %}"
+                hx-target="#clientInfo_{{order.id}}"
+                hx-swap="innerHTML">
+                Edit
+            </button>
+        </div>
+    </div>
+</div>

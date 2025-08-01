@@ -1,0 +1,98 @@
+{% extends "dashboard/layouts/base.html" %}
+{% load static %}
+{% block title %}Orders{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="mb-4">Orders</h1>
+
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive" data-list='{"valueNames": ["order_id", "phone_number", "total_price", "status", "created_at"], "page":5}' id="longList">
+                <input class="form-control list-search mw-300px mb-5" type="search" placeholder="Search">
+
+                <table class="table table-nowrap">
+                    <thead class="thead-light">
+                        <tr>
+                            <th></th> <!-- Arrow for expanding -->
+                            <th>
+                                <a href="javascript:void(0);" class="text-muted list-sort" data-sort="order_id">
+                                    Order ID
+                                </a>
+                            </th>
+                            <th>
+                                <a href="javascript:void(0);" class="text-muted list-sort" data-sort="phone_number">
+                                    Phone Number
+                                </a>
+                            </th>
+                            <th>
+                                <a href="javascript:void(0);" class="text-muted list-sort" data-sort="status">
+                                    Status
+                                </a>
+                            </th>
+                            <th>
+                                <a href="javascript:void(0);" class="text-muted list-sort" data-sort="created_at">
+                                    Created At
+                                </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="list">
+                        {% for order in orders %}
+                        <tr class="order-row transition-colors duration-150" data-order-id="{{ order.id }}">
+                            <td>
+                                <button 
+                                    class="toggle-details btn btn-sm btn-outline-primary min-w-[30px]"
+                                    hx-get="{% url 'orders:order_detail_partial' order_id=order.id %}"
+                                    hx-target="#order-details-{{ order.id }}"
+                                    hx-swap="innerHTML"
+                                    onclick="toggleOrderDetails({{ order.id }})"
+                                >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="-0.5 -0.5 16 16" id="Alt-Arrow-Down--Streamline-Solar" height="16" width="16"><desc>Alt Arrow Down Streamline Icon: https://streamlinehq.com</desc><g id="Line Duotone/Arrows/Alt Arrow Down"><path id="Vector" stroke="#000000" stroke-linecap="round" stroke-linejoin="round" d="m11.875 5.625 -4.375 3.75 -4.375 -3.75" stroke-width="1"></path></g></svg>
+                                </button>
+                            </td>
+                            <td class="order_id">{{ order.id }}</td>
+                            <td class="phone_number">{{ order.phone_number }}</td>
+                            <td class="status">{{ order.get_status_display }}</td>
+                            <td class="created_at">{{ order.created_at|date:"Y-m-d H:i" }}</td>
+                        </tr>
+                        <tr class="order-details bg-light" data-order-id="{{ order.id }}" id="order-row-{{ order.id }}" style="display: none;">
+                            <td colspan="6">
+                                <div id="order-details-{{ order.id }}" class="order-detail-content p-4">
+                                    <!-- HTMX will replace this content -->
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function toggleOrderDetails(orderId) {
+        let orderRow = document.getElementById(`order-row-${orderId}`);
+        let contentDiv = document.getElementById(`order-details-${orderId}`);
+
+        if (orderRow.style.display === "none") {
+            orderRow.style.display = "table-row"; // Show row
+        } else {
+            orderRow.style.display = "none"; // Hide row
+            contentDiv.innerHTML = ""; // Clear content to prevent reloading
+        }
+    }
+
+
+    function OrderItemToggleConfirmButton(itemId) {
+        document.getElementById(`confirm-btn-${itemId}`).classList.remove('d-none');
+    }
+    function OrderToggleConfirmButton(orderId) {
+        document.getElementById(`confirm-btn-order-${orderId}`).classList.remove('d-none');
+    }
+
+</script>
+{% endblock %}

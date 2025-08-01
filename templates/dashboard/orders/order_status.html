@@ -1,0 +1,8 @@
+<div class="btn-group d-none d-lg-flex me-auto">
+    <button type="button" class="btn btn-outline-secondary">In progress {% if in_progress %}<span class="badge bg-info">{{in_progress}}</span>{% endif %}</button>
+    <button type="button" class="btn btn-outline-secondary">In preparation {% if in_preparation %}<span class="badge bg-info">{{in_preparation}}</span>{% endif %}</button>
+    <button type="button" class="btn btn-outline-secondary">In dispatch {% if in_dispatch %}<span class="badge bg-info">{{in_dispatch}}</span>{% endif %}</button>
+    <button type="button" class="btn btn-outline-secondary">In delivery {% if in_delivery %}<span class="badge bg-info">{{in_delivery}}</span>{% endif %}</button>
+    <button type="button" class="btn btn-outline-secondary">Delivered {% if delivered %}<span class="badge bg-info">{{delivered}}</span>{% endif %}</button>
+    <button type="button" class="btn btn-outline-secondary">Canceled {% if canceled %}<span class="badge bg-info">{{canceled}}</span>{% endif %}</button>
+</div> 

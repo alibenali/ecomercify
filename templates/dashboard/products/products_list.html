@@ -1,0 +1,78 @@
+{% extends "../layouts/base.html" %}
+{% block title %}Products{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h2">Products</h1>
+
+    <div class="card">
+            <div class="card-body">
+                <div class="table-responsive" data-list='{"valueNames": ["name", "SKU", "price", "stock_quantity", "image", "action"], "page":5}' id="longList">
+                   <div class="d-flex justify-content-between align-items-center mb-4">
+                        <input class="form-control list-search mw-300px" type="search" placeholder="Search">
+
+                        <a class="btn btn-secondary btn-sm mx-4" id="addProduct" href="{% url 'products:add_product' %}">
+                            Add Product
+                        </a>
+                    </div>
+
+                    <table class="table table-nowrap">
+                        <thead class="thead-light">
+                            <tr>
+                                <th>
+                                    <a href="javascript:void(0);" class="text-muted list-sort" data-sort="image">
+                                        Image
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="javascript:void(0);" class="text-muted list-sort" data-sort="name">
+                                        Name
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="javascript:void(0);" class="text-muted list-sort" data-sort="SKU">
+                                        SKU
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="javascript:void(0);" class="text-muted list-sort" data-sort="price">
+                                        Price
+                                    </a>
+                                </th>
+                                <th>
+                                    <a href="javascript:void(0);" class="text-muted list-sort" data-sort="stock_quantity">
+                                        Stock Quantity
+                                    </a>
+                                </th>
+                            
+                                <th>
+                                    <a href="javascript:void(0);" class="text-muted list-sort" data-sort="action">
+                                        Action
+                                    </a>
+                                </th>
+                            
+                            </tr>
+                        </thead>
+                    <tbody>
+                        {% for product in products %}
+                        <tr>
+                            <td><img src="{{ product.get_image}}" alt="Product Image" width="50"></td>
+                            <td>{{ product.name }}</td>
+                            <td>{{ product.SKU }}</td>
+                            <td>{{ product.price }}</td>
+                            <td>{{ product.stock_quantity }}</td>
+                            <td>
+                                <a class="btn btn-primary btn-sm" href="{% url 'products:product_detail' product.id %}">View</a>
+                                <a class="btn btn-primary btn-sm" href="{% url 'products:edit_product' product.id %}">Edit</a>
+                                {% comment %} <a href="{% url 'products:delete_product' product.id %}">Delete</a> {% endcomment %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

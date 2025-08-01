@@ -1,0 +1,37 @@
+{% extends "../layouts/base.html" %}
+{% load static %}
+{% block title %}View Product{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>{{ product.name }}</h2>
+  <p><strong>SKU:</strong> {{ product.SKU }}</p>
+  <p><strong>Price:</strong> {{ product.price }} DZD</p>
+  <p><strong>Stock:</strong> {{ product.stock_quantity }}</p>
+  <p><strong>Description:</strong> {{ product.description }}</p>
+  <img src="{{ product.get_image }}" alt="{{ product.name }}" width="150">
+
+  <hr>
+  <h4>Variants</h4>
+  {% for variant in product.variants.all %}
+    <div class="card mb-3">
+      <div class="card-body">
+        <h5>SKU: {{ variant.SKU }}</h5>
+        <p>Price: {{ variant.price }} DZD</p>
+        <p>Stock: {{ variant.stock_quantity }}</p>
+        <img src="{{ variant.image.url }}" width="100">
+        <h6>Options:</h6>
+        <ul>
+          {% for opt in variant.options.all %}
+            <li>{{ opt.name }}: {{ opt.value }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  {% empty %}
+    <p>No variants.</p>
+  {% endfor %}
+
+  <a href="{% url 'products:edit_product' product.id %}" class="btn btn-primary mt-3">Edit</a>
+</div>
+{% endblock %}

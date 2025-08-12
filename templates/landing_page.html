@@ -75,7 +75,7 @@
                 </div>
                 <br>
           {% endif %}
-          <form id="form" class="form" method="POST" action="{% url 'landing_page' 'test4' %}">
+          <form id="form" class="form" method="POST" action="{% url 'landing_page' product.SKU %}">
             {% csrf_token %}
             <input type="hidden" name="SKU" value="{{ product.SKU }}">
             <input type="hidden" id="size" name="size" value="">

@@ -1,10 +1,9 @@
 from django.views.generic import ListView, DetailView
 from django.shortcuts import render, get_object_or_404, HttpResponse
-from .models import Order, OrderItem, Product, ProductVariant
+from .models import Order, OrderItem, Product,  ProductVariant, ProductOptionValue
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from django.http import HttpResponseRedirect
-from django.template.loader import render_to_string
 
 class OrderListView(ListView):
     model = Order
@@ -17,8 +16,7 @@ class OrderListView(ListView):
 
 def order_detail_partial(request, order_id):
     order = get_object_or_404(Order, id=order_id)
-    variants = ProductVariant.objects.select_related('product').all()  # or filtered
-    return render(request, "dashboard/orders/order_detail_partial.html", {"order": order, "variants": variants})
+    return render(request, "dashboard/orders/order_detail_partial.html", {"order": order})
 
 
 @csrf_exempt
@@ -106,4 +104,3 @@ def edit_client_info(request, order_id):
         return render(request, 'dashboard/orders/order_client_info.html', {'order':order})
 
     return render(request, 'dashboard/orders/edit_client_info.html', {'order':order})
-

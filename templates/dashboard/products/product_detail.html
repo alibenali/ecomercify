@@ -7,9 +7,13 @@
   <h2>{{ product.name }}</h2>
   <p><strong>SKU:</strong> {{ product.SKU }}</p>
   <p><strong>Price:</strong> {{ product.price }} DZD</p>
-  <p><strong>Stock:</strong> {{ product.stock_quantity }}</p>
-  <p><strong>Description:</strong> {{ product.description }}</p>
-  <img src="{{ product.get_image }}" alt="{{ product.name }}" width="150">
+  {% if product.stock_quantity %}
+    <p><strong>Stock:</strong> {{ product.stock_quantity }}</p>
+  {% endif %}
+  <p><strong>Description:</strong> {{ product.description|safe }}</p>
+  {% if product.image %}
+    <img src="{{ product.image.url }}" alt="{{ product.name }}" width="150">
+  {% endif %}
 
   <hr>
   <h4>Variants</h4>
@@ -19,11 +23,13 @@
         <h5>SKU: {{ variant.SKU }}</h5>
         <p>Price: {{ variant.price }} DZD</p>
         <p>Stock: {{ variant.stock_quantity }}</p>
-        <img src="{{ variant.image.url }}" width="100">
+        {% if variant.image %}
+          <img src="{{ variant.image.url }}" width="100">
+        {% endif %}
         <h6>Options:</h6>
         <ul>
-          {% for opt in variant.options.all %}
-            <li>{{ opt.name }}: {{ opt.value }}</li>
+          {% for value in variant.option_values.all %}
+            <li>{{ value.option.name }}: {{ value.value }}</li>
           {% endfor %}
         </ul>
       </div>

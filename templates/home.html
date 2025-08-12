@@ -89,7 +89,7 @@
             }
         </script>
         <!-- Favicon -->
-        <link rel="icon" href="{% static 'favicon/favicon.ico' %}" sizes="any">
+        <link rel="icon" href="{% static 'favicon/favicon_custom.ico' %}" sizes="any">
 
         <!-- Page Title -->
         <title>Ecomercify</title>
@@ -101,8 +101,8 @@
         <header class="navbar navbar-expand-lg px-0">
             <div class="container">
                 <a class="navbar-brand" href="./index.html">
-                    <img src="{% static 'images/logo.svg' %}" class="navbar-brand-img logo-light logo-large" alt="..." width="125" height="25">
-                    <img src="{% static 'images/logo-dark.svg' %}" class="navbar-brand-img logo-dark logo-large" alt="..." width="125" height="25">
+                    <img src="{% static 'images/logo.png' %}" class="navbar-brand-img logo-light logo-large" alt="..." width="125" height="25">
+                    <img src="{% static 'images/logo-dark.png' %}" class="navbar-brand-img logo-dark logo-large" alt="..." width="125" height="25">
                 </a>
 
                 <a href="javascript: void(0);" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menuCollapse" aria-controls="menuCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -115,10 +115,10 @@
                             <a class="nav-link" href="./docs/index.html">Documentation<span class="badge text-bg-primary rounded-pill ms-1">v1.3</span></a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="mailto:support@dashly-theme.com">Support</a>
+                            <a class="nav-link" href="mailto:support@{{ SITE_NAME}}-theme.com">Support</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="https://themes.getbootstrap.com/product/dashly-admin-dashboard-template/" target="_blank">Buy now</a>
+                            <a class="nav-link" href="https://themes.getbootstrap.com/product/{{ SITE_NAME}}-admin-dashboard-template/" target="_blank">Buy now</a>
                         </li>
                     </ul>
 
@@ -181,7 +181,7 @@
                                 <p class="text-secondary mb-1">Join thousands of businesses who trust in us</p>
                                 <div class="d-flex align-items-center">
                                     <span class="avatar avatar-lg d-flex align-items-center me-6">
-                                        <img src="{% static 'images/logos/logo-amazon.svg" class="img-fluid ft-grayscale-100 opacity-50' %}" alt="...">
+                                        <img src="{% static 'images/logos/logo-amazon.svg' %}" class="img-fluid ft-grayscale-100 opacity-50' %}" alt="...">
                                     </span>
                                     <span class="avatar avatar-lg d-flex align-items-center me-6">
                                         <img src="{% static 'images/logos/logo-salesforce-full.svg' %}" class="img-fluid ft-grayscale-100 opacity-50" alt="...">
@@ -379,7 +379,7 @@
                         <div class="col-xl-5 d-flex align-items-center">
                             <div>
                                 <h3 class="text-uppercase text-primary h4 mb-3">Our integrations</h3>
-                                <h2 class="display-3 lh-sm mb-3">Connect Dashly to the tools you already use</h2>
+                                <h2 class="display-3 lh-sm mb-3">Connect {{ SITE_NAME}} to the tools you already use</h2>
                                 <p class="lh-lg fw-semibold">Sed sit amet mollis lacus. Mauris eget tincidunt nisl, at efficitur dui. Vivamus maximus neque orci, non bibendum nibh euismod vel. Vestibulum sollicitudin turpis sed magna ultricies.</p>
                             
                                 <ul class="list-unstyled lh-lg">
@@ -598,7 +598,7 @@
                 <div class="container pt-8 pb-4">
                     <div class="row">
                         <div class="col-lg-4">
-                            <img src="{% static 'images/logo-dark.svg' %}" class="img-fluid mb-5" alt="...">
+                            <img src="{% static 'images/logo-dark.png' %}" class="img-fluid mb-5" alt="...">
                             <p class="lh-lg text-secondary">Clean, clear and flexible layouts <br class="d-none d-lg-block">allow for easy build of web applications.</p>
                             <ul class="list-inline">
                                 <li class="list-inline-item">
@@ -665,7 +665,7 @@
                 <div class="container pb-6 text-secondary">
                     <div class="row justify-content-between">
                         <div class="col">
-                            © Dashly. 2023 Webinning.
+                            © {{ SITE_NAME }}. 2023 Webinning.
                         </div>
             
                         <div class="col-auto">

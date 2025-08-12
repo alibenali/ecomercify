@@ -1,8 +1,9 @@
 from django.views.generic import ListView
-from .models import Product, ProductVariant, VariantOption
+from .models import Product, ProductVariant, ProductOption, ProductOptionValue
 from stores.models import Store  # Assuming user selects or owns store
 from django.contrib import messages
 from django.shortcuts import render, get_object_or_404, redirect
+from django.db import transaction
 
 # Create your views here.
 class ProductListView(ListView):
@@ -15,176 +16,232 @@ class ProductListView(ListView):
         return Product.objects.all().order_by("-created_at")
     
 
-def add_product(request):
-    if request.method == 'POST':
-        # === Base Product Fields ===
-        name = request.POST.get('name')
-        sku = request.POST.get('SKU')
-        price = request.POST.get('price')
-        description = request.POST.get('description')
-        stock_quantity = request.POST.get('stock_quantity') or 0
-        image = request.FILES.get('image')
-        
-        # You may need to retrieve store from user/session
-        store = Store.objects.first()  # Replace with actual logic
 
-        if not all([name, sku, price]):
-            messages.error(request, "Name, SKU, and price are required.")
-            return redirect('add_product')
-
-        # === Save Product ===
-        product = Product.objects.create(
-            store=store,
-            name=name,
-            SKU=sku,
-            price=price,
-            description=description,
-            stock_quantity=stock_quantity,
-            image=image
-        )
-
-        # === Save Variants ===
-        variants_data = {}
-        for key in request.POST:
-            if key.startswith("variants["):
-                parts = key.replace("variants[", "").replace("]", "").split("[")
-                idx = int(parts[0])
-                field = parts[1]
-                if idx not in variants_data:
-                    variants_data[idx] = {}
-                variants_data[idx][field] = request.POST[key]
-
-        # Add image files to the variant data
-        for file_key in request.FILES:
-            if file_key.startswith("variants["):
-                parts = file_key.replace("variants[", "").replace("]", "").split("][")
-                idx = int(parts[0])
-                field = parts[1]
-                if idx not in variants_data:
-                    variants_data[idx] = {}
-                variants_data[idx][field] = request.FILES[file_key]
-
-        for idx, data in variants_data.items():
-            variant = ProductVariant.objects.create(
-                product=product,
-                SKU=data.get('SKU'),
-                price=data.get('price') or 0,
-                stock_quantity=data.get('stock_quantity') or 0,
-                image=data.get('image')
-            )
-
-            # === Save Options ===
-            options_prefix = f"variants[{idx}][options][]"
-            option_keys = [key for key in request.POST if key.startswith(f"variants[{idx}][options]")]
-            names = request.POST.getlist(f"variants[{idx}][options][][name]")
-            values = request.POST.getlist(f"variants[{idx}][options][][value]")
-            for name, value in zip(names, values):
-                if name and value:
-                    VariantOption.objects.create(
-                        variant=variant,
-                        name=name,
-                        value=value
-                    )
-
-        messages.success(request, "Product and variants added successfully.")
-        return redirect('products:products_list')  # Or any view you like
-
-    return render(request, 'dashboard/products/add_product.html')
-
+def public_product_detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    return render(request, "product_detail.html", {"product": product})
 
 
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
     return render(request, "dashboard/products/product_detail.html", {"product": product})
 
+def add_product(request):
+    if request.method == "POST":
+        try:
+            with transaction.atomic():
+                # Get base product data
+                store = Store.objects.first()  # TODO: replace with store from logged-in user
+                name = request.POST.get("name")
+                sku = request.POST.get("SKU")
+                price = request.POST.get("price")
+                description = request.POST.get("description")
+                stock_quantity = request.POST.get("stock_quantity") or 0
+                image = request.FILES.get("image")
+
+                # Create product
+                product = Product.objects.create(
+                    store=store,
+                    name=name,
+                    SKU=sku,
+                    price=price,
+                    description=description,
+                    image=image
+                )
+
+                # Check if variants were added
+                variants_data = {}
+                for key, value in request.POST.items():
+                    if key.startswith("variants["):
+                        # Extract index and field name
+                        parts = key.split("[")
+                        index = parts[1].replace("]", "")
+                        field = parts[2].replace("]", "").strip()
+                        
+                        if index not in variants_data:
+                            variants_data[index] = {"options": []}
+
+                        if field == "SKU":
+                            variants_data[index]["SKU"] = value
+                        elif field == "price":
+                            variants_data[index]["price"] = value
+                        elif field == "stock_quantity":
+                            variants_data[index]["stock_quantity"] = value
+                        elif field == "options":
+                            # This won't trigger here because options have deeper nesting
+                            pass
+
+                # Get variant images
+                for key, file in request.FILES.items():
+                    if key.startswith("variants[") and "image" in key:
+                        parts = key.split("[")
+                        index = parts[1].replace("]", "")
+                        if index in variants_data:
+                            variants_data[index]["image"] = file
+
+                # Process options separately
+                for key, value in request.POST.items():
+                    if "options" in key and ("name" in key or "value" in key):
+                        parts = key.split("[")
+                        index = parts[1].replace("]", "")
+                        if index in variants_data:
+                            # Ensure there is an options list
+                            if "options" not in variants_data[index]:
+                                variants_data[index]["options"] = []
+
+                            if "name" in key:
+                                variants_data[index]["options"].append({"name": value, "value": None})
+                            elif "value" in key:
+                                # Attach to the last added name
+                                if variants_data[index]["options"]:
+                                    variants_data[index]["options"][-1]["value"] = value
+
+                # Create variants and their options
+                for var_index, vdata in variants_data.items():
+                    variant = ProductVariant.objects.create(
+                        product=product,
+                        SKU=vdata.get("SKU", ""),
+                        price=vdata.get("price", 0),
+                        stock_quantity=vdata.get("stock_quantity", 0),
+                        image=vdata.get("image", None)
+                    )
+
+                    for opt in vdata.get("options", []):
+                        if not opt.get("name") or not opt.get("value"):
+                            continue
+                        # Create option if not exists
+                        option_obj, _ = ProductOption.objects.get_or_create(
+                            product=product,
+                            name=opt["name"]
+                        )
+                        # Create option value
+                        value_obj, _ = ProductOptionValue.objects.get_or_create(
+                            option=option_obj,
+                            value=opt["value"]
+                        )
+                        variant.option_values.add(value_obj)
+
+                messages.success(request, "Product and variants added successfully!")
+                return redirect("products:products_list")  # Change to your actual URL name
+
+        except Exception as e:
+            messages.error(request, f"Error: {str(e)}")
+
+    return render(request, "dashboard/products/add_product.html")
+
+
 def product_edit(request, pk):
     product = get_object_or_404(Product, pk=pk)
 
     if request.method == "POST":
-        # === 1. Update main product ===
-        product.name = request.POST.get("name")
-        product.SKU = request.POST.get("SKU")
-        product.price = request.POST.get("price")
-        product.stock_quantity = request.POST.get("stock_quantity")
-        product.description = request.POST.get("description")
-
+        # --- Update base product fields ---
+        product.name = request.POST.get("name", "").strip()
+        product.SKU = request.POST.get("SKU", "").strip()
+        product.price = request.POST.get("price") or 0
+        product.stock_quantity = request.POST.get("stock_quantity") or 0
+        product.description = request.POST.get("description", "").strip()
         if request.FILES.get("image"):
             product.image = request.FILES["image"]
         product.save()
 
-        # === 2. Update existing variants ===
+        # =====================
+        # EXISTING VARIANTS
+        # =====================
         variant_ids = request.POST.getlist("variant_ids[]")
-        for idx, variant_id in enumerate(variant_ids):
-            variant = ProductVariant.objects.get(pk=variant_id)
-            variant.SKU = request.POST.getlist("variant_SKUs[]")[idx]
-            variant.price = request.POST.getlist("variant_prices[]")[idx]
-            variant.stock_quantity = request.POST.getlist("variant_stocks[]")[idx]
-            if f"variant_images" in request.FILES:
-                variant.image = request.FILES.getlist("variant_images")[idx]
+        variant_SKUs = request.POST.getlist("variant_SKUs[]")
+        variant_prices = request.POST.getlist("variant_prices[]")
+        variant_stocks = request.POST.getlist("variant_stocks[]")
+        variant_deletes = request.POST.getlist("variant_delete[]")
+        variant_images = request.FILES.getlist("variant_images[]")
+
+        for idx, vid in enumerate(variant_ids):
+            variant = get_object_or_404(ProductVariant, pk=vid, product=product)
+
+            if variant_deletes[idx] == "true":
+                variant.delete()
+                continue
+
+            variant.SKU = variant_SKUs[idx]
+            variant.price = variant_prices[idx] or 0
+            variant.stock_quantity = variant_stocks[idx] or 0
+            if idx < len(variant_images) and variant_images[idx]:
+                variant.image = variant_images[idx]
             variant.save()
 
-            # === Update options ===
-            option_ids = request.POST.getlist(f"option_ids_{variant_id}[]")
-            option_names = request.POST.getlist(f"option_names_{variant_id}[]")
-            option_values = request.POST.getlist(f"option_values_{variant_id}[]")
+            # Remove old option links (not deleting the actual option values)
+            variant.option_values.clear()
 
-            # Delete removed options (if any)
-            existing_option_ids = [str(opt.id) for opt in variant.options.all()]
-            to_delete = set(existing_option_ids) - set(option_ids)
-            VariantOption.objects.filter(pk__in=to_delete).delete()
+            # Option names/values for this variant
+            option_names = request.POST.getlist(f"option_names_{vid}[]")
+            option_values = request.POST.getlist(f"option_values_{vid}[]")
 
-            # Update or create each option
-            for i in range(len(option_names)):
-                if i < len(option_ids) and option_ids[i]:
-                    # Update existing option
-                    option = VariantOption.objects.get(pk=option_ids[i])
-                    option.name = option_names[i]
-                    option.value = option_values[i]
-                    option.save()
-                else:
-                    # New option added
-                    VariantOption.objects.create(
-                        variant=variant,
-                        name=option_names[i],
-                        value=option_values[i]
-                    )
-
-        # === 3. Handle newly added variants ===
-        new_variants = []
-        for key in request.POST:
-            if key.startswith("new_variants"):
-                new_variants.append(key.split("[")[1].split("]")[0])
-        new_variants = sorted(set(new_variants), key=int)
-
-        for index in new_variants:
-            sku = request.POST.get(f"new_variants[{index}][SKU]")
-            price = request.POST.get(f"new_variants[{index}][price]")
-            stock_quantity = request.POST.get(f"new_variants[{index}][stock_quantity]")
-            image = request.FILES.get(f"new_variants[{index}][image]")
-
-            if not sku or not price:
-                continue  # skip invalid variants
-
-            new_variant = ProductVariant.objects.create(
-                product=product,
-                SKU=sku,
-                price=price,
-                stock_quantity=stock_quantity or 0,
-                image=image if image else None,
-            )
-
-            # Handle new options
-            option_names = request.POST.getlist(f"new_variants[{index}][options][][name]")
-            option_values = request.POST.getlist(f"new_variants[{index}][options][][value]")
             for name, value in zip(option_names, option_values):
-                if name.strip() and value.strip():
-                    VariantOption.objects.create(
-                        variant=new_variant,
-                        name=name.strip(),
-                        value=value.strip()
-                    )
+                name = (name or "").strip()
+                value = (value or "").strip()
+                if not name or not value:
+                    continue
 
-        return redirect("products:product_detail", pk=product.pk)
+                option_obj, _ = ProductOption.objects.get_or_create(
+                    product=product, name=name
+                )
+                value_obj, _ = ProductOptionValue.objects.get_or_create(
+                    option=option_obj, value=value
+                )
+                variant.option_values.add(value_obj)
+
+        # =====================
+        # NEW VARIANTS
+        # =====================
+        if "new_variants" in request.POST:
+            for index, new_variant in request.POST.lists():
+                if not index.startswith("new_variants["):
+                    continue
+
+            new_variants = request.POST.getlist("new_variants")
+            # Since the template sends them as dict-like keys,
+            # we'll loop until no more keys found
+            idx = 0
+            while True:
+                sku_key = f"new_variants[{idx}][SKU]"
+                if sku_key not in request.POST:
+                    break
+
+                sku = request.POST.get(sku_key, "").strip()
+                price = request.POST.get(f"new_variants[{idx}][price]") or 0
+                stock = request.POST.get(f"new_variants[{idx}][stock_quantity]") or 0
+                image = request.FILES.get(f"new_variants[{idx}][image]")
+
+                if not sku and not price:
+                    idx += 1
+                    continue
+
+                variant = ProductVariant.objects.create(
+                    product=product,
+                    SKU=sku,
+                    price=price,
+                    stock_quantity=stock,
+                    image=image if image else None,
+                )
+
+                opt_names = request.POST.getlist(f"new_variants[{idx}][options][][name]")
+                opt_values = request.POST.getlist(f"new_variants[{idx}][options][][value]")
+
+                for name, value in zip(opt_names, opt_values):
+                    name = (name or "").strip()
+                    value = (value or "").strip()
+                    if not name or not value:
+                        continue
+
+                    option_obj, _ = ProductOption.objects.get_or_create(
+                        product=product, name=name
+                    )
+                    value_obj, _ = ProductOptionValue.objects.get_or_create(
+                        option=option_obj, value=value
+                    )
+                    variant.option_values.add(value_obj)
+
+                idx += 1
+
+        return redirect("products:products_list")  # adjust to your route name
 
     return render(request, "dashboard/products/product_edit.html", {"product": product})
-

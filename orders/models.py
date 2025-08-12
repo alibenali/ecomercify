@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.db.models import Sum
-from products.models import Product, ProductVariant
+from products.models import Product, ProductOptionValue, ProductVariant
 from stores.models import Store
 
 class Order(models.Model):
@@ -47,40 +47,53 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    order = models.ForeignKey('orders.Order', on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True, blank=True)
-    variation = models.ForeignKey(ProductVariant, on_delete=models.SET_NULL, null=True, blank=True)
+    variant_values = models.ManyToManyField(ProductOptionValue, blank=True, related_name="order_items")
+    variant = models.ForeignKey(ProductVariant, on_delete=models.SET_NULL, null=True, blank=True)
     quantity = models.PositiveIntegerField()
     price_per_unit = models.DecimalField(max_digits=10, decimal_places=2)
-
-    def get_product(self):
-        return self.variation if self.variation else self.product
-
-    def get_image(self):
-        if not self.get_product().image:
-            return None
-        return self.get_product().image.url
-
-    def get_sku(self):
-        return self.get_product().SKU
-
-    def get_name(self):
-        return self.variation.product.name if self.variation else self.product.name
-
-
 
     @property
     def total_price(self):
         return self.quantity * self.price_per_unit
 
+    def get_sku(self):
+        if self.variant:
+            return self.variant.SKU
+        elif self.variant_values.exists():
+            return ", ".join([v.option.name + ":" + v.value for v in self.variant_values.all()])
+        return self.product.SKU if self.product else None
+
+    def get_name(self):
+        name = self.product.name if self.product else ""
+        if self.variant:
+            variant_values_str = ", ".join([f"{v.option.name}: {v.value}" for v in self.variant.option_values.all()])
+            return f"{name} ({variant_values_str})"
+        elif self.variant_values.exists():
+            variants = ", ".join([f"{v.option.name}: {v.value}" for v in self.variant_values.all()])
+            return f"{name} ({variants})"
+        return name
+
+    def get_image(self):
+        if self.variant and self.variant.image:
+            return self.variant.image.url
+        if self.variant_values.exists():
+            for v in self.variant_values.all():
+                if v.image:
+                    return v.image.url
+        if self.product and self.product.image:
+            return self.product.image.url
+        return None
+
     def clean(self):
-        from django.core.exceptions import ValidationError
-
-        if not self.product and not self.variation:
-            raise ValidationError("You must provide either a product or a variation.")
-        if self.product and self.variation:
-            raise ValidationError("Only one of product or variation should be selected.")
-
+        if not self.product:
+            raise ValidationError("An order item must have a product.")
+        if self.variant and not self.product.variants.filter(pk=self.variant.pk).exists():
+            raise ValidationError("Selected variant does not belong to the product.")
+        if self.variant and self.variant_values.exists():
+            raise ValidationError("Only one of variant or variant_values should be selected.")
+        
 class StatusHistory(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="status_history")
     previous_status = models.CharField(max_length=20, choices=Order.STATUS_CHOICES)

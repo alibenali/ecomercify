@@ -1,0 +1,273 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="ar" dir='rtl'>
+
+  <head>
+    {{ FB_PIXEL|safe }}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'css/landing_page.css' %}">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <title>{{product.name}} - {{ SITE_NAME }}</title>
+
+  </head>
+
+  <body>
+
+    <div class="hero" >
+      <div class="content2">
+        <div class="hero-img" style="border-color:{{ THEME_COLOR }}">
+          <img src="{{ product.image.url }}" alt="">
+        </div>
+        <div class="hero-text" id="hero" style="border-color:{{ THEME_COLOR }}">
+          <h1>{{ product.name }}</h1>
+          <div class="price">
+            <div class="right-price">
+              <p><span id="price">{{ product.price|floatformat:0 }}</span> د.ج </p>
+            </div>
+            <div class="left-price">
+
+              <div class="skill" id="skill-bar1">
+                <div class="skill-name"></div>
+                <div class="skill-bar">
+                  <div class="skill-per" per="100%" style="max-width:100%"></div>
+                </div>
+              </div>
+
+              <div class="skill" id="skill-bar2">
+                <div class="skill-name"></div>
+                <div class="skill-bar">
+                  <div class="skill-per" per="100%" style="max-width:100%"></div>
+                </div>
+              </div>
+
+              <p>{{ product.price|floatformat:0 }}</p>
+            </div>
+          </div>
+          <p class="stars">★★★★★</p>
+          <p class="Please_fill_out_the_form_below">المرجوا ملإ الاستماره اسفله</p>
+          {% if size_variations_count > 0 %}
+                <br>
+                <p class="size-variation">المقاس</p>
+                <div>
+                    {% for variant in size_variations %}
+                        <input style="appearance: none;" type="radio" name="size_variant" value="{{ variant.SKU }}" id="input-{{ variant.SKU }}" form="form">
+                        <label for="input-{{ variant.SKU }}" class="size-card" id="{{ variant.SKU }}" onclick="changeSize('{{ variant.SKU }}',this);">{{ variant.name }}</label>
+                        {% if variant.default %}
+                          <script>document.addEventListener("DOMContentLoaded", function(){changeSize('{{ variant.SKU }}',document.getElementById('{{ variant.SKU }}'))})</script>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+          {% endif %}
+          {% if color_variations_count %}
+                <br>
+                <p class="size-variation">اللون</p>
+                <div>
+                  {% for variant in color_variations %}
+                  <input style="appearance: none;" type="radio" name="color_variant" value="{{ variant.SKU }}" id="input-{{ variant.SKU }}" form="form">
+                  <label for="input-{{ variant.SKU }}" class="color-card" id="{{ variant.SKU }}"  onclick="changeColor('{{ variant.SKU }}',this)">{{ variant.name }}</label>
+                        {% if variant.default %}
+                        <script>document.addEventListener("DOMContentLoaded", function(){changeColor('{{ variant.SKU }}',document.getElementById('{{ variant.SKU }}'))})</script>
+                        {% endif %}
+                  {% endfor %}
+                </div>
+                <br>
+          {% endif %}
+          <form id="form" class="form" method="POST" action="{% url 'landing_page' 'test4' %}">
+            {% csrf_token %}
+            <input type="hidden" name="SKU" value="{{ product.SKU }}">
+            <input type="hidden" id="size" name="size" value="">
+            <input type="hidden" id="color" name="color" value="">
+            <input type="hidden" id="total_price" name="total_price" value="">
+            <input type="text" required name="name" id="" placeholder="الاسم">
+            <input type="tel" required name="phone" id="" placeholder="رقم الهاتف">
+
+            <div class="select-div">
+              <select name="province" id="city" onChange="changePrice()" id="cities" required>
+                  <option value="" selected>يرجى إختيار ولايتك</option>
+
+                  {% for city in cities %}
+                      <option data-price="{{city.delivery_cost|floatformat:0}}" value="{{ city.name }}" >{{ city.name }}</option>
+                  {% endfor %}
+              </select>
+              <i class="fa-solid fa-sort-down arrow-down"></i>
+            </div>
+
+            <select name="municipality" id="municipality">
+              <option>اختر البلدية</option>
+            </select>
+
+            {% comment %} <input type="text" required name="address" id="" placeholder="العنوان الكامل (العنوان.البلديه.الولاية)"> {% endcomment %}
+            {% if offer_variations_count > 0 %}
+              <div class="select-div">
+                <select name="variation" onChange="changePrice()" id="cars" required>
+                    {% for variation in product.variations.all %}
+                      {% if variation.type == 'offer' %}
+
+                        <option data-price="{{variation.price|floatformat:0}}" value="{{ variation.SKU }}" {% if variation.default %}selected{% endif %}>{{ variation.name }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                <i class="fa-solid fa-sort-down arrow-down"></i>
+              </div>
+            {% endif %}
+           
+
+            <div class="total-card">
+              <div class="total-card-item">
+                <span>سعر المنتج</span>
+                <span id="product_cost">{{ product.price|floatformat:0 }} <span>د.ج </span></span>   
+              </div>
+              <div class="total-card-item">
+                <span>سعر التوصيل</span>
+                <span id="delivery_cost">___ <span>د.ج </span></span>   
+              </div>
+              <hr>
+              <div class="total-card-item total-card-total">
+                <span>مجموع الطلبية</span>
+                <span id="totla_cost">___ <span>د.ج </span></span>   
+              </div>
+            </div>
+
+            <button class="order-now">للطلب اضغط هنا</button>
+            <br>
+          </form>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="website">
+      <div class="content">
+          <div class="desc">
+                {{product.description|safe}}
+            </div>
+        <a href="{{WHATSAPP}}" class="up"><img src="{% static 'img/up-removebg-preview.png' %}" alt=""></a>
+        <h1>توصيل اكسبريس</h1>
+        <img src="{% static 'img/time.png' %}" class="icons2" alt="">
+        <p>استفيدو من التوصيل السريع في اقل من 48 ساعة</p>
+        <h1>زبون راضي 100%</h1>
+        <img src="{% static 'img/per.png' %}" class="icons2" alt="">
+        <p>نطمح لرضاء جميع زبائنا وتقديم احسن جودة متوفره في غضون 48 ساعة يمكنك استبدال المنتج في حالة تواجد اي <br> مشكل او عطب في المنتج هدفنا رضاؤكم</p>
+        <a href="#hero" class="ling-link" data-aos="fade-left" animate__delay="20s" data-aos-duration="1200" animate__repeat-1="1">إضغط هنا للطلب</a>
+      </div>
+
+    </div>
+
+
+    <footer>
+      <div class="content">
+        <div class="card">
+          <h1>تواصل معنا</h1>
+          <p>رقم الهاتف : {{PHONE}}</p>
+          <p>البريد الالكرتوني : {{EMAIL}}</p>
+        </div>
+
+        <div class="card">
+          <h1>سياسة الموقع</h1>
+          {% comment %} <a href="{% url 'howtobuy' %}">كيف تشتري من موقعنا</a>
+          <a href="{% url 'exchange-policy' %}">سياسة الاستبدال</a>
+          <a href="{% url 'policy' %}">سياسة الخصوصيه</a>
+          <a href="{% url 'payment-policy' %}">سياسه الدقع عند الاستلام</a> {% endcomment %}
+
+        </div>
+
+        <div class="card">
+          <h1>تابعنا عبر</h1>
+          <div class="footer-icons">
+            <a href="{{FB|safe}}"><i class="fa-brands fa-facebook"></i></a>
+            <a href="{{INSTA|safe}}"><i class="fa-brands fa-instagram"></i></a>
+          </div>
+        </div>
+
+      </div>
+    </footer>
+
+    <script src="https://kit.fontawesome.com/3e47f87375.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+      // You can also pass an optional settings object
+      // below listed default settings
+      AOS.init({});
+
+      function changePrice(){
+        var selectElement = document.getElementById("city");
+        var selectedOption = selectElement.options[selectElement.selectedIndex];
+        var delivery_cost = selectedOption.getAttribute("data-price");
+        document.getElementById('delivery_cost').innerHTML = delivery_cost+" <span>د.ج </span> ";
+        document.getElementById('totla_cost').innerHTML = parseInt(delivery_cost)+parseInt({{product.price}})+" <span>د.ج </span> ";
+        document.getElementById('total_price').value = parseInt(delivery_cost)+parseInt({{product.price}});
+
+      }
+    function changeColor(SKU, element) {
+        document.getElementById('color').value = SKU;
+        document.getElementById('input-' + SKU).click();
+    
+        // Get all elements with the class "color-card"
+        var colorCards = document.getElementsByClassName('color-card');
+    
+        // Loop through each element and set its background color to white
+        for (var i = 0; i < colorCards.length; i++) {
+            colorCards[i].style.background = 'white';
+        }
+    
+        // Set the background color for the clicked element
+        element.style.background = '#76ff89';
+    }
+
+    function changeSize(SKU, element) {
+        document.getElementById('size').value = SKU;
+        document.getElementById('input-' + SKU).click();
+    
+        // Get all elements with the class "size-card"
+        var sizeCards = document.getElementsByClassName('size-card');
+        
+        // Loop through each element and set its background color to white
+        for (var i = 0; i < sizeCards.length; i++) {
+            sizeCards[i].style.background = 'white';
+        }
+    
+        // Set the background color for the clicked element
+        element.style.background = '#76ff89';
+    }
+      
+
+    </script>
+
+
+    <script>
+      
+      const citySelect = document.querySelector('#city');
+      const municipalitySelect = document.querySelector('#municipality');
+      
+      citySelect.addEventListener('change', () => {
+        const city = citySelect.value;
+        if (city) {
+          fetch(`/get_municipalities/${city}/`)
+            .then(response => response.json())
+            .then(data => {
+              municipalitySelect.innerHTML = '';
+              option = document.createElement('option');
+              option.textContent = 'اختر البلدية';
+              municipalitySelect.appendChild(option);
+              
+              data.municipalities.forEach(municipality => {
+                const option = document.createElement('option');
+                option.textContent = municipality;
+                option.value = municipality;
+                municipalitySelect.appendChild(option);
+              });
+            });
+        } else {
+          municipalitySelect.innerHTML = '';
+        }
+      });
+
+    </script>
+
+    
+  </body>
+
+</html>

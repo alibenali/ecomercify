@@ -1,43 +1,50 @@
 from django.contrib import admin
-from .models import Product, ProductVariant, VariantOption
+from .models import Product, ProductOption, ProductOptionValue, ProductVariant
 
-class VariantOptionInline(admin.TabularInline):
-    """Allows editing variant options (e.g., Color, Size) directly within ProductVariant."""
-    model = VariantOption
-    extra = 1  # Show 1 empty form for quick addition
+
+class ProductOptionValueInline(admin.TabularInline):
+    model = ProductOptionValue
+    extra = 1
+
+
+class ProductOptionInline(admin.TabularInline):
+    model = ProductOption
+    extra = 1
+
 
 class ProductVariantInline(admin.TabularInline):
-    """Allows editing variants (e.g., different SKUs) within Product."""
     model = ProductVariant
-    extra = 1  # Show 1 empty form for quick addition
-    show_change_link = True  # Add link to edit variant separately
-    inlines = [VariantOptionInline]  # Allow editing options inside the variant
+    extra = 1
+    filter_horizontal = ("option_values",)  # Easier multi-select for values
+
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    """Admin panel for managing products."""
-    list_display = ("name", "store", "SKU", "price", "stock_quantity", "created_at")
-    search_fields = ("name", "SKU", "store__name")
-    list_filter = ("store", "created_at")
-    ordering = ("-created_at",)
-    inlines = [ProductVariantInline]  # Manage variants directly within products
-    readonly_fields = ("created_at",)
+    list_display = ("name", "SKU", "price", "store")
+    search_fields = ("name", "SKU")
+    list_filter = ("store",)
+    inlines = [ProductOptionInline, ProductVariantInline]
+
+
+@admin.register(ProductOption)
+class ProductOptionAdmin(admin.ModelAdmin):
+    list_display = ("name", "product")
+    search_fields = ("name", "product__name")
+    inlines = [ProductOptionValueInline]
+
+
+@admin.register(ProductOptionValue)
+class ProductOptionValueAdmin(admin.ModelAdmin):
+    list_display = ("value", "option")
+    search_fields = ("value", "option__name", "option__product__name")
+
 
 @admin.register(ProductVariant)
 class ProductVariantAdmin(admin.ModelAdmin):
-    """Admin panel for managing product variants."""
-    list_display = ("product", "SKU", "price", "stock_quantity", "created_at")
-    search_fields = ("product__name", "SKU")
-    list_filter = ("product", "created_at")
-    ordering = ("-created_at",)
-    inlines = [VariantOptionInline]  # Manage variant options directly inside the variant
-    readonly_fields = ("created_at",)
+    list_display = ("product", "get_option_values", "SKU", "price", "stock_quantity")
+    search_fields = ("SKU", "product__name")
+    filter_horizontal = ("option_values",)
 
-@admin.register(VariantOption)
-class VariantOptionAdmin(admin.ModelAdmin):
-    """Admin panel for managing variant options."""
-    list_display = ("variant", "name", "value", "created_at")
-    search_fields = ("variant__SKU", "name", "value")
-    list_filter = ("name", "created_at")
-    ordering = ("-created_at",)
-    readonly_fields = ("created_at",)
+    def get_option_values(self, obj):
+        return ", ".join([v.value for v in obj.option_values.all()])
+    get_option_values.short_description = "Options"

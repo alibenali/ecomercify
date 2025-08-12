@@ -21,6 +21,6 @@ class LoginRequiredMiddleware(MiddlewareMixin):
 
         # Require login for all other views
         if not request.user.is_authenticated:
-            return redirect(reverse('accouts:login'))  # Redirect to login page
+            return redirect(reverse('accounts:login'))  # Redirect to login page
 
         return None

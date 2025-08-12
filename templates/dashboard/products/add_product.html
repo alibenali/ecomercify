@@ -3,10 +3,20 @@
 {% block title %}Products{% endblock %}
 
 {% block content %}
+<script src="{% static 'ckeditor/ckeditor.js' %}"></script>
+<link rel="stylesheet" href="{% static 'ckeditor/samples/css/samples.css' %}" />
 
 <div class="container mt-5">
   <h2 class="mb-4">Add New Product</h2>
-  <form method="POST" enctype="multipart/form-data">
+  {% comment %} Error messages {% endcomment %}
+  {% if messages %}
+  <ul class="messages">
+      {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+      {% endfor %}
+  </ul>
+  {% endif %}
+  <form method="POST" enctype="multipart/form-data" action="{% url 'products:add_product' %}">
     {% csrf_token %}
 
     <!-- Base Product Fields -->
@@ -30,9 +40,10 @@
       <label class="form-label">Image</label>
       <input type="file" name="image" class="form-control">
     </div>
+
     <div class="mb-3">
       <label class="form-label">Description</label>
-      <textarea name="description" class="form-control" rows="3"></textarea>
+      <textarea name="description" id="editor" rows="10" class="form-control"></textarea>
     </div>
 
     <hr>
@@ -48,6 +59,11 @@
     <button type="submit" class="btn btn-success mt-3">Save Product</button>
   </form>
 </div>
+
+<script src="{% static 'ckeditor/samples/js/sample.js' %}"></script>
+<script>
+	initSample();
+</script>
 
 <script>
   let variantCount = 0;
@@ -113,6 +129,7 @@
     button.closest('.variant-card').remove();
   }
 </script>
+
 
 </body>
 </html>

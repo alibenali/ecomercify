@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>تم الطلب بنجاح</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #fdfbfb, #ebedee);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .container {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 90%;
+      text-align: center;
+      animation: fadeIn 0.6s ease-out;
+    }
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: #4BB543;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+      animation: pop 0.4s ease-out;
+    }
+    .success-icon svg {
+      fill: #fff;
+      width: 40px;
+      height: 40px;
+    }
+    h1 {
+      font-size: 1.8rem;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      color: #666;
+      margin-bottom: 1.5rem;
+      font-size: 1rem;
+    }
+    .btn {
+      display: inline-block;
+      background: #4BB543;
+      color: white;
+      text-decoration: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: background 0.3s ease;
+    }
+    .btn:hover {
+      background: #3e9b38;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pop {
+      0% { transform: scale(0.5); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="success-icon">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+        <path d="M26 0C11.664 0 0 11.664 0 26s11.664 26 26 26 26-11.664 26-26S40.336 0 26 0zm0 48C13.215 48 4 38.785 4 26S13.215 4 26 4s22 9.215 22 22-9.215 22-22 22zm-3.172-14.828l-7.778-7.778-2.828 2.828 10.606 10.606L39.778 17.778l-2.828-2.828-14.122 14.122z"/>
+      </svg>
+    </div>
+    <h1>تم الطلب بنجاح!</h1>
+    <p>شكراً لشرائك من متجرنا. تم تأكيد طلبك وهو الآن في طريقه إليك!</p>
+    {% comment %} <a href="/" class="btn">العودة للتسوق</a> {% endcomment %}
+  </div>
+</body>
+</html>

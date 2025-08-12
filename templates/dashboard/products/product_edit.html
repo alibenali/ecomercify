@@ -2,6 +2,8 @@
 {% load static %}
 {% block title %}Edit Product{% endblock %}
 {% block content %}
+<script src="{% static 'ckeditor/ckeditor.js' %}"></script>
+<link rel="stylesheet" href="{% static 'ckeditor/samples/css/samples.css' %}" />
 
 <div class="container mt-5">
   <h2>Edit Product</h2>
@@ -26,8 +28,8 @@
       <input type="number" name="stock_quantity" value="{{ product.stock_quantity }}" class="form-control">
     </div>
     <div class="mb-3">
-      <label>Description</label>
-      <textarea name="description" class="form-control">{{ product.description }}</textarea>
+      <label class="form-label">Description</label>
+      <textarea name="description" id="editor" rows="10" class="form-control">{{ product.description }}</textarea>
     </div>
     <div class="mb-3">
       <label>Image</label>
@@ -62,20 +64,23 @@
         {% endif %}
 
         <h6>Options</h6>
-        {% for option in variant.options.all %}
-        <div class="row option-group mb-2">
-          <input type="hidden" name="option_ids_{{ variant.id }}[]" value="{{ option.id }}">
-          <div class="col-md-5">
-            <input type="text" name="option_names_{{ variant.id }}[]" value="{{ option.name }}" class="form-control">
+        {% for option in variant.option_values.all %}
+          <div class="row option-group mb-2">
+            <input type="hidden" name="option_ids_{{ variant.id }}[]" value="{{ option.id }}">
+            <div class="col-md-5">
+              <input type="text" name="option_names_{{ variant.id }}[]" 
+                    value="{{ option.option.name }}" class="form-control">
+            </div>
+            <div class="col-md-5">
+              <input type="text" name="option_values_{{ variant.id }}[]" 
+                    value="{{ option.value }}" class="form-control">
+            </div>
+            <div class="col-md-2">
+              <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-group').remove()">×</button>
+            </div>
           </div>
-          <div class="col-md-5">
-            <input type="text" name="option_values_{{ variant.id }}[]" value="{{ option.value }}" class="form-control">
-          </div>
-          <div class="col-md-2">
-            <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-group').remove()">×</button>
-          </div>
-        </div>
         {% endfor %}
+
         <div id="options-{{ variant.id }}"></div>
         <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addOption('{{ variant.id }}')">+ Add Option</button>
 
@@ -94,6 +99,12 @@
     <button type="submit" class="btn btn-success">Save Changes</button>
   </form>
 </div>
+
+
+<script src="{% static 'ckeditor/samples/js/sample.js' %}"></script>
+<script>
+	initSample();
+</script>
 
 <script>
 let variantCount = 0;

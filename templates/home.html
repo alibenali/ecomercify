@@ -92,7 +92,7 @@
         <link rel="icon" href="{% static 'favicon/favicon_custom.ico' %}" sizes="any">
 
         <!-- Page Title -->
-        <title>Ecomercify</title>
+        <title>{{ SITE_NAME}}</title>
 
     </head>
     
@@ -111,7 +111,7 @@
 
                 <div class="collapse navbar-collapse" id="menuCollapse">
                     <ul class="navbar-nav mx-auto py-5 py-lg-0">
-                        <li class="nav-item">
+                        {% comment %} <li class="nav-item">
                             <a class="nav-link" href="./docs/index.html">Documentation<span class="badge text-bg-primary rounded-pill ms-1">v1.3</span></a>
                         </li>
                         <li class="nav-item">
@@ -119,7 +119,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="https://themes.getbootstrap.com/product/{{ SITE_NAME}}-admin-dashboard-template/" target="_blank">Buy now</a>
-                        </li>
+                        </li> {% endcomment %}
                     </ul>
 
                     <div class="d-flex">
@@ -202,7 +202,7 @@
                 </div>
             </section>
 
-            <section class="py-10">
+            {% comment %} <section class="py-10">
                 <div class="container">
                     <div class="row justify-content-between mb-8 align-items-center">
                         <div class="col-lg-5 col-xl-6">
@@ -592,7 +592,7 @@
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> {% endcomment %}
 
             <footer class="text-bg-dark">
                 <div class="container pt-8 pb-4">
@@ -665,11 +665,11 @@
                 <div class="container pb-6 text-secondary">
                     <div class="row justify-content-between">
                         <div class="col">
-                            © {{ SITE_NAME }}. 2023 Webinning.
+                            © {{ SITE_NAME }}. 2025 Webinning.
                         </div>
             
                         <div class="col-auto">
-                            v1.5.0
+                            v1.0.0
                         </div>
                     </div> <!-- / .row -->
                 </div>

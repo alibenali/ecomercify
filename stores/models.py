@@ -6,6 +6,7 @@ class Store(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="stores")
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
+    sheet_webhook = models.CharField(max_length=255,null=True)
     site = models.CharField(max_length=255,null=True)
     FB_PIXEL = models.TextField(null=True)
     FB_PAGE = models.CharField(max_length=255,null=True)

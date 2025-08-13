@@ -10,6 +10,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'css/landing_page.css' %}">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <link rel="icon" href="{% static 'favicon/favicon_custom.ico' %}" sizes="any">
+
     <title>{{product.name}} - {{ SITE_NAME }}</title>
 
   </head>
@@ -81,6 +83,7 @@
             <input type="hidden" id="size" name="size" value="">
             <input type="hidden" id="color" name="color" value="">
             <input type="hidden" id="total_price" name="total_price" value="">
+            <input type="hidden" id="ref" name="ref" value="">
             <input type="text" required name="name" id="" placeholder="الاسم">
             <input type="tel" required name="phone" id="" placeholder="رقم الهاتف">
 
@@ -227,6 +230,12 @@
     }
       
 
+    </script>
+
+    <script>
+      // get refferer
+      var referrer = document.referrer;
+      document.getElementById('ref').value = referrer;
     </script>
 
 

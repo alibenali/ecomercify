@@ -4,8 +4,7 @@ from ecom.public_decorator import public
 from products.models import Product
 from stores.models import Store, City
 from orders.models import Order, OrderItem
-import os
-import csv
+import os, csv, requests, threading
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
@@ -14,25 +13,75 @@ from django.conf import settings
 def home(request):
     return render(request, "home.html")
 
+GOOGLE_SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbz5Z33iRjLn4r4QKS23g4jJ6omnR7feDUL_Jg4hNOg4_LOdbrwP_eqTJjE98C0L8ue6Lg/exec"
+
+def send_to_google_sheet(order, product, city):
+    """Send order data to Google Sheet in a separate thread."""
+    try:
+        payload = {
+            "form_name": "Landing Page Orders",
+            "order_id": order.id,
+            "full_name": order.full_name,
+            "phone": order.phone_number,
+            "province": order.state,
+            "municipality": order.city,
+            "product": product.name,
+            "price": product.price,
+            "delivery_cost": city.delivery_cost,
+            "total": product.price + city.delivery_cost,
+            "e_gs_SheetName": "Orders",  # Optional sheet name
+            "e_gs_order": "order_id,full_name,phone,province,municipality,product,price,delivery_cost,total"
+        }
+        requests.post(GOOGLE_SHEET_WEBHOOK, data=payload, timeout=5)
+    except requests.RequestException as e:
+        print(f"Google Sheet webhook failed: {e}")
+
 @public
 def landing_page(request, sku):
     product = Product.objects.get(SKU=sku)
+
     if request.method == 'POST':
-        form = request.POST
-        full_name = form.get('name')
-        phone = form.get('phone')
-        province = form.get('province')
-        municipality = form.get('municipality')
-        phone = form.get('phone')
+        refferer = request.POST.get('ref')
+        full_name = request.POST.get('name')
+        phone = request.POST.get('phone')
+        province = request.POST.get('province')
+        municipality = request.POST.get('municipality')
+
         store = product.store
         city = City.objects.get(name=province)
-        order = Order.objects.create(store =store,full_name=full_name, phone_number=phone, state=province, city=municipality, delivery_cost=city.delivery_cost)
-        order.save()
-        order_item = OrderItem.objects.create(order=order, product=product, quantity=1, price_per_unit=product.price)
-        order_item.save()
+
+        # Save order to database
+        order = Order.objects.create(
+            store=store,
+            full_name=full_name,
+            phone_number=phone,
+            state=province,
+            city=municipality,
+            delivery_cost=city.delivery_cost,
+            http_referer=refferer,
+            user_agent=request.META.get('HTTP_USER_AGENT'),
+            ip_address=request.META.get('REMOTE_ADDR')
+        )
+        OrderItem.objects.create(
+            order=order,
+            product=product,
+            quantity=1,
+            price_per_unit=product.price
+        )
+
+        # Fire webhook in a separate thread
+        threading.Thread(
+            target=send_to_google_sheet,
+            args=(order, product, city),
+            daemon=True
+        ).start()
+
+        # Return response immediately
         return render(request, "success.html")
+
     cities = City.objects.filter(store=product.store)
     return render(request, "landing_page.html", {"product": product, 'cities': cities})
+
 
 @csrf_exempt
 def get_municipalities(request, city_name):

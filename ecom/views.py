@@ -8,6 +8,8 @@ import os, csv, requests, threading
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
+from django.core.cache import cache
+from time import sleep
 
 @public
 def home(request):
@@ -42,21 +44,46 @@ def send_to_google_sheet(order, product, city, store):
     except requests.RequestException as e:
         print(f"Google Sheet webhook failed: {e}")
 
+
+
+BLOCK_TIMEOUT = 12 * 60 * 60  # 12 hours in seconds
+
+def is_ip_blocked(ip):
+    return cache.get(f"blocked_ip_{ip}") is not None
+
+def block_ip(ip, timeout=BLOCK_TIMEOUT):
+    cache.set(f"blocked_ip_{ip}", True, timeout)
+
+def whitelist_refferer(refferer):
+    return refferer in ['https://l.facebook.com', 'https://www.facebook.com', 'https://m.facebook.com', 'https://web.facebook.com', 'https://tiktok.com', 'https://instagram.com', 'https://www.instagram.com']
+
 @public
 def landing_page(request, sku):
     product = Product.objects.get(SKU=sku)
+    store = product.store
+    ip = get_client_ip(request)
 
     if request.method == 'POST':
+
+            # 🚫 Check if IP is blocked
+        if is_ip_blocked(ip):
+            sleep(0.2)
+            return render(request, "success.html", {'store': store})
+    
         refferer = request.POST.get('ref')
+        
+        if not whitelist_refferer(refferer):
+            sleep(0.2)
+            return render(request, "success.html", {'store': store})
+        
         full_name = request.POST.get('name')
         phone = request.POST.get('phone')
         province = request.POST.get('province')
         municipality = request.POST.get('municipality')
 
-        store = product.store
         city = City.objects.get(name=province)
 
-        # Save order to database
+        # ✅ Save order
         order = Order.objects.create(
             store=store,
             full_name=full_name,
@@ -66,7 +93,7 @@ def landing_page(request, sku):
             delivery_cost=city.delivery_cost,
             http_referer=refferer,
             user_agent=request.META.get('HTTP_USER_AGENT'),
-            ip_address=get_client_ip(request)
+            ip_address=ip
         )
         OrderItem.objects.create(
             order=order,
@@ -75,14 +102,16 @@ def landing_page(request, sku):
             price_per_unit=product.price
         )
 
-        # Fire webhook in a separate thread
+        # 🔒 Block IP for 12 hours
+        block_ip(ip)
+
+        # Fire webhook in background
         threading.Thread(
             target=send_to_google_sheet,
             args=(order, product, city, store),
             daemon=True
         ).start()
 
-        # Return response immediately
         return render(request, "success.html", {'store': store})
 
     cities = City.objects.filter(store=product.store)

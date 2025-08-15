@@ -55,7 +55,7 @@ def block_ip(ip, timeout=BLOCK_TIMEOUT):
     cache.set(f"blocked_ip_{ip}", True, timeout)
 
 def whitelist_refferer(refferer):
-    return refferer in ['https://l.facebook.com', 'https://www.facebook.com', 'https://m.facebook.com', 'https://web.facebook.com', 'https://tiktok.com', 'https://instagram.com', 'https://www.instagram.com']
+    return refferer in ['https://l.facebook.com', 'https://www.facebook.com', 'https://m.facebook.com', 'https://facebook.com', 'https://web.facebook.com', 'https://tiktok.com', 'https://instagram.com', 'https://www.instagram.com']
 
 @public
 def landing_page(request, sku):

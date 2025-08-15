@@ -13,7 +13,7 @@ class RedirectAuthenticatedMixin:
     
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect("dashboard:home")
+            return redirect("orders:orders_list")
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -37,7 +37,7 @@ class UserLoginView(RedirectAuthenticatedMixin, View):
             else:
                 request.session.set_expiry(0)  # Session expires when the browser is closed
 
-            return redirect("dashboard:home")
+            return redirect("orders:orders_list")
 
         return render(request, self.template_name, {"form": form})
 
@@ -45,7 +45,7 @@ class UserLoginView(RedirectAuthenticatedMixin, View):
 class UserRegisterView(RedirectAuthenticatedMixin, FormView):
     template_name = "accounts/register.html"
     form_class = RegisterForm
-    success_url = reverse_lazy("dashboard:home")
+    success_url = reverse_lazy("orders:orders_list")
 
     def form_valid(self, form):
         user = form.save()

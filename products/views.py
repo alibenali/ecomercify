@@ -35,8 +35,8 @@ def add_product(request):
                 name = request.POST.get("name")
                 sku = request.POST.get("SKU")
                 price = request.POST.get("price")
+                fake_price = request.POST.get("fake_price")
                 description = request.POST.get("description")
-                stock_quantity = request.POST.get("stock_quantity") or 0
                 image = request.FILES.get("image")
 
                 # Create product
@@ -45,6 +45,7 @@ def add_product(request):
                     name=name,
                     SKU=sku,
                     price=price,
+                    fake_price=fake_price,
                     description=description,
                     image=image
                 )
@@ -139,7 +140,6 @@ def product_edit(request, pk):
         product.SKU = request.POST.get("SKU", "").strip()
         product.price = request.POST.get("price") or 0
         product.fake_price = request.POST.get("fake_price") or 0
-        product.stock_quantity = request.POST.get("stock_quantity") or 0
         product.description = request.POST.get("description", "").strip()
         if request.FILES.get("image"):
             product.image = request.FILES["image"]

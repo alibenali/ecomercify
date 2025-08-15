@@ -13,6 +13,13 @@ from django.conf import settings
 def home(request):
     return render(request, "home.html")
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[-1].strip()
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 def send_to_google_sheet(order, product, city, store):
     """Send order data to Google Sheet in a separate thread."""
@@ -59,7 +66,7 @@ def landing_page(request, sku):
             delivery_cost=city.delivery_cost,
             http_referer=refferer,
             user_agent=request.META.get('HTTP_USER_AGENT'),
-            ip_address=request.META.get('REMOTE_ADDR')
+            ip_address=get_client_ip(request)
         )
         OrderItem.objects.create(
             order=order,

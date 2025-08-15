@@ -11,6 +11,7 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('orders/', include('orders.urls')),
     path('products/', include('products.urls')),
+    path('stores/', include('stores.urls')),
     path('<str:sku>/', landing_page, name="landing_page"),
     path('get_municipalities/<str:city_name>/', get_municipalities, name='get_municipalities'),
 ]

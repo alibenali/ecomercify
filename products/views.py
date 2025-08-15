@@ -138,6 +138,7 @@ def product_edit(request, pk):
         product.name = request.POST.get("name", "").strip()
         product.SKU = request.POST.get("SKU", "").strip()
         product.price = request.POST.get("price") or 0
+        product.fake_price = request.POST.get("fake_price") or 0
         product.stock_quantity = request.POST.get("stock_quantity") or 0
         product.description = request.POST.get("description", "").strip()
         if request.FILES.get("image"):

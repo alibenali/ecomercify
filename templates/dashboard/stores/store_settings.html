@@ -1,0 +1,60 @@
+
+{% extends "../layouts/base.html" %}
+{% load static %}
+{% block title %}Store Settings{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2>Store Settings</h2>
+
+    <form method="POST" enctype="multipart/form-data" action="{% url 'stores:settings' %}">
+    <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}">
+    <!-- Base Product Fields -->
+    <div class="mb-3">
+      <label class="form-label">Store Name</label>
+      <input type="text" name="store_name" class="form-control" value="{{ store.name }}" required="">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Description</label>
+      <textarea name="description" class="form-control" rows="5">{{ store.description }}</textarea>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Facebook Pixel</label>
+      <textarea name="fb_pixel" class="form-control" rows="5">{{ store.FB_PIXEL }}</textarea>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Sheet Webhook</label>
+      <input type="text" name="sheet_webhook" class="form-control" value="{{ store.sheet_webhook }}" required="">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Facebook Page</label>
+      <input type="text" name="fb_page" class="form-control" value="{{ store.FB_PAGE }}" required="">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Instagram Page</label>
+      <input type="text" name="insta_page" class="form-control" value="{{ store.INSTA_PAGE }}" required="">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Phone Number</label>
+      <input type="text" name="phone_number" class="form-control" value="{{ store.PHONE_NUMBER }}" required="">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Email</label>
+      <input type="text" name="email" class="form-control" value="{{ store.EMAIL }}" required="">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Whatsapp</label>
+      <input type="text" name="whatsapp" class="form-control" value="{{ store.WHATSAPP }}" required="">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Theme Color</label>
+      <input type="text" name="theme_color" class="form-control" value="{{ store.THEME_COLOR }}" required="">
+    </div>
+    
+    <hr>
+
+    <button type="submit" class="btn btn-success mt-3">Save</button>
+  </form>
+
+</div>
+{% endblock %}

@@ -912,7 +912,7 @@
                     <div class="dropdown">
                         <a href="javascript: void(0);" class="dropdown-toggle no-arrow d-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm mx-1 mx-lg-2 w-40px h-40px" role="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-haspopup="true" aria-expanded="false" data-bs-offset="0,0">
                             <div class="avatar avatar-circle avatar-sm avatar-online">
-                                <img src="{% static 'images/profiles/profile-06.jpeg' %}" alt="..." class="avatar-img" width="40" height="40">
+                                <img src="{% static 'images/profiles/default.webp' %}" alt="..." class="avatar-img" width="40" height="40">
                             </div>
                         </a>
             
@@ -920,46 +920,18 @@
                             <div class="dropdown-item-text">
                                 <div class="d-flex align-items-center">
                                     <div class="avatar avatar-sm avatar-circle">
-                                        <img src="{% static 'images/profiles/profile-06.jpeg' %}" alt="..." class="avatar-img" width="40" height="40">
+                                        <img src="{% static 'images/profiles/default.webp' %}" alt="..." class="avatar-img" width="40" height="40">
                                     </div>
                                     <div class="flex-grow-1 ms-3">
-                                        <h4 class="mb-0">Ellie Tucker</h4>
-                                        <p class="card-text">ellie.tucker@{{ SITE_NAME }}.com</p>
+                                        <h4 class="mb-0">{{request.user.first_name}} {{request.user.last_name}}</h4>
+                                        <p class="text-muted mb-0">{{request.user.email}}</p>
                                     </div>
                                 </div>
                             </div>
             
                             <hr class="dropdown-divider">
-            
-                            <!-- Dropdown -->
-                            <div class="dropdown dropend">
-                                <a class="dropdown-item dropdown-toggle" href="javascript: void(0);" id="statusDropdown" data-bs-toggle="dropdown" aria-expanded="false" data-bs-offset="-16,10">
-                                    Set status
-                                </a>
-            
-                                <div class="dropdown-menu dropdown-menu-end navbar-dropdown-menu navbar-dropdown-menu-borderless navbar-dropdown-sub-menu" aria-labelledby="statusDropdown">
-                                    <a class="dropdown-item" href="javascript: void(0);">
-                                        <span class="legend-circle bg-success me-2"></span>Available
-                                    </a>
-                                    <a class="dropdown-item" href="javascript: void(0);">
-                                        <span class="legend-circle bg-danger me-2"></span>Busy
-                                    </a>
-                                    <a class="dropdown-item" href="javascript: void(0);">
-                                        <span class="legend-circle bg-warning me-2"></span>Away
-                                    </a>
-                                    <a class="dropdown-item" href="javascript: void(0);">
-                                        <span class="legend-circle bg-gray-500 me-2"></span>Appear offline
-                                    </a>
-                                    <hr class="dropdown-divider">
-                                    <a class="dropdown-item" href="javascript: void(0);">
-                                        Reset status
-                                    </a>
-                                </div>
-                            </div>
-                            <!-- End Dropdown -->
-            
                             <a class="dropdown-item" href="javascript: void(0);">Profile & account</a>
-                            <a class="dropdown-item" href="javascript: void(0);">Settings</a>
+                            <a class="dropdown-item" href="{% url 'stores:settings' %}">Store Settings</a>
             
                             <hr class="dropdown-divider">
             

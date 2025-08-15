@@ -13,9 +13,8 @@ from django.conf import settings
 def home(request):
     return render(request, "home.html")
 
-GOOGLE_SHEET_WEBHOOK = "https://script.google.com/macros/s/AKfycbz5Z33iRjLn4r4QKS23g4jJ6omnR7feDUL_Jg4hNOg4_LOdbrwP_eqTJjE98C0L8ue6Lg/exec"
 
-def send_to_google_sheet(order, product, city):
+def send_to_google_sheet(order, product, city, store):
     """Send order data to Google Sheet in a separate thread."""
     try:
         payload = {
@@ -32,7 +31,7 @@ def send_to_google_sheet(order, product, city):
             "e_gs_SheetName": "Orders",  # Optional sheet name
             "e_gs_order": "order_id,full_name,phone,province,municipality,product,price,delivery_cost,total"
         }
-        requests.post(GOOGLE_SHEET_WEBHOOK, data=payload, timeout=5)
+        requests.post(store.sheet_webhook, data=payload, timeout=5)
     except requests.RequestException as e:
         print(f"Google Sheet webhook failed: {e}")
 
@@ -72,12 +71,12 @@ def landing_page(request, sku):
         # Fire webhook in a separate thread
         threading.Thread(
             target=send_to_google_sheet,
-            args=(order, product, city),
+            args=(order, product, city, store),
             daemon=True
         ).start()
 
         # Return response immediately
-        return render(request, "success.html")
+        return render(request, "success.html", {'store': store})
 
     cities = City.objects.filter(store=product.store)
     return render(request, "landing_page.html", {"product": product, 'cities': cities})

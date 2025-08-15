@@ -6,6 +6,7 @@ class Product(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="products")
     name = models.CharField(max_length=255)
     SKU = models.CharField(max_length=255, unique=True)
+    fake_price = models.DecimalField(max_digits=10, decimal_places=2)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True, null=True)
     image = models.ImageField(upload_to="product_base/", default="products/default.png", blank=True, null=True)

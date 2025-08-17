@@ -47,6 +47,8 @@ def send_to_google_sheet(order, product, city, store):
 
 
 BLOCK_TIMEOUT = 12 * 60 * 60  # 12 hours in seconds
+IP_BLOCK = False
+REFFERER_BLOCK = False
 
 def is_ip_blocked(ip):
     return cache.get(f"blocked_ip_{ip}") is not None
@@ -55,8 +57,8 @@ def block_ip(ip, timeout=BLOCK_TIMEOUT):
     cache.set(f"blocked_ip_{ip}", True, timeout)
 
 def whitelist_refferer(refferer):
-    return refferer in ['https://l.facebook.com', 'https://www.facebook.com', 'https://m.facebook.com', 'https://facebook.com', 'https://web.facebook.com', 'https://tiktok.com', 'https://instagram.com', 'https://www.instagram.com']
-
+    return refferer in ['https://l.facebook.com/', 'https://www.facebook.com/', 'https://m.facebook.com/', 'https://facebook.com/', 'https://web.facebook.com/', 'https://tiktok.com/', 'https://instagram.com/', 'https://www.instagram.com/']
+  
 @public
 def landing_page(request, sku):
     product = Product.objects.get(SKU=sku)
@@ -67,14 +69,12 @@ def landing_page(request, sku):
 
             # 🚫 Check if IP is blocked
         if is_ip_blocked(ip):
-            sleep(0.2)
-            return render(request, "success.html", {'store': store})
+            IP_BLOCK = True
     
-        refferer = request.POST.get('ref')
+        refferer = request.POST.get('ref').strip()
         
         if not whitelist_refferer(refferer):
-            sleep(0.2)
-            return render(request, "success.html", {'store': store})
+            REFFERER_BLOCK = True
         
         full_name = request.POST.get('name')
         phone = request.POST.get('phone')
@@ -93,7 +93,9 @@ def landing_page(request, sku):
             delivery_cost=city.delivery_cost,
             http_referer=refferer,
             user_agent=request.META.get('HTTP_USER_AGENT'),
-            ip_address=ip
+            ip_address=ip,
+            status='IP_BLOCK' if IP_BLOCK else 'REFFERER_BLOCK' if REFFERER_BLOCK else 'in_progress'
+
         )
         OrderItem.objects.create(
             order=order,
@@ -106,11 +108,12 @@ def landing_page(request, sku):
         block_ip(ip)
 
         # Fire webhook in background
-        threading.Thread(
-            target=send_to_google_sheet,
-            args=(order, product, city, store),
-            daemon=True
-        ).start()
+        if not IP_BLOCK and not REFFERER_BLOCK:
+            threading.Thread(
+                target=send_to_google_sheet,
+                args=(order, product, city, store),
+                daemon=True
+            ).start()
 
         return render(request, "success.html", {'store': store})
 

@@ -4,7 +4,7 @@
 {% block content %}
 <div class="container mt-4">
   <h2>Are you sure you want to delete this landing page?</h2>
-  <p><strong>{{ page.name }}</strong> (Product: {{ page.product.name }})</p>
+  <p><strong>{{ landingpage.name }}</strong> (Product: {{ landingpage.product.name }})</p>
 
   <form method="post">
     {% csrf_token %}

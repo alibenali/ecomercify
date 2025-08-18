@@ -19,8 +19,8 @@ def landing_page(request, code):
     IP_BLOCK = False
     REFFERER_BLOCK = False
     BLOCKED = False    
-    langing_page = LandingPage.objects.get(code=code)
-    product = langing_page.product
+    landing_page = LandingPage.objects.get(code=code)
+    product = landing_page.product
     store = product.store
     ip = get_client_ip(request)
 
@@ -70,7 +70,7 @@ def landing_page(request, code):
             order=order,
             product=product,
             quantity=1,
-            price_per_unit=langing_page.price
+            price_per_unit=landing_page.price
         )
 
         # 🔒 Block IP for 12 hours
@@ -80,14 +80,14 @@ def landing_page(request, code):
         if not BLOCKED:
             threading.Thread(
                 target=send_to_google_sheet,
-                args=(order, langing_page),
+                args=(order, landing_page),
                 daemon=True
             ).start()
 
         return render(request, "success.html", {'store': store})
 
     cities = City.objects.filter(store=product.store)
-    return render(request, "landing_page.html", {"landing_page": langing_page, 'cities': cities})
+    return render(request, "landing_page.html", {"landing_page": landing_page, 'cities': cities})
 
 
 @csrf_exempt

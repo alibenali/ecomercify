@@ -66,6 +66,21 @@
                     <span>Products</span>
                     </a>
                 </li>
+
+                
+                <li class="nav-item">
+                    <a class="nav-link {% if '/landing-pages/' in  request.path %}active{% endif %}" href="{%  url 'landingpages:list' %}">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="nav-link-icon" height="18" width="18"><defs><style>.a{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:1.5px;}</style></defs><title>common-file-double-1</title><path class="a" d="M17.25,23.25H3.75a1.5,1.5,0,0,1-1.5-1.5V5.25"></path><rect class="a" x="5.25" y="0.75" width="16.5" height="19.5" rx="1" ry="1"></rect></svg>                    <span> Landing Pages</span>
+                    </a>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link {% if '/manage_cities/' in  request.path %}active{% endif %}" href="{%  url 'landingpages:manage_cities' %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 0 55 55"><defs><style>.a{fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;}</style></defs><path class="a" d="M27.5944,5.5948a9.0331,9.0331,0,0,0-9.0331,9.0331c0,7.0693,6.8966,15.5761,8.7032,17.6655a.5577.5577,0,0,0,.7855.055l.0549-.055c1.7831-2.0973,8.5226-10.5962,8.5226-17.6655A9.0331,9.0331,0,0,0,27.5944,5.5948Zm0,12.8548a4.4344,4.4344,0,1,1,4.4344-4.4344v.0113A4.4344,4.4344,0,0,1,27.5944,18.45Z"/><polyline class="a" points="36.454 16.678 37.629 16.598 42.5 40.607 32.376 42.405 16.461 40.723 5.5 42.405 8.458 17.758 17.447 16.598 18.736 16.662"/><line class="a" x1="17.4467" y1="16.598" x2="16.8049" y2="40.7598"/><line class="a" x1="32.3758" y1="42.4052" x2="30.6655" y2="28.982"/></svg>
+                    <span> Cities</span>
+                    </a>
+                </li>
+
                 
             </ul>
             <!-- End of Navigation -->

@@ -3,6 +3,7 @@ from django.conf import settings
 from django.db.models import Sum
 from products.models import Product, ProductOptionValue, ProductVariant
 from stores.models import Store
+from landingpages.models import LandingPage
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -32,6 +33,7 @@ class Order(models.Model):
     user_agent = models.CharField(max_length=255, blank=True, null=True)
     http_referer = models.CharField(max_length=255, blank=True, null=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='in_progress')
+    landing_page = models.ForeignKey(LandingPage, on_delete=models.SET_NULL, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

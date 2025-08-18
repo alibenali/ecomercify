@@ -1,0 +1,81 @@
+{% extends "dashboard/layouts/base.html" %}
+{% load static %}
+{% block title %}Manage Cities{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2 class="mb-3">Manage Cities for Store: {{ store.name }}</h2>
+
+  <!-- Success messages -->
+  {% if messages %}
+    <div>
+      {% for message in messages %}
+        <div class="alert alert-success">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Add City -->
+  <div class="card mb-4">
+    <div class="card-header">Add New City</div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        <div class="row g-2">
+          <div class="col-md-6">
+            <input type="text" name="name" class="form-control" placeholder="City Name" required>
+          </div>
+          <div class="col-md-4">
+            <input type="number" name="delivery_cost" step="0.01" class="form-control" placeholder="Delivery Cost">
+          </div>
+          <div class="col-md-2">
+            <button type="submit" name="add_city" class="btn btn-primary w-100">Add</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Cities Table -->
+  <div class="card">
+    <div class="card-header">Cities List</div>
+    <div class="card-body p-0">
+      <table class="table table-striped mb-0">
+        <thead>
+          <tr>
+            <th>City</th>
+            <th>Delivery Cost</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for city in cities %}
+          <tr>
+            <td>{{ city.name }}</td>
+            <td>
+              <form method="post" class="d-flex">
+                {% csrf_token %}
+                <input type="hidden" name="city_id" value="{{ city.id }}">
+                <input type="number" step="1" name="delivery_cost" value="{{ city.delivery_cost }}" class="form-control me-2" style="width:80px;">
+                <button type="submit" name="update_city" class="btn btn-success btn-sm">Update</button>
+              </form>
+            </td>
+            <td>
+              <form method="post" onsubmit="return confirm('Are you sure you want to delete this city?');">
+                {% csrf_token %}
+                <input type="hidden" name="city_id" value="{{ city.id }}">
+                <button type="submit" name="delete_city" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="text-center">No cities available</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

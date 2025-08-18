@@ -1,0 +1,18 @@
+{% extends "dashboard/layouts/base.html" %}
+{% block title %}Landing Page Details{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Landing Page for {{ page.product.name }}</h2>
+
+  <p><strong>Title:</strong> {{ page.name }}</p>
+  <p><strong>Description:</strong> {{ page.description }}</p>
+  <p><strong>Price:</strong> {{ page.price }}</p>
+  <p><strong>Fake Price:</strong> {{ page.fake_price }}</p>
+  <p><strong>Webhook:</strong> {{ page.webhook }}</p>
+
+  <a href="{% url 'landingpages:edit' page.code %}" class="btn btn-warning">Edit</a>
+  <a href="{% url 'landingpages:delete' page.code %}" class="btn btn-danger">Delete</a>
+  <a href="{% url 'landingpages:list' %}" class="btn btn-secondary">Back to list</a>
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 from django.db import models
-from stores.models import Store
+from stores.models import Store, FacebookPixel
 from django.conf import settings
 
 class Product(models.Model):
@@ -9,11 +9,19 @@ class Product(models.Model):
     fake_price = models.DecimalField(max_digits=10, decimal_places=2)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     description = models.TextField(blank=True, null=True)
+    custom_pixels = models.ManyToManyField(FacebookPixel, blank=True, related_name="products")
+
     image = models.ImageField(upload_to="product_base/", default="products/default.png", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_image(self):
         return self.image.url
+    
+    def get_pixels(self):
+        """Return product pixels if set, otherwise store pixels."""
+        if self.custom_pixels.exists():
+            return self.custom_pixels.all()
+        return self.store.pixels.all()
 
     def __str__(self):
         return f"{self.name} - {self.store.name}"

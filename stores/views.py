@@ -1,31 +1,46 @@
-from django.shortcuts import render
-from .models import Store
-# Create your views here.
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Store, FacebookPixel
+
+
+@login_required
 def store_settings(request):
-    if request.method == 'POST':
-        store_name = request.POST.get('store_name')
-        description = request.POST.get('description')
-        sheet_webhook = request.POST.get('sheet_webhook')
-        fb_pixel = request.POST.get('fb_pixel')
-        fb_page = request.POST.get('fb_page')
-        insta_page = request.POST.get('insta_page')
-        phone_number = request.POST.get('phone_number')
-        email = request.POST.get('email')
-        whatsapp = request.POST.get('whatsapp')
-        theme_color = request.POST.get('theme_color')
-        # update store
-        store = Store.objects.get(owner=request.user)
-        store.name = store_name
-        store.description = description
-        store.sheet_webhook = sheet_webhook
-        store.FB_PIXEL = fb_pixel
-        store.FB_PAGE = fb_page
-        store.INSTA_PAGE = insta_page
-        store.PHONE_NUMBER = phone_number
-        store.EMAIL = email
-        store.WHATSAPP = whatsapp
-        store.THEME_COLOR = theme_color
-        store.save()
-    
     store = Store.objects.get(owner=request.user)
-    return render(request, 'dashboard/stores/store_settings.html', {'store': store})
+
+    if request.method == 'POST':
+        # Base fields
+        store.name = request.POST.get('store_name')
+        store.description = request.POST.get('description')
+        store.sheet_webhook = request.POST.get('sheet_webhook')
+        store.FB_PAGE = request.POST.get('fb_page')
+        store.INSTA_PAGE = request.POST.get('insta_page')
+        store.PHONE_NUMBER = request.POST.get('phone_number')
+        store.EMAIL = request.POST.get('email')
+        store.WHATSAPP = request.POST.get('whatsapp')
+        store.THEME_COLOR = request.POST.get('theme_color')
+
+        # Security checkboxes
+        block_ref = request.POST.get("block_ref") == "on"
+        block_ip = request.POST.get("block_ip") == "on"
+        store.block_settings = {
+            "block_ref": block_ref,
+            "block_ip": block_ip
+        }
+
+        # Save store updates first
+        store.save()
+
+        # Handle multiple Facebook Pixels
+        fb_pixels = request.POST.getlist("fb_pixels")
+
+        # Clear old pixels for this store
+        FacebookPixel.objects.filter(store=store).delete()
+
+        # Save new ones
+        for pixel_code in fb_pixels:
+            if pixel_code.strip():  # ignore empty textareas
+                FacebookPixel.objects.create(store=store, pixel_code=pixel_code.strip())
+
+        return redirect("stores:settings")  # redirect after save
+
+    return render(request, "dashboard/stores/store_settings.html", {"store": store})

@@ -12,7 +12,7 @@
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link rel="icon" href="{% static 'favicon/favicon_custom.ico' %}" sizes="any">
 
-    <title>{{product.name}} - {{ SITE_NAME }}</title>
+    <title>{{landing_page.name}} - {{ SITE_NAME }}</title>
 
   </head>
 
@@ -21,13 +21,13 @@
     <div class="hero" >
       <div class="content2">
         <div class="hero-img" style="border-color:{{ THEME_COLOR }}">
-          <img src="{{ product.image.url }}" alt="">
+          <img src="{{ landing_page.image.url }}" alt="">
         </div>
         <div class="hero-text" id="hero" style="border-color:{{ THEME_COLOR }}">
-          <h1>{{ product.name }}</h1>
+          <h1>{{ landing_page.name }}</h1>
           <div class="price">
             <div class="right-price">
-              <p><span id="price">{{ product.price|floatformat:0 }}</span> د.ج </p>
+              <p><span id="price">{{ landing_page.price|floatformat:0 }}</span> د.ج </p>
             </div>
             <div class="left-price">
 
@@ -45,7 +45,7 @@
                 </div>
               </div>
 
-              <p>{{ product.fake_price|floatformat:0 }}</p>
+              <p>{{ landing_page.fake_price|floatformat:0 }}</p>
             </div>
           </div>
           <p class="stars">★★★★★</p>
@@ -77,30 +77,35 @@
                 </div>
                 <br>
           {% endif %}
-          <form id="form" class="form" method="POST" action="{% url 'landing_page' product.SKU %}">
+          <form id="form" class="form" method="POST" action="{% url 'landing_page' landing_page.code %}">
             {% csrf_token %}
-            <input type="hidden" name="SKU" value="{{ product.SKU }}">
+            <input type="hidden" name="code" value="{{ landing_page.code }}">
             <input type="hidden" id="size" name="size" value="">
             <input type="hidden" id="color" name="color" value="">
             <input type="hidden" id="total_price" name="total_price" value="">
             <input type="hidden" id="ref" name="ref" value="">
             <input type="text" required name="name" id="" placeholder="الاسم">
-            <input type="tel" required name="phone" id="" placeholder="رقم الهاتف">
+            <input type="tel" required name="phone" id="" placeholder="رقم الهاتف" dir="rtl">
+            {% if landing_page.show_address %}
+              <input type="text" name="address" id="address" placeholder="العنوان الكامل (العنوان.البلديه.الولاية)">
+            {% endif %}
+            {% if landing_page.show_state %}
+              <div class="select-div">
+                <select name="province" id="city" onChange="changePrice()" id="cities" required>
+                    <option value="" selected>يرجى إختيار ولايتك</option>
 
-            <div class="select-div">
-              <select name="province" id="city" onChange="changePrice()" id="cities" required>
-                  <option value="" selected>يرجى إختيار ولايتك</option>
-
-                  {% for city in cities %}
-                      <option data-price="{{city.delivery_cost|floatformat:0}}" value="{{ city.name }}" >{{ city.name }}</option>
-                  {% endfor %}
+                    {% for city in cities %}
+                        <option data-price="{{city.delivery_cost|floatformat:0}}" value="{{ city.name }}" >{{ city.name }}</option>
+                    {% endfor %}
+                </select>
+                <i class="fa-solid fa-sort-down arrow-down"></i>
+              </div>
+            {% if landing_page.show_city %}
+              <select name="municipality" id="municipality">
+                <option>اختر البلدية</option>
               </select>
-              <i class="fa-solid fa-sort-down arrow-down"></i>
-            </div>
-
-            <select name="municipality" id="municipality">
-              <option>اختر البلدية</option>
-            </select>
+            {% endif %}
+            {% endif %}
 
             {% comment %} <input type="text" required name="address" id="" placeholder="العنوان الكامل (العنوان.البلديه.الولاية)"> {% endcomment %}
             {% if offer_variations_count > 0 %}
@@ -117,24 +122,25 @@
               </div>
             {% endif %}
            
-
-            <div class="total-card">
-              <div class="total-card-item">
-                <span>سعر المنتج</span>
-                <span id="product_cost">{{ product.price|floatformat:0 }} <span>د.ج </span></span>   
+            {% if landing_page.show_final_cost %}
+              <div class="total-card">
+                <div class="total-card-item">
+                  <span>سعر المنتج</span>
+                  <span id="product_cost">{{ landing_page.price|floatformat:0 }} <span>د.ج </span></span>   
+                </div>
+                <div class="total-card-item">
+                  <span>سعر التوصيل</span>
+                  <span id="delivery_cost">___ <span>د.ج </span></span>   
+                </div>
+                <hr>
+                <div class="total-card-item total-card-total">
+                  <span>مجموع الطلبية</span>
+                  <span id="totla_cost">___ <span>د.ج </span></span>   
+                </div>
               </div>
-              <div class="total-card-item">
-                <span>سعر التوصيل</span>
-                <span id="delivery_cost">___ <span>د.ج </span></span>   
-              </div>
-              <hr>
-              <div class="total-card-item total-card-total">
-                <span>مجموع الطلبية</span>
-                <span id="totla_cost">___ <span>د.ج </span></span>   
-              </div>
-            </div>
-
-            <button class="order-now">للطلب اضغط هنا</button>
+            {% endif %}
+              <br>
+            <button class="order-now mt-3">للطلب اضغط هنا</button>
             <br>
           </form>
         </div>
@@ -193,8 +199,8 @@
         var selectedOption = selectElement.options[selectElement.selectedIndex];
         var delivery_cost = selectedOption.getAttribute("data-price");
         document.getElementById('delivery_cost').innerHTML = delivery_cost+" <span>د.ج </span> ";
-        document.getElementById('totla_cost').innerHTML = parseInt(delivery_cost)+parseInt({{product.price}})+" <span>د.ج </span> ";
-        document.getElementById('total_price').value = parseInt(delivery_cost)+parseInt({{product.price}});
+        document.getElementById('totla_cost').innerHTML = parseInt(delivery_cost)+parseInt({{landing_page.price}})+" <span>د.ج </span> ";
+        document.getElementById('total_price').value = parseInt(delivery_cost)+parseInt({{landing_page.price}});
 
       }
     function changeColor(SKU, element) {
@@ -247,7 +253,7 @@
       citySelect.addEventListener('change', () => {
         const city = citySelect.value;
         if (city) {
-          fetch(`/get_municipalities/${city}/`)
+          fetch(`/landingpages/get_municipalities/${city}/`)
             .then(response => response.json())
             .then(data => {
               municipalitySelect.innerHTML = '';

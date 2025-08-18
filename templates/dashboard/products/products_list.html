@@ -57,7 +57,7 @@
                         {% for product in products %}
                         <tr>
                             <td>
-                            <a href="{%url 'landing_page' product.SKU%}" target="_blank"><img src="{{ product.get_image}}" alt="Product Image" width="50"></td></a>
+                            <img src="{{ product.get_image}}" alt="Product Image" width="50"></td>
                             <td>{{ product.name }}</td>
                             <td>{{ product.SKU }}</td>
                             <td>{{ product.price }}</td>

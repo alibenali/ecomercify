@@ -12,7 +12,8 @@ class OrderListView(ListView):
     paginate_by = 10  # Adjust pagination as needed
 
     def get_queryset(self):
-        queryset = super().get_queryset()
+        # order by date
+        queryset = super().get_queryset().order_by("-created_at")
         status = self.request.GET.get("status")
         if status:
             queryset = queryset.filter(status__icontains=status)

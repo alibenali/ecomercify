@@ -12,7 +12,12 @@ class OrderListView(ListView):
     paginate_by = 10  # Adjust pagination as needed
 
     def get_queryset(self):
-        return Order.objects.all().order_by("-created_at")
+        queryset = super().get_queryset()
+        status = self.request.GET.get("status")
+        if status:
+            queryset = queryset.filter(status__icontains=status)
+        return queryset
+        
 
 def order_detail_partial(request, order_id):
     order = get_object_or_404(Order, id=order_id)
@@ -75,7 +80,8 @@ def order_status(request):
     in_delivery = user_orders.filter(status="in_delivery").count()
     delivered = user_orders.filter(status="delivered").count()
     canceled = user_orders.filter(status="canceled").count()
-    return render(request, "dashboard/orders/order_status.html", {"in_progress": in_progress, "in_preparation": in_preparation, "in_dispatch": in_dispatch, "in_delivery": in_delivery, "delivered": delivered, "canceled": canceled})
+    blocked = user_orders.filter(status="blocked").count()
+    return render(request, "dashboard/orders/order_status.html", {"in_progress": in_progress, "in_preparation": in_preparation, "in_dispatch": in_dispatch, "in_delivery": in_delivery, "delivered": delivered, "canceled": canceled, "blocked": blocked})
 
 @csrf_exempt
 def delete_order_item(request, item_id):

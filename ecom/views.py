@@ -61,6 +61,8 @@ def whitelist_refferer(refferer):
   
 @public
 def landing_page(request, sku):
+    global IP_BLOCK, REFFERER_BLOCK
+    
     product = Product.objects.get(SKU=sku)
     store = product.store
     ip = get_client_ip(request)
@@ -94,8 +96,7 @@ def landing_page(request, sku):
             http_referer=refferer,
             user_agent=request.META.get('HTTP_USER_AGENT'),
             ip_address=ip,
-            status='IP_BLOCK' if IP_BLOCK else 'REFFERER_BLOCK' if REFFERER_BLOCK else 'in_progress'
-
+            status='blocked' if IP_BLOCK or REFFERER_BLOCK else 'in_progress'
         )
         OrderItem.objects.create(
             order=order,

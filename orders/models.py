@@ -11,6 +11,7 @@ class Order(models.Model):
         ('in_delivery', 'In Delivery'),
         ('delivered', 'Delivered'),
         ('canceled', 'Canceled'),
+        ('blocked', 'Blocked'),
     ]
 
     DELIVERY_METHOD_CHOICES = [

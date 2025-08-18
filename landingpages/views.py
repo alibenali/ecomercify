@@ -231,7 +231,7 @@ def landingpage_delete(request, pk):
 
     if request.method == "POST":
         landingpage.delete()
-        return redirect("landingpages:landingpage_list")
+        return redirect("landingpages:list")
 
     return render(request, "landingpages/delete.html", {"landingpage": landingpage})
 

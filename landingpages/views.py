@@ -227,7 +227,7 @@ def landingpage_edit(request, pk):
 
 # Delete landing page
 def landingpage_delete(request, pk):
-    landingpage = get_object_or_404(LandingPage, pk=pk)
+    landingpage = get_object_or_404(LandingPage, code=pk)
 
     if request.method == "POST":
         landingpage.delete()

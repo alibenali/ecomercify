@@ -193,6 +193,8 @@ def landingpage_edit(request, pk):
         for field in text_fields:
             if field in request.POST:
                 value = request.POST[field]
+                if value == "":
+                    value = None
                 # if value is float as text then convert to float
                 if field == "custom_price" or field == "custom_fake_price":
                     if value.replace(".", "").isdigit():
@@ -202,8 +204,6 @@ def landingpage_edit(request, pk):
                 elif value == "off":
                     setattr(landing_page, field, False)
                 else:
-                    if value == "":
-                        value = None
                     if "custom_" in field:
                         if field == "custom_webhook":
                             if getattr(landing_page.product.store, 'sheet_webhook') != value:

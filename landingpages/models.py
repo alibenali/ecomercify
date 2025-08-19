@@ -95,16 +95,12 @@ class LandingPage(models.Model):
     pixels = models.ManyToManyField(FacebookPixel, blank=True, related_name="landing_pages")
     custom_webhook = models.CharField(max_length=255, null=True, blank=True)
 
-    default_html = """<div class="container">
-        <div class="success-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-            <path d="M26 0C11.664 0 0 11.664 0 26s11.664 26 26 26 26-11.664 26-26S40.336 0 26 0zm0 48C13.215 48 4 38.785 4 26S13.215 4 26 4s22 9.215 22 22-9.215 22-22 22zm-3.172-14.828l-7.778-7.778-2.828 2.828 10.606 10.606L39.778 17.778l-2.828-2.828-14.122 14.122z"></path>
-        </svg>
-        </div>
-        <h1>تم الطلب بنجاح!</h1>
-        <p>شكراً لشرائك من متجرنا. تم تأكيد طلبك وهو الآن في طريقه إليك!</p>
-    </div>"""
-    
+    default_html = """<div class="container" dir="rtl">
+        <div class="success-icon" style="text-align:center"><strong><span style="color:#2ecc71"><span style="font-family:Verdana,Geneva,sans-serif"><span dir="rtl"><span style="font-size:26px">تم الطلب بنجاح!</span></span></span></span></strong></div>
+
+        <p style="text-align:center"><span style="color:#ffffff"><span style="font-family:Verdana,Geneva,sans-serif"><span dir="rtl"><span style="font-size:26px"><span style="background-color:#27ae60">شكراً لشرائك من متجرنا. تم تأكيد طلبك وهو الآن في طريقه إليك!</span></span></span></span></span></p>
+        </div>"""
+
     thank_you_html = models.TextField(null=True, blank=True, default=default_html)
 
     show_state = models.BooleanField(default=True)

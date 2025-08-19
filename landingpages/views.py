@@ -83,12 +83,23 @@ def landing_page(request, code):
                 args=(order, landing_page),
                 daemon=True
             ).start()
-
-        return render(request, "success.html", {'store': store, 'landing_page': landing_page})
-
+        request.session["landing_page_code"] = landing_page.code
+        return redirect("thankyou_page")
+    
     cities = City.objects.filter(store=product.store)
     return render(request, "landing_page.html", {"landing_page": landing_page, 'cities': cities})
 
+def thankyou_page(request):
+    landing_page_code = request.session.get("landing_page_code")
+    if not landing_page_code:
+        # No order in session → redirect to homepage or show generic thank you
+        return redirect("home")
+    landing_page = LandingPage.objects.get(code=landing_page_code)
+    store = landing_page.product.store
+
+    # Clear session so refreshing doesn't refire pixel
+    del request.session["landing_page_code"]
+    return render(request, "success.html", {'store': store, 'landing_page': landing_page})
 
 @csrf_exempt
 def get_municipalities(request, city_name):

@@ -14,7 +14,7 @@ urlpatterns = [
     path('landingpages/', include('landingpages.urls')),
     path('products/', include('products.urls')),
     path('stores/', include('stores.urls')),
-    path('thankyou/', thankyou_page, name="thankyou_page"),
+    path('thankyou/<code>/', thankyou_page, name="thankyou_page"),
     path('<str:code>/', landing_page, name="landing_page"),
     
 ]

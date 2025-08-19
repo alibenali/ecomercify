@@ -1,9 +1,15 @@
 {% extends "dashboard/layouts/base.html" %}
-{% block title %}Edit Landing Page{% endblock %}
+{% load static %}
+{% block title %}Create Landing Page{% endblock %}
+
 
 {% block content %}
+<script src="{% static 'ckeditor/ckeditor.js' %}"></script>
+<link rel="stylesheet" href="{% static 'ckeditor/samples/css/samples.css' %}" />
+
+
 <div class="container mt-4">
-  <h2>Edit Landing Page for {{ page.product.name }}</h2>
+  <h2>Create Landing Page for {{ page.product.name }}</h2>
 
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
@@ -31,6 +37,17 @@
       <label class="form-check-label">Show Final Cost</label>
     </div>
 
+    
+    <div class="mb-3">
+        <label class="form-label">Thank You Page</label>
+        <textarea name="thank_you_html" id="editor" rows="10" class="form-control">
+            <div class="container" dir="rtl">
+            <div class="success-icon" style="text-align:center"><strong><span style="color:#2ecc71"><span style="font-family:Verdana,Geneva,sans-serif"><span dir="rtl"><span style="font-size:26px">تم الطلب بنجاح!</span></span></span></span></strong></div>
+
+            <p style="text-align:center"><span style="color:#ffffff"><span style="font-family:Verdana,Geneva,sans-serif"><span dir="rtl"><span style="font-size:26px"><span style="background-color:#27ae60">شكراً لشرائك من متجرنا. تم تأكيد طلبك وهو الآن في طريقه إليك!</span></span></span></span></span></p>
+            </div>
+        </textarea>
+    </div>
     
     <label for="pixels">Facebook Pixels:</label>
     <select name="pixels" id="pixels" class="form-control" multiple>
@@ -83,6 +100,7 @@
                 <label class="form-label">Custom Webhook</label>
                 <input type="text" name="custom_webhook" class="form-control" value="{{ product.store.sheet_webhook }}">
                 </div>
+
             </div>
         </div>
     </div>
@@ -94,4 +112,11 @@
     <a href="{% url 'landingpages:list' %}" class="btn btn-secondary">Cancel</a>
   </form>
 </div>
+
+
+<script src="{% static 'ckeditor/samples/js/sample.js' %}"></script>
+<script>
+	initSample();
+</script>
+
 {% endblock %}

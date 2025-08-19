@@ -157,6 +157,7 @@ def landingpage_create(request, product_id):
         for field in bool_fields:
             setattr(landing_page, field, field in request.POST)
 
+        landing_page.thank_you_html = request.POST.get("thank_you_html")
         landing_page.save()
 
         # handle pixels
@@ -218,6 +219,7 @@ def landingpage_edit(request, pk):
             pixel = get_object_or_404(FacebookPixel, id=pixel_id)
             landing_page.pixels.add(pixel)
 
+        landing_page.thank_you_html = request.POST.get("thank_you_html")
         landing_page.save()
         return redirect("landingpages:detail", pk=landingpage.code)
     pixels = FacebookPixel.objects.filter(store=landingpage.product.store)

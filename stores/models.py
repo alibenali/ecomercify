@@ -32,6 +32,6 @@ class FacebookPixel(models.Model):
 
     @property
     def firt_chars_pixel_code(self):
-        return self.pixel_code[:20]
+        return self.pixel_code[:150]
     def __str__(self):
         return f"{self.store.name} - Pixel {self.id}"

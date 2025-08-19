@@ -197,8 +197,9 @@ def landingpage_edit(request, pk):
                     value = None
                 # if value is float as text then convert to float
                 if field == "custom_price" or field == "custom_fake_price":
-                    if value.replace(".", "").isdigit():
-                        value = float(value)
+                    if value:
+                        if value.replace(".", "").isdigit():
+                            value = float(value)
                 if value == "on":
                     setattr(landing_page, field, True)
                 elif value == "off":

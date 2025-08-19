@@ -182,7 +182,7 @@ def landingpage_edit(request, pk):
         text_fields = [
             "custom_name", "custom_description", "custom_image",
             "custom_price", "custom_fake_price",
-            "custom_webhook"
+            "custom_webhook", "code"
         ]
 
         bool_fields = [
@@ -212,6 +212,10 @@ def landingpage_edit(request, pk):
 
                         elif getattr(landing_page.product,  field.replace("custom_", "")) != value:
                             setattr(landing_page, field, value)
+                    else:
+                        if field == "code":
+                            landingpage.code = value
+                        setattr(landing_page, field, value)
         # handle boolean fields
         for field in bool_fields:
             setattr(landing_page, field, field in request.POST)

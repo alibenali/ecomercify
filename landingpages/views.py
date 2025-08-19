@@ -201,7 +201,9 @@ def landingpage_edit(request, pk):
                     setattr(landing_page, field, True)
                 elif value == "off":
                     setattr(landing_page, field, False)
-                elif value != "":
+                else:
+                    if value == "":
+                        value = None
                     if "custom_" in field:
                         if field == "custom_webhook":
                             if getattr(landing_page.product.store, 'sheet_webhook') != value:

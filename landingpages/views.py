@@ -84,7 +84,7 @@ def landing_page(request, code):
                 daemon=True
             ).start()
 
-        return render(request, "success.html", {'store': store})
+        return render(request, "success.html", {'store': store, 'landing_page': landing_page})
 
     cities = City.objects.filter(store=product.store)
     return render(request, "landing_page.html", {"landing_page": landing_page, 'cities': cities})

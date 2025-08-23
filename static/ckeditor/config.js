@@ -4,7 +4,22 @@
  */
 
 CKEDITOR.editorConfig = function( config ) {
-	// Define changes to default configuration here. For example:
-	// config.language = 'fr';
-	// config.uiColor = '#AADC6E';
+    // UI language (optional)
+    // config.language = 'fr';
+
+    // Theme color (optional)
+    // config.uiColor = '#AADC6E';
+
+    // Enable image2 + uploadimage
+    config.extraPlugins = 'uploadimage,image2';
+
+    // Standard upload URL (used in the image dialog upload tab)
+    config.filebrowserUploadUrl = '/upload/';
+    config.filebrowserUploadMethod = 'form';
+
+    // Paste/drag&drop upload API (⚠️ required by your build)
+    config.pasteUploadFileApi = '/upload-paste/';  // 👈 set to your backend endpoint
 };
+
+CKEDITOR.disableAutoInline = true; 
+CKEDITOR.config.versionCheck = false;

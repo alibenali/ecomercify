@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import home
+from .views import home, upload_image, upload_paste_image
 from landingpages.views import landing_page, thankyou_page
 from django.conf import settings
 from django.conf.urls.static import static
@@ -15,6 +15,9 @@ urlpatterns = [
     path('products/', include('products.urls')),
     path('stores/', include('stores.urls')),
     path('thankyou/<code>/', thankyou_page, name="thankyou_page"),
+    path("upload/", upload_image, name="upload_image"),
+    path("upload-paste/", upload_paste_image, name="upload_paste_image"),
+
     path('<str:code>/', landing_page, name="landing_page"),
     
 ]

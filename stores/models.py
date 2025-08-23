@@ -14,6 +14,7 @@ class Store(models.Model):
     WHATSAPP = models.CharField(max_length=255,null=True, blank=True)
     THEME_COLOR = models.CharField(max_length=255,null=True, blank=True)
     LOGO = models.ImageField(upload_to='logo/',null=True, blank=True)
+    FAKE_PIXEL = models.CharField(max_length=255,null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_at = models.DateTimeField(auto_now_add=True)
     def default_block_settings():

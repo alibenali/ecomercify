@@ -45,6 +45,7 @@
       <input type="file" name="image" class="form-control">
     </div>
 
+
     <div class="mb-3">
       <label class="form-label">Description</label>
       <textarea name="description" id="editor" rows="10" class="form-control"></textarea>
@@ -64,9 +65,12 @@
   </form>
 </div>
 
-<script src="{% static 'ckeditor/samples/js/sample.js' %}"></script>
 <script>
-	initSample();
+CKEDITOR.replace('editor', {
+    extraPlugins: 'uploadimage,image2',
+    filebrowserUploadUrl: '/upload/',
+    filebrowserUploadMethod: 'form',
+});
 </script>
 
 <script>

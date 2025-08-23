@@ -15,7 +15,9 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def get_image(self):
-        return self.image.url
+        if self.image:
+            return self.image.url
+        return "/media/products/default.png"
     
     def get_pixels(self):
         """Return product pixels if set, otherwise store pixels."""

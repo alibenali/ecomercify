@@ -12,6 +12,7 @@ def store_settings(request):
         store.name = request.POST.get('store_name')
         store.description = request.POST.get('description')
         store.sheet_webhook = request.POST.get('sheet_webhook')
+        store.FAKE_PIXEL = request.POST.get('fake_pixel')
         store.FB_PAGE = request.POST.get('fb_page')
         store.INSTA_PAGE = request.POST.get('insta_page')
         store.PHONE_NUMBER = request.POST.get('phone_number')

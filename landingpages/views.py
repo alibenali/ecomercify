@@ -13,6 +13,7 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 from stores.models import Store, FacebookPixel
 from .models import LandingPage, City
+import datetime
 
 @public
 def landing_page(request, code):
@@ -51,27 +52,31 @@ def landing_page(request, code):
             city = None
             delivery_cost = 0
 
-        # ✅ Save order
-        order = Order.objects.create(
-            store=store,
-            full_name=full_name,
-            phone_number=phone,
-            address=address,
-            state=province,
-            city=municipality,
-            delivery_cost=delivery_cost,
-            http_referer=refferer,
-            user_agent=request.META.get('HTTP_USER_AGENT'),
-            ip_address=ip,
-            status='blocked' if BLOCKED else 'in_progress',
-            landing_page=landing_page
-        )
-        OrderItem.objects.create(
-            order=order,
-            product=product,
-            quantity=1,
-            price_per_unit=landing_page.price
-        )
+        # check if order with same phone number already exists today
+        today = datetime.date.today()
+        yesterday = today - datetime.timedelta(days=1)
+        if not Order.objects.filter(phone_number=phone, created_at__range=[yesterday, today]).exists():
+            # ✅ Save order
+            order = Order.objects.create(
+                store=store,
+                full_name=full_name,
+                phone_number=phone,
+                address=address,
+                state=province,
+                city=municipality,
+                delivery_cost=delivery_cost,
+                http_referer=refferer,
+                user_agent=request.META.get('HTTP_USER_AGENT'),
+                ip_address=ip,
+                status='blocked' if BLOCKED else 'in_progress',
+                landing_page=landing_page
+            )
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=1,
+                price_per_unit=landing_page.price
+            )
 
         # 🔒 Block IP for 12 hours
         block_ip(ip)
@@ -83,15 +88,25 @@ def landing_page(request, code):
                 args=(order, landing_page),
                 daemon=True
             ).start()
+        # save order to session
+        request.session['order_id'] = order.id
         return redirect("thankyou_page", code=landing_page.code)
     
     cities = City.objects.filter(store=product.store)
     return render(request, "landing_page.html", {"landing_page": landing_page, 'cities': cities})
 
 def thankyou_page(request,code):
+    # try to get order from session
+    try:
+        order_id = request.session['order_id']
+        order = Order.objects.get(id=order_id)
+        del request.session['order_id']
+    except:
+        order = None
+
     landing_page = LandingPage.objects.get(code=code)
     store = landing_page.product.store
-    return render(request, "success.html", {'store': store, 'landing_page': landing_page})
+    return render(request, "success.html", {'store': store, 'landing_page': landing_page, 'order': order})
 
 @csrf_exempt
 def get_municipalities(request, city_name):

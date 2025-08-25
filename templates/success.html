@@ -13,7 +13,7 @@
       {{ pixel.pixel_code|safe }}
     {% endfor %}
   {% else %}
-    {{store.FAKE_PIXEL}}
+    {{store.FAKE_PIXEL|safe}}
   {% endif %}
 
 

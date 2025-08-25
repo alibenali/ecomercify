@@ -5,6 +5,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from django.http import HttpResponseRedirect, JsonResponse
 from django.db.models import Q
+from landingpages.utils import send_to_google_sheet
+from landingpages.models import LandingPage
 
 class OrderListView(ListView):
     model = Order
@@ -149,4 +151,7 @@ def move_to_in_progress(request, order_id):
     return JsonResponse({"status": "success"})
 
 def send_to_sheet(request, order_id):
-    pass
+    order = get_object_or_404(Order, id=order_id)
+    landing_page = get_object_or_404(LandingPage, code=order.landing_page.code)
+    send_to_google_sheet(order, landing_page)
+    return JsonResponse({"status": "success"})

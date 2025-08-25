@@ -196,6 +196,30 @@
             }
         });
     }
+
+    function sendToSheet(element, orderId) {
+        let urlTemplate = "{% url 'orders:send_to_sheet' order_id=0 %}";
+        const url = urlTemplate.replace("0", orderId);
+        // make button disabled
+        element.disabled = true;
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            // alert if success
+            if (data.status === 'success') {
+                element.disabled = false;
+                alert('Order sent to Google Sheet successfully!');
+                
+            }
+        });
+        };
 </script>
 
 {% endblock %}

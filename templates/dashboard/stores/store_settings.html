@@ -57,14 +57,14 @@
     <h3>Facebook Pixels</h3>
     <div class="mb-3" id="pixels-container">
       <label class="form-label">Fake Pixel</label>
-      <textarea name="fake_pixel" class="form-control mb-2" rows="4">{{ store.FAKE_PIXEL }}</textarea>
+      <textarea name="fake_pixel" class="form-control mb-2" rows="20">{{ store.FAKE_PIXEL }}</textarea>
     </div>
 
     <div class="mb-3">
       <label class="form-label">Real Facebook Pixels</label>
       <div id="pixels-container">
         {% for pixel in store.pixels.all %}
-          <textarea name="fb_pixels" class="form-control mb-2" rows="4">{{ pixel.pixel_code }}</textarea>
+          <textarea name="fb_pixels" class="form-control mb-2" rows="20">{{ pixel.pixel_code }}</textarea>
         {% empty %}
           <p class="text-muted">No pixels yet, add one below.</p>
         {% endfor %}

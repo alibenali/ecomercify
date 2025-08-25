@@ -3,13 +3,26 @@
 {% block title %}Orders{% endblock %}
 
 {% block content %}
+
 <div class="container-fluid">
     <h1 class="mb-4">Orders</h1>
 
     <div class="card">
         <div class="card-body">
             <div class="table-responsive" data-list='{"valueNames": ["order_id", "phone_number", "total_price", "status", "created_at"], "page":900}' id="longList">
-                <input class="form-control list-search mw-300px mb-5" type="search" placeholder="Search">
+            <form method="get" class="mb-3 d-flex" style="max-width: 400px;">
+                <input 
+                    type="text" 
+                    name="search" 
+                    class="form-control me-2" 
+                    placeholder="Search orders..." 
+                    value="{{ search }}"
+                >
+                {% if status %}
+                    <input type="hidden" name="status" value="{{ status }}">
+                {% endif %}
+                <button type="submit" class="btn btn-sm btn-outline-secondary">Search</button>
+            </form>
 
                 <table class="table table-nowrap">
                     <thead class="thead-light">
@@ -63,10 +76,56 @@
                                 </div>
                             </td>
                         </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No orders found.</td>
+                        </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination controls -->
+            {% if page_obj.has_other_pages %}
+            <nav aria-label="Orders pagination">
+                <ul class="pagination justify-content-center">
+
+                    <!-- Previous -->
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Previous</a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Previous</span></li>
+                    {% endif %}
+
+                    <!-- Page numbers -->
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    <!-- Next -->
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" 
+                        href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if status %}&status={{ status }}{% endif %}">
+                        Next
+                        </a>  
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled"><span class="page-link">Next</span></li>
+                    {% endif %}
+
+                </ul>
+            </nav>
+            {% endif %}
+
         </div>
     </div>
 </div>
@@ -86,13 +145,57 @@
         }
     }
 
-
     function OrderItemToggleConfirmButton(itemId) {
         document.getElementById(`confirm-btn-${itemId}`).classList.remove('d-none');
     }
     function OrderToggleConfirmButton(orderId) {
         document.getElementById(`confirm-btn-order-${orderId}`).classList.remove('d-none');
     }
-
 </script>
+<script>
+    function moveToInProgress(orderId) {
+        // Get a template URL from Django, with a placeholder
+        let urlTemplate = "{% url 'orders:move_to_in_progress' order_id=0 %}";
+        // Replace 0 with the real orderId
+        const url = urlTemplate.replace("0", orderId);
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const row = document.querySelectorAll(`[data-order-id="${orderId}"]`);
+                row.forEach(r => r.remove());
+            }
+        });
+    }
+
+    function archiveOrder(orderId) {
+        let urlTemplate = "{% url 'orders:archive_order' order_id=0 %}";
+        const url = urlTemplate.replace("0", orderId);
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                const row = document.querySelectorAll(`[data-order-id="${orderId}"]`);
+                row.forEach(r => r.remove());
+            }
+        });
+    }
+</script>
+
 {% endblock %}

@@ -3,22 +3,41 @@ from django.shortcuts import render, get_object_or_404, HttpResponse
 from .models import Order, OrderItem, Product,  ProductVariant, ProductOptionValue
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
+from django.db.models import Q
 
 class OrderListView(ListView):
     model = Order
     template_name = "dashboard/orders/order_list.html"
     context_object_name = "orders"
-    paginate_by = 10  # Adjust pagination as needed
+    paginate_by = 20  # or 10 if you prefer
 
     def get_queryset(self):
-        # order by date
         queryset = super().get_queryset().order_by("-created_at")
+
+        # Filter by status
         status = self.request.GET.get("status")
         if status:
             queryset = queryset.filter(status__icontains=status)
+
+        # Search by order ID or phone number
+        search = self.request.GET.get("search")
+        if search:
+            queryset = queryset.filter(
+                Q(id__icontains=search) |
+                Q(phone_number__icontains=search) |
+                Q(status__icontains=search)
+            )
+
         return queryset
-        
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["search"] = self.request.GET.get("search", "")
+        context["status"] = self.request.GET.get("status", "")
+        return context
+
+
 
 def order_detail_partial(request, order_id):
     order = get_object_or_404(Order, id=order_id)
@@ -81,8 +100,9 @@ def order_status(request):
     in_delivery = user_orders.filter(status="in_delivery").count()
     delivered = user_orders.filter(status="delivered").count()
     canceled = user_orders.filter(status="canceled").count()
+    archived = user_orders.filter(status="archived").count()
     blocked = user_orders.filter(status="blocked").count()
-    return render(request, "dashboard/orders/order_status.html", {"in_progress": in_progress, "in_preparation": in_preparation, "in_dispatch": in_dispatch, "in_delivery": in_delivery, "delivered": delivered, "canceled": canceled, "blocked": blocked})
+    return render(request, "dashboard/orders/order_status.html", {"in_progress": in_progress, "in_preparation": in_preparation, "in_dispatch": in_dispatch, "in_delivery": in_delivery, "delivered": delivered, "canceled": canceled, "archived": archived, "blocked": blocked})
 
 @csrf_exempt
 def delete_order_item(request, item_id):
@@ -111,3 +131,22 @@ def edit_client_info(request, order_id):
         return render(request, 'dashboard/orders/order_client_info.html', {'order':order})
 
     return render(request, 'dashboard/orders/edit_client_info.html', {'order':order})
+
+
+# archive order
+def archive_order(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    order.status = "archived"
+    order.save()
+    # json response
+    return JsonResponse({"status": "success"})
+
+def move_to_in_progress(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    order.status = "in_progress"
+    order.save()
+    # json response
+    return JsonResponse({"status": "success"})
+
+def send_to_sheet(request, order_id):
+    pass

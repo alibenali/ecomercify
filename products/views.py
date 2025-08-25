@@ -10,7 +10,7 @@ class ProductListView(ListView):
     model = Product
     template_name = "dashboard/products/products_list.html"
     context_object_name = "products"
-    paginate_by = 10  # Adjust pagination as needed
+    paginate_by = 999  # Adjust pagination as needed
     
     def get_queryset(self):
         return Product.objects.all().order_by("-created_at")

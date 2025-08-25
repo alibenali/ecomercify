@@ -12,6 +12,7 @@ class Order(models.Model):
         ('in_delivery', 'In Delivery'),
         ('delivered', 'Delivered'),
         ('canceled', 'Canceled'),
+        ('archived', 'Archived'),
         ('blocked', 'Blocked'),
     ]
 

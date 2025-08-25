@@ -166,9 +166,40 @@
             <header class="container-fluid d-flex py-6 mb-4">
             
                 <!-- Search -->
-                 <div hx-get="{% url 'orders:order_status' %}" hx-trigger="load, every 5s" hx-swap="innerHTML" hx-target="#order-status" class="d-none d-md-inline-block me-auto">
+                 <div hx-get="{% url 'orders:order_status' %}" hx-trigger="load, every 2s" hx-swap="innerHTML" hx-target="#order-status" class="d-none d-md-inline-block me-auto">
                     <div id="order-status"></div>
                 </div>
+               
+               <script>
+                    function setActiveStatusFromUrl(root = document) {
+                        const params = new URLSearchParams(location.search);
+                        const current = params.get("status");
+                        const buttons = root.querySelectorAll('#order-status a[href*="status="]');
+
+                        if (!buttons.length) return;
+
+                        buttons.forEach(a => {
+                        const s = new URL(a.getAttribute('href'), location.origin).searchParams.get('status');
+                        const isActive = current === s;
+                        a.classList.toggle('btn-primary', isActive);
+                        a.classList.toggle('btn-outline-secondary', !isActive);
+                        });
+                    }
+
+                    document.addEventListener('DOMContentLoaded', () => setActiveStatusFromUrl());
+
+                    // Re-apply after HTMX injects/refetches the buttons
+                    document.body.addEventListener('htmx:afterSwap', (e) => {
+                        if (e.target && e.target.id === 'order-status') setActiveStatusFromUrl(e.target);
+                    });
+                    document.body.addEventListener('htmx:afterSettle', (e) => {
+                        if (e.target && e.target.id === 'order-status') setActiveStatusFromUrl(e.target);
+                    });
+
+                    // Handle browser back/forward
+                    window.addEventListener('popstate', () => setActiveStatusFromUrl());
+                    </script>
+
 
 
                 <!-- Top buttons -->

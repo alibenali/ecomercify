@@ -42,5 +42,8 @@
 </head>
 <body>
    {{ landing_page.thank_you_html|safe }}
+   <script>
+    fbq('track', 'Purchase', {currency: "DZD", value: {{landing_page.price|floatformat:0}}, content_type: "product", content_ids: [{{landing_page.code}}], content_name: "{{landing_page.name}}"});
+    </script>
 </body>
 </html>

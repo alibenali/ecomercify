@@ -192,30 +192,6 @@
     </footer>
 
 <script>
-  document.getElementById("form").addEventListener("submit", function(event) {
-    event.preventDefault();
-    var formData = new FormData(this);
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "{% url 'landing_page' landing_page.code %}");
-    xhr.send(formData);
-    xhr.onload = function() {
-      if (xhr.status === 200) {
-        fbq('track', 'Purchase', {
-          currency: "DZD",
-          value: parseInt({{ landing_page.price|floatformat:0 }})
-        }, {
-          event_callback: function() {
-            window.location.href = xhr.responseText;
-          }
-        });
-      } else {
-        alert("Error submitting form");
-      }
-    };
-  });
-</script>
-
-<script>
 
       function changePrice(){
         var selectElement = document.getElementById("city");

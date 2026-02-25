@@ -4,7 +4,7 @@ from stores.models import Store
 
 class Staff(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="staff")
-    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="staff")
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name="staff_memberships")
     role = models.CharField(max_length=50, choices=[
         ('manager', 'Manager'),
         ('confirmation_assistant', 'Confirmation Assistant'),

@@ -9,6 +9,7 @@ urlpatterns = [
     path('', home, name="home"),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
+    path('staff/', include('staff.urls')),
     path('dashboard/', include('dashboard.urls')),
     path('orders/', include('orders.urls')),
     path('landingpages/', include('landingpages.urls')),
@@ -18,7 +19,7 @@ urlpatterns = [
     path("upload/", upload_image, name="upload_image"),
     path("upload-paste/", upload_paste_image, name="upload_paste_image"),
 
-    path('<str:code>/', landing_page, name="landing_page"),
+    path('stores/<int:store_id>/<str:code>/', landing_page, name="landing_page"),
     
 ]
 

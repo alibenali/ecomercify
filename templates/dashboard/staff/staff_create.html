@@ -1,0 +1,115 @@
+{% extends "../layouts/base.html" %}
+{% load static %}
+
+{% block title %}Create Staff{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Add Staff Member</h2>
+
+  {% if form.errors %}
+    <div class="alert alert-danger">
+      Please correct the errors below.
+    </div>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label" for="id_email">Email</label>
+          <input type="email"
+                 name="email"
+                 class="form-control{% if form.email.errors %} is-invalid{% endif %}"
+                 id="id_email"
+                 value="{{ form.email.value|default_if_none:'' }}"
+                 required>
+          {% for error in form.email.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label" for="id_role">Role</label>
+          <select name="role"
+                  id="id_role"
+                  class="form-select{% if form.role.errors %} is-invalid{% endif %}">
+            {% for value, label in form.fields.role.choices %}
+              <option value="{{ value }}"
+                      {% if form.role.value == value %}selected{% endif %}>
+                {{ label }}
+              </option>
+            {% endfor %}
+          </select>
+          {% for error in form.role.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label" for="id_first_name">First name</label>
+          <input type="text"
+                 name="first_name"
+                 class="form-control{% if form.first_name.errors %} is-invalid{% endif %}"
+                 id="id_first_name"
+                 value="{{ form.first_name.value|default_if_none:'' }}"
+                 required>
+          {% for error in form.first_name.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label" for="id_last_name">Last name</label>
+          <input type="text"
+                 name="last_name"
+                 class="form-control{% if form.last_name.errors %} is-invalid{% endif %}"
+                 id="id_last_name"
+                 value="{{ form.last_name.value|default_if_none:'' }}"
+                 required>
+          {% for error in form.last_name.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="mb-3">
+          <label class="form-label" for="id_password">Password</label>
+          <input type="password"
+                 name="password"
+                 class="form-control{% if form.password.errors %} is-invalid{% endif %}"
+                 id="id_password"
+                 required>
+          {% for error in form.password.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+      <a href="{% url 'staff:list' store_id=request.resolver_match.kwargs.store_id %}"
+         class="btn btn-outline-secondary">
+        Cancel
+      </a>
+      <button type="submit" class="btn btn-success">
+        Create Staff Member
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+

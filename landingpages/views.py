@@ -93,7 +93,7 @@ def landing_page(request, code):
         return redirect("thankyou_page", code=landing_page.code)
     
     cities = City.objects.filter(store=product.store)
-    return render(request, "landing_page.html", {"landing_page": landing_page, 'cities': cities})
+    return render(request, "landing_page_2.html", {"landing_page": landing_page, 'cities': cities})
 
 def thankyou_page(request,code):
     # try to get order from session
@@ -264,7 +264,8 @@ def landingpage_delete(request, pk):
 
 
 def manage_cities(request):
-    store = get_object_or_404(Store, id=1)
+    user = request.user
+    store = get_object_or_404(Store, owner=user)
     cities = City.objects.filter(store=store)
 
     if request.method == "POST":

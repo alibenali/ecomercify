@@ -1,0 +1,20 @@
+{% extends "../layouts/base.html" %}
+
+{% block title %}Delete Staff{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Are you sure you want to remove this staff member?</h2>
+  <p>
+    <strong>{{ object.user.get_full_name|default:object.user.email }}</strong>
+    (Role: {{ object.get_role_display }})
+  </p>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a href="{% url 'staff:list' store_id=request.resolver_match.kwargs.store_id %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}
+

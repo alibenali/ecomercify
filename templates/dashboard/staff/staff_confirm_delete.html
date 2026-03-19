@@ -1,20 +1,42 @@
 {% extends "../layouts/base.html" %}
 
-{% block title %}Delete Staff{% endblock %}
+{% block title %}Remove Staff Member{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>Are you sure you want to remove this staff member?</h2>
-  <p>
-    <strong>{{ object.user.get_full_name|default:object.user.email }}</strong>
-    (Role: {{ object.get_role_display }})
-  </p>
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-5">
+      <div class="d-flex align-items-center gap-2 mb-4">
+        <a href="{% url 'staff:list' %}" class="btn btn-ghost-secondary btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </a>
+        <h1 class="h3 fw-semibold text-body mb-0">Remove staff member</h1>
+      </div>
 
-  <form method="post">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Yes, delete</button>
-    <a href="{% url 'staff:list' store_id=request.resolver_match.kwargs.store_id %}" class="btn btn-secondary">Cancel</a>
-  </form>
+      <div class="card border-0 shadow-sm border-start border-4 border-danger">
+        <div class="card-body p-4 p-lg-5">
+          <div class="text-center mb-4">
+            <span class="avatar avatar-xl avatar-circle bg-danger-soft text-danger d-inline-flex">
+              {{ object.user.first_name|default:object.user.email|slice:":1"|upper }}
+            </span>
+          </div>
+          <h2 class="h5 text-center mb-2">Are you sure you want to remove this staff member?</h2>
+          <p class="text-center text-muted mb-4">
+            <strong>{{ object.user.get_full_name|default:object.user.email }}</strong><br>
+            <span class="badge bg-secondary">{{ object.get_role_display }}</span> at {{ object.store.name }}
+          </p>
+          <p class="text-muted small text-center mb-4">
+            They will no longer have access to this store's dashboard.
+          </p>
+
+          <form method="post" class="d-flex justify-content-center gap-2">
+            {% csrf_token %}
+            <a href="{% url 'staff:list' %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-danger">Yes, remove</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
-

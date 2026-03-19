@@ -5,189 +5,419 @@
 <script src="{% static 'ckeditor/ckeditor.js' %}"></script>
 <link rel="stylesheet" href="{% static 'ckeditor/samples/css/samples.css' %}" />
 
+<style>
+  .variant-card {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .variant-card:hover { border-color: #ced4da; box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+  .variant-card.deleted { opacity: 0.4; pointer-events: none; }
+  .variant-card.deleted .delete-undo-btn { pointer-events: all; }
+
+  .variant-card-header {
+    background: #f8f9fa;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e9ecef;
+  }
+  .variant-title { font-weight: 700; font-size: 15px; color: #343a40; display: flex; align-items: center; gap: 8px; }
+
+  .variant-type-badge { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.4px; }
+  .badge-option { background: #dbeafe; color: #1d4ed8; }
+  .badge-offer  { background: #fef3c7; color: #b45309; }
+
+  .variant-type-toggle { display: flex; gap: 0; border: 2px solid #dee2e6; border-radius: 8px; overflow: hidden; width: fit-content; }
+  .variant-type-btn { padding: 7px 22px; font-size: 14px; font-weight: 600; border: none; background: white; color: #6c757d; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 7px; }
+  .variant-type-btn:hover { background: #f8f9fa; color: #343a40; }
+  .variant-type-btn.active-option { background: #0d6efd; color: white; }
+  .variant-type-btn.active-offer  { background: #f59e0b; color: white; }
+
+  .fields-panel { display: none; }
+  .fields-panel.visible { display: block; }
+
+  .option-row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .option-row input { flex: 1; }
+
+  #new-variants-container:empty::after {
+    content: 'No new variants added yet.';
+    display: block;
+    text-align: center;
+    color: #adb5bd;
+    font-size: 14px;
+    padding: 24px;
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+  }
+</style>
+
 <div class="container mt-5">
-  <h2>Edit Product</h2>
+  <h2 class="mb-4">Edit Product</h2>
   <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
 
     <!-- Base Product Fields -->
     <div class="mb-3">
-      <label>Product Name</label>
+      <label class="form-label">Product Name</label>
       <input type="text" name="name" value="{{ product.name }}" class="form-control" required>
     </div>
     <div class="mb-3">
-      <label>SKU</label>
+      <label class="form-label">SKU</label>
       <input type="text" name="SKU" value="{{ product.SKU }}" class="form-control" required>
     </div>
-    <div class="mb-3">
-      <label>Price</label>
-      <input type="number" step="0.01" name="price" value="{{ product.price }}" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label>Fake Price</label>
-      <input type="number" step="0.01" name="fake_price" value="{{ product.fake_price }}" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label>Stock Quantity</label>
-      <input type="number" name="stock_quantity" value="{{ product.stock_quantity }}" class="form-control">
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Price</label>
+        <input type="number" step="0.01" name="price" value="{{ product.price }}" class="form-control" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Fake Price</label>
+        <input type="number" step="0.01" name="fake_price" value="{{ product.fake_price }}" class="form-control" required>
+      </div>
     </div>
     <div class="mb-3">
       <label class="form-label">Description</label>
       <textarea name="description" id="editor" rows="10" class="form-control">{{ product.description }}</textarea>
     </div>
     <div class="mb-3">
-      <label>Image</label>
+      <label class="form-label">Image</label>
       <input type="file" name="image" class="form-control">
       {% if product.image %}
-        <img src="{{ product.image.url }}" width="100" class="mt-2">
+        <img src="{{ product.image.url }}" width="100" class="mt-2 rounded">
       {% endif %}
     </div>
 
     <hr>
 
-    <!-- Existing Variants -->
-    <h4>Existing Variants</h4>
+    <!-- ── Existing Variants ── -->
+    <h4 class="mb-3">Existing Variants</h4>
+
     {% for variant in product.variants.all %}
-    <input type="hidden" name="variant_ids[]" value="{{ variant.id }}">
-    <input type="hidden" name="variant_delete[]" value="false">
-    <div class="card variant-card mb-3" data-existing-variant="true">
-      <div class="card-body">
-        <label>Variant SKU</label>
-        <input type="text" name="variant_SKUs[]" value="{{ variant.SKU }}" class="form-control mb-2">
+      {% with is_offer=variant.is_offer %}
+      <input type="hidden" name="variant_ids[]"    value="{{ variant.id }}">
+      <input type="hidden" name="variant_delete[]" value="false" id="delete-flag-{{ variant.id }}">
+      <input type="hidden" name="variant_types[]"  value="{{ variant.variant_type }}">
 
-        <label>Price</label>
-        <input type="number" step="0.01" name="variant_prices[]" value="{{ variant.price }}" class="form-control mb-2">
+      <div class="variant-card" id="existing-card-{{ variant.id }}">
+        <div class="variant-card-header">
+          <div class="variant-title">
+            {% if is_offer %}🏷️{% else %}🎛️{% endif %}
+            {{ variant.SKU }}
+            <span class="variant-type-badge {% if is_offer %}badge-offer{% else %}badge-option{% endif %}"
+                  id="existing-badge-{{ variant.id }}">
+              {{ variant.variant_type|title }}
+            </span>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-sm btn-outline-danger delete-undo-btn"
+                    onclick="markExistingDeleted(this, '{{ variant.id }}')">
+              🗑 Delete
+            </button>
+          </div>
+        </div>
 
-        <label>Stock</label>
-        <input type="number" name="variant_stocks[]" value="{{ variant.stock_quantity }}" class="form-control mb-2">
+        <div class="card card-body mb-0">
 
-        <label>Image</label>
-        <input type="file" name="variant_images[]" class="form-control mb-2">
-        {% if variant.image %}
-          <img src="{{ variant.image.url }}" width="100" class="mb-2">
-        {% endif %}
-
-        <h6>Options</h6>
-        {% for option in variant.option_values.all %}
-          <div class="row option-group mb-2">
-            <input type="hidden" name="option_ids_{{ variant.id }}[]" value="{{ option.id }}">
-            <div class="col-md-5">
-              <input type="text" name="option_names_{{ variant.id }}[]" 
-                    value="{{ option.option.name }}" class="form-control">
-            </div>
-            <div class="col-md-5">
-              <input type="text" name="option_values_{{ variant.id }}[]" 
-                    value="{{ option.value }}" class="form-control">
-            </div>
-            <div class="col-md-2">
-              <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-group').remove()">×</button>
+          <!-- Type toggle -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold text-muted" style="font-size:13px;">VARIANT TYPE</label><br>
+            <div class="variant-type-toggle">
+              <button type="button"
+                class="variant-type-btn {% if not is_offer %}active-option{% endif %}"
+                id="existing-btn-option-{{ variant.id }}"
+                onclick="switchExistingType('{{ variant.id }}', 'option')">
+                🎛️ Option
+              </button>
+              <button type="button"
+                class="variant-type-btn {% if is_offer %}active-offer{% endif %}"
+                id="existing-btn-offer-{{ variant.id }}"
+                onclick="switchExistingType('{{ variant.id }}', 'offer')">
+                🏷️ Offer
+              </button>
             </div>
           </div>
-        {% endfor %}
 
-        <div id="options-{{ variant.id }}"></div>
-        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addOption('{{ variant.id }}')">+ Add Option</button>
+          <!-- Shared fields -->
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label">SKU</label>
+              <input type="text" name="variant_SKUs[]" value="{{ variant.SKU }}" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Price</label>
+              <input type="number" step="0.01" name="variant_prices[]" value="{{ variant.price }}" class="form-control">
+            </div>
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Stock</label>
+              <input type="number" name="variant_stocks[]" value="{{ variant.stock_quantity }}" class="form-control">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Variant Image</label>
+            <input type="file" name="variant_images[]" class="form-control">
+            {% if variant.image %}
+              <img src="{{ variant.image.url }}" width="80" class="mt-2 rounded">
+            {% endif %}
+          </div>
 
-        <button type="button" class="btn btn-sm btn-danger mt-2" onclick="markVariantDeleted(this)">🗑 Delete Variant</button>
+          <!-- OFFER fields -->
+          <div class="fields-panel {% if is_offer %}visible{% endif %}"
+               id="existing-offer-fields-{{ variant.id }}">
+            <div class="mb-3">
+              <label class="form-label">Offer Label
+                <span class="text-muted fw-normal" style="font-size:13px;">— shown to the customer</span>
+              </label>
+              <input type="text"
+                name="variant_offer_labels[]"
+                value="{{ variant.offer_label|default:'' }}"
+                class="form-control"
+                placeholder='e.g. "Buy 2 for 1500 DA"'>
+            </div>
+          </div>
+
+          <!-- OPTION fields -->
+          <div class="fields-panel {% if not is_offer %}visible{% endif %}"
+               id="existing-option-fields-{{ variant.id }}">
+            <label class="form-label fw-semibold">Option Values</label>
+            {% for ov in variant.option_values.all %}
+              <div class="option-row">
+                <input type="text"
+                  name="option_names_{{ variant.id }}[]"
+                  value="{{ ov.option.name }}"
+                  class="form-control"
+                  placeholder="Option name">
+                <input type="text"
+                  name="option_values_{{ variant.id }}[]"
+                  value="{{ ov.value }}"
+                  class="form-control"
+                  placeholder="Value">
+                <button type="button" class="btn btn-outline-danger btn-sm"
+                        onclick="this.closest('.option-row').remove()">×</button>
+              </div>
+            {% endfor %}
+            <div id="extra-options-{{ variant.id }}"></div>
+            <button type="button" class="btn btn-sm btn-outline-secondary mt-1"
+                    onclick="addExistingOption('{{ variant.id }}')">
+              + Add Option
+            </button>
+          </div>
+
+        </div>
       </div>
-    </div>
+      {% endwith %}
+    {% empty %}
+      <p class="text-muted">This product has no variants yet.</p>
     {% endfor %}
 
-    <!-- Add New Variants -->
     <hr>
-    <h4>Add New Variants</h4>
-    <div id="variants-container"></div>
-    <button type="button" class="btn btn-outline-primary" onclick="addVariant()">+ Add Variant</button>
+
+    <!-- ── New Variants ── -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Add New Variants</h4>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addNewVariant('option')">
+          🎛️ + Option Variant
+        </button>
+        <button type="button" class="btn btn-outline-warning btn-sm" onclick="addNewVariant('offer')">
+          🏷️ + Offer Variant
+        </button>
+      </div>
+    </div>
+
+    <div id="new-variants-container"></div>
 
     <hr>
     <button type="submit" class="btn btn-success">Save Changes</button>
   </form>
 </div>
 
-
 <script src="{% static 'ckeditor/samples/js/sample.js' %}"></script>
+<script>initSample();</script>
 <script>
-	initSample();
+CKEDITOR.replace('editor', {
+  extraPlugins: 'uploadimage,image2',
+  filebrowserUploadUrl: '/upload/',
+  filebrowserUploadMethod: 'form',
+});
 </script>
 
 <script>
-let variantCount = 0;
+// ── Existing variant helpers ──────────────────────────────────────────────
 
-function addVariant() {
-  const index = variantCount;
+function switchExistingType(vid, newType) {
+  const isOffer = newType === 'offer';
+
+  // Update the hidden type input for this variant
+  const card = document.getElementById(`existing-card-${vid}`);
+  card.querySelector('input[name="variant_types[]"]').value = newType;
+
+  // Buttons
+  document.getElementById(`existing-btn-option-${vid}`).className =
+    'variant-type-btn' + (isOffer ? '' : ' active-option');
+  document.getElementById(`existing-btn-offer-${vid}`).className =
+    'variant-type-btn' + (isOffer ? ' active-offer' : '');
+
+  // Badge
+  const badge = document.getElementById(`existing-badge-${vid}`);
+  badge.textContent = isOffer ? 'Offer' : 'Option';
+  badge.className = 'variant-type-badge ' + (isOffer ? 'badge-offer' : 'badge-option');
+
+  // Panels
+  document.getElementById(`existing-offer-fields-${vid}`).classList.toggle('visible', isOffer);
+  document.getElementById(`existing-option-fields-${vid}`).classList.toggle('visible', !isOffer);
+}
+
+function markExistingDeleted(btn, vid) {
+  const card = document.getElementById(`existing-card-${vid}`);
+  const flag = document.getElementById('delete-flag-' + vid);
+
+  if (flag.value === 'false') {
+    flag.value = 'true';
+    card.classList.add('deleted');
+    btn.textContent = '↩ Undo';
+    btn.classList.replace('btn-outline-danger', 'btn-outline-secondary');
+  } else {
+    flag.value = 'false';
+    card.classList.remove('deleted');
+    btn.textContent = '🗑 Delete';
+    btn.classList.replace('btn-outline-secondary', 'btn-outline-danger');
+  }
+}
+
+function addExistingOption(vid) {
   const html = `
-    <div class="card variant-card mt-3">
-      <div class="card-body">
-        <h5 class="card-title">New Variant</h5>
-        <div class="mb-2">
-          <label>SKU</label>
-          <input type="text" name="new_variants[${index}][SKU]" class="form-control">
+    <div class="option-row">
+      <input type="text" name="option_names_${vid}[]" class="form-control" placeholder="Option name">
+      <input type="text" name="option_values_${vid}[]" class="form-control" placeholder="Value">
+      <button type="button" class="btn btn-outline-danger btn-sm"
+              onclick="this.closest('.option-row').remove()">×</button>
+    </div>
+  `;
+  document.getElementById(`extra-options-${vid}`).insertAdjacentHTML('beforeend', html);
+}
+
+// ── New variant helpers ───────────────────────────────────────────────────
+
+let newVariantCount = 0;
+
+function addNewVariant(type) {
+  const idx = newVariantCount++;
+  const isOffer = type === 'offer';
+
+  const html = `
+    <div class="variant-card" id="new-card-${idx}">
+      <div class="variant-card-header">
+        <div class="variant-title">
+          ${isOffer ? '🏷️' : '🎛️'} New Variant #${idx + 1}
+          <span class="variant-type-badge ${isOffer ? 'badge-offer' : 'badge-option'}"
+                id="new-badge-${idx}">
+            ${isOffer ? 'Offer' : 'Option'}
+          </span>
         </div>
-        <div class="mb-2">
-          <label>Price</label>
-          <input type="number" step="0.01" name="new_variants[${index}][price]" class="form-control">
-        </div>
-        <div class="mb-2">
-          <label>Stock</label>
-          <input type="number" name="new_variants[${index}][stock_quantity]" class="form-control">
-        </div>
-        <div class="mb-2">
-          <label>Image</label>
-          <input type="file" name="new_variants[${index}][image]" class="form-control">
+        <button type="button" class="btn btn-sm btn-outline-danger"
+                onclick="document.getElementById('new-card-${idx}').remove()">
+          Remove
+        </button>
+      </div>
+    <div class="card card-body mb-0">
+
+
+        <!-- Type toggle -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-muted" style="font-size:13px;">VARIANT TYPE</label><br>
+          <div class="variant-type-toggle">
+            <button type="button"
+              class="variant-type-btn ${!isOffer ? 'active-option' : ''}"
+              id="new-btn-option-${idx}"
+              onclick="switchNewType(${idx}, 'option')">🎛️ Option</button>
+            <button type="button"
+              class="variant-type-btn ${isOffer ? 'active-offer' : ''}"
+              id="new-btn-offer-${idx}"
+              onclick="switchNewType(${idx}, 'offer')">🏷️ Offer</button>
+          </div>
+          <input type="hidden" name="new_variants[${idx}][type]" id="new-type-${idx}" value="${type}">
         </div>
 
-        <h6>Options</h6>
-        <div id="new-options-${index}"></div>
-        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addNewOption(${index})">+ Add Option</button>
+        <!-- Shared fields -->
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">SKU</label>
+            <input type="text" name="new_variants[${idx}][SKU]" class="form-control" placeholder="e.g. PROD-RED-L">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Price</label>
+            <input type="number" step="0.01" name="new_variants[${idx}][price]" class="form-control" placeholder="0.00">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Stock</label>
+            <input type="number" name="new_variants[${idx}][stock_quantity]" class="form-control" placeholder="0">
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Variant Image</label>
+          <input type="file" name="new_variants[${idx}][image]" class="form-control">
+        </div>
+
+        <!-- OFFER fields -->
+        <div class="fields-panel ${isOffer ? 'visible' : ''}" id="new-offer-fields-${idx}">
+          <div class="mb-3">
+            <label class="form-label">Offer Label
+              <span class="text-muted fw-normal" style="font-size:13px;">— shown to the customer</span>
+            </label>
+            <input type="text" name="new_variants[${idx}][offer_label]" class="form-control"
+              placeholder='e.g. "Buy 2 for 1500 DA"'>
+          </div>
+        </div>
+
+        <!-- OPTION fields -->
+        <div class="fields-panel ${!isOffer ? 'visible' : ''}" id="new-option-fields-${idx}">
+          <label class="form-label fw-semibold">Option Values</label>
+          <div id="new-options-${idx}"></div>
+          <button type="button" class="btn btn-sm btn-outline-secondary mt-1"
+                  onclick="addNewOption(${idx})">+ Add Option</button>
+        </div>
+
       </div>
     </div>
   `;
-  document.getElementById("variants-container").insertAdjacentHTML("beforeend", html);
-  variantCount++;
+
+  document.getElementById('new-variants-container').insertAdjacentHTML('beforeend', html);
+  if (!isOffer) addNewOption(idx);
 }
 
-function addNewOption(index) {
+function switchNewType(idx, newType) {
+  const isOffer = newType === 'offer';
+  document.getElementById(`new-type-${idx}`).value = newType;
+
+  document.getElementById(`new-btn-option-${idx}`).className =
+    'variant-type-btn' + (isOffer ? '' : ' active-option');
+  document.getElementById(`new-btn-offer-${idx}`).className =
+    'variant-type-btn' + (isOffer ? ' active-offer' : '');
+
+  const badge = document.getElementById(`new-badge-${idx}`);
+  badge.textContent = isOffer ? 'Offer' : 'Option';
+  badge.className = 'variant-type-badge ' + (isOffer ? 'badge-offer' : 'badge-option');
+
+  document.getElementById(`new-offer-fields-${idx}`).classList.toggle('visible', isOffer);
+  document.getElementById(`new-option-fields-${idx}`).classList.toggle('visible', !isOffer);
+}
+
+function addNewOption(idx) {
   const html = `
-    <div class="row option-group mb-2">
-      <div class="col-md-5">
-        <input type="text" name="new_variants[${index}][options][][name]" class="form-control" placeholder="Option Name">
-      </div>
-      <div class="col-md-5">
-        <input type="text" name="new_variants[${index}][options][][value]" class="form-control" placeholder="Option Value">
-      </div>
-      <div class="col-md-2">
-        <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-group').remove()">×</button>
-      </div>
+    <div class="option-row">
+      <input type="text" name="new_variants[${idx}][options][][name]"
+             class="form-control" placeholder="Option name (e.g. Color)">
+      <input type="text" name="new_variants[${idx}][options][][value]"
+             class="form-control" placeholder="Value (e.g. Red)">
+      <button type="button" class="btn btn-outline-danger btn-sm"
+              onclick="this.closest('.option-row').remove()">×</button>
     </div>
   `;
-  document.getElementById(`new-options-${index}`).insertAdjacentHTML("beforeend", html);
-}
-
-function addOption(variantId) {
-  const html = `
-    <div class="row option-group mb-2">
-      <div class="col-md-5">
-        <input type="text" name="option_names_${variantId}[]" class="form-control" placeholder="Option Name">
-      </div>
-      <div class="col-md-5">
-        <input type="text" name="option_values_${variantId}[]" class="form-control" placeholder="Option Value">
-      </div>
-      <div class="col-md-2">
-        <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-group').remove()">×</button>
-      </div>
-    </div>
-  `;
-  document.getElementById(`options-${variantId}`).insertAdjacentHTML("beforeend", html);
-}
-
-function markVariantDeleted(button) {
-  const card = button.closest('.variant-card');
-  const deleteInput = card.querySelector('input[name="variant_delete[]"]');
-  deleteInput.value = "true";
-  card.style.opacity = 0.4;
-  card.querySelectorAll("input, textarea, select, button").forEach(el => {
-    if (el !== deleteInput) el.disabled = true;
-  });
+  document.getElementById(`new-options-${idx}`).insertAdjacentHTML('beforeend', html);
 }
 </script>
 

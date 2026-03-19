@@ -1,0 +1,72 @@
+{% extends "../layouts/base.html" %}
+
+{% block title %}Stores{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
+    <div>
+      <h1 class="h3 fw-semibold text-body mb-1">Stores</h1>
+      <p class="text-muted mb-0 small">Manage the stores associated with your account.</p>
+    </div>
+    <div>
+      <a href="{% url 'stores:create' %}" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="me-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        New store
+      </a>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+      {% if stores %}
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+          <tr>
+            <th scope="col">Name</th>
+            <th scope="col" class="d-none d-md-table-cell">Description</th>
+            <th scope="col" class="d-none d-lg-table-cell">Created</th>
+            <th scope="col" class="text-end">Actions</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for store in stores %}
+            <tr>
+              <td class="fw-semibold text-body">
+                {{ store.name }}
+              </td>
+              <td class="text-muted small d-none d-md-table-cell">
+                {{ store.description|default:"—" }}
+              </td>
+              <td class="text-muted small d-none d-lg-table-cell">
+                {{ store.created_at|date:"Y-m-d H:i" }}
+              </td>
+              <td class="text-end">
+                <div class="btn-group btn-group-sm" role="group">
+                  <a href="{% url 'stores:edit' store.pk %}" class="btn btn-outline-secondary">
+                    Edit
+                  </a>
+                  <a href="{% url 'stores:delete' store.pk %}" class="btn btn-outline-danger">
+                    Delete
+                  </a>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="p-4 text-center text-muted">
+        <p class="mb-2">You don't have any stores yet.</p>
+        <a href="{% url 'stores:create' %}" class="btn btn-sm btn-primary">
+          Create your first store
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
+

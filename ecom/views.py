@@ -4,13 +4,13 @@ from ecom.public_decorator import public
 from products.models import Product
 from stores.models import Store
 from orders.models import Order, OrderItem
-import os, csv, requests, threading
+import os
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.core.cache import cache
 from time import sleep
-from landingpages.models import LandingPage, City
+from landingpages.models import LandingPage
 
 
 @csrf_exempt

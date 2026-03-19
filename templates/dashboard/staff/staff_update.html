@@ -1,38 +1,111 @@
 {% extends "../layouts/base.html" %}
 {% load static %}
 
-{% block title %}Update Staff{% endblock %}
+{% block title %}Edit Staff Member{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <h2 class="mb-4">Update Staff Role</h2>
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-6">
+      <div class="d-flex align-items-center gap-2 mb-4">
+        <a href="{% url 'staff:list' %}" class="btn btn-ghost-secondary btn-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </a>
+        <h1 class="h3 fw-semibold text-body mb-0">Edit staff member</h1>
+      </div>
 
-  <form method="post">
-    {% csrf_token %}
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4 p-lg-5">
+          <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+            <span class="avatar avatar-lg avatar-circle bg-primary-soft text-primary">
+              {{ object.user.first_name|default:object.user.email|slice:":1"|upper }}
+            </span>
+            <div>
+              <h2 class="h5 mb-0">{{ object.user.get_full_name|default:object.user.email }}</h2>
+              <p class="text-muted small mb-0">{{ object.user.email }}</p>
+              <span class="badge bg-secondary mt-1">{{ object.store.name }}</span>
+            </div>
+          </div>
 
-    <div class="mb-3">
-      <label class="form-label">Staff Member</label>
-      <input type="text"
-             class="form-control"
-             value="{{ object.user.get_full_name|default:object.user.email }}"
-             disabled>
+          <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger">
+                {% for err in form.non_field_errors %}{{ err }}{% endfor %}
+              </div>
+            {% endif %}
+
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label" for="id_role">Role</label>
+                <select name="role" id="id_role" class="form-select{% if form.role.errors %} is-invalid{% endif %}">
+                  {% for value, label in form.fields.role.choices %}
+                    <option value="{{ value }}" {% if form.role.value == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+                <small class="text-muted">Role determines default permissions when custom permissions are empty.</small>
+                {% for error in form.role.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Permissions</label>
+                <p class="text-muted small mb-2">Defaults are pre-selected based on role. Customize by checking/unchecking.</p>
+                <div class="border rounded p-3 bg-light" id="permissions-container">
+                  <div class="row g-2">
+                    {% for value, label in form.fields.permissions.choices %}
+                      <div class="col-12 col-md-6">
+                        <div class="form-check">
+                          <input type="checkbox" name="permissions" value="{{ value }}" id="perm_{{ value }}" class="form-check-input permission-cb" {% if form.permissions.value and value in form.permissions.value %}checked{% endif %}>
+                          <label class="form-check-label small" for="perm_{{ value }}">{{ label }}</label>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="d-flex justify-content-between gap-2">
+              <a href="{% url 'staff:list' %}" class="btn btn-outline-secondary">Cancel</a>
+              <div class="d-flex gap-2">
+                <a href="{% url 'staff:delete' object.pk %}" class="btn btn-outline-danger">Remove staff</a>
+                <button type="submit" class="btn btn-primary">Save changes</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-
-    <div class="mb-3">
-      <label class="form-label" for="id_role">Role</label>
-      {{ form.role }}
-    </div>
-
-    <div class="d-flex justify-content-between mt-4">
-      <a href="{% url 'staff:list' store_id=request.resolver_match.kwargs.store_id %}"
-         class="btn btn-outline-secondary">
-        Cancel
-      </a>
-      <button type="submit" class="btn btn-primary">
-        Save Changes
-      </button>
-    </div>
-  </form>
+  </div>
 </div>
-{% endblock %}
 
+<script>
+(function() {
+  var roleDefaults = {{ role_default_permissions_json|safe }};
+  var roleSelect = document.getElementById('id_role');
+  var permissionCbs = document.querySelectorAll('.permission-cb');
+  var hasCustomPerms = {{ object.permissions|length|yesno:"true,false" }};
+
+  function applyRoleDefaults(role) {
+    var perms = roleDefaults[role] || [];
+    permissionCbs.forEach(function(cb) {
+      cb.checked = perms.indexOf(cb.value) >= 0;
+    });
+  }
+
+  if (roleSelect) {
+    roleSelect.addEventListener('change', function() {
+      applyRoleDefaults(this.value);
+    });
+    if (!hasCustomPerms) {
+      applyRoleDefaults(roleSelect.value);
+    }
+  }
+})();
+</script>
+{% endblock %}

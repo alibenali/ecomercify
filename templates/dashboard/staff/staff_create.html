@@ -1,115 +1,140 @@
 {% extends "../layouts/base.html" %}
 {% load static %}
 
-{% block title %}Create Staff{% endblock %}
+{% block title %}Add Staff Member{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-  <h2 class="mb-4">Add Staff Member</h2>
-
-  {% if form.errors %}
-    <div class="alert alert-danger">
-      Please correct the errors below.
-    </div>
-  {% endif %}
-
-  <form method="post" novalidate>
-    {% csrf_token %}
-
-    <div class="row">
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label class="form-label" for="id_email">Email</label>
-          <input type="email"
-                 name="email"
-                 class="form-control{% if form.email.errors %} is-invalid{% endif %}"
-                 id="id_email"
-                 value="{{ form.email.value|default_if_none:'' }}"
-                 required>
-          {% for error in form.email.errors %}
-            <div class="invalid-feedback">{{ error }}</div>
-          {% endfor %}
-        </div>
+<div class="container-fluid py-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-6">
+      <div class="d-flex align-items-center gap-2 mb-4">
+        <a href="{% url 'staff:list' %}" class="btn btn-ghost-secondary btn-sm" title="Back to staff list">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        </a>
+        <h1 class="h3 fw-semibold text-body mb-0">Add staff member</h1>
       </div>
 
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label class="form-label" for="id_role">Role</label>
-          <select name="role"
-                  id="id_role"
-                  class="form-select{% if form.role.errors %} is-invalid{% endif %}">
-            {% for value, label in form.fields.role.choices %}
-              <option value="{{ value }}"
-                      {% if form.role.value == value %}selected{% endif %}>
-                {{ label }}
-              </option>
-            {% endfor %}
-          </select>
-          {% for error in form.role.errors %}
-            <div class="invalid-feedback">{{ error }}</div>
-          {% endfor %}
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4 p-lg-5">
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for err in form.non_field_errors %}{{ err }}{% endfor %}
+            </div>
+          {% endif %}
+
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label" for="id_store">Store</label>
+                <select name="store" id="id_store" class="form-select{% if form.store.errors %} is-invalid{% endif %}">
+                  {% for value, label in form.fields.store.choices %}
+                    <option value="{{ value }}" {% if form.store.value|stringformat:'s' == value|stringformat:'s' %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+                {% for error in form.store.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="id_first_name">First name</label>
+                <input type="text" name="first_name" id="id_first_name" class="form-control{% if form.first_name.errors %} is-invalid{% endif %}" value="{{ form.first_name.value|default:'' }}" placeholder="John" required>
+                {% for error in form.first_name.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label" for="id_last_name">Last name</label>
+                <input type="text" name="last_name" id="id_last_name" class="form-control{% if form.last_name.errors %} is-invalid{% endif %}" value="{{ form.last_name.value|default:'' }}" placeholder="Doe" required>
+                {% for error in form.last_name.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="id_email">Email</label>
+                <input type="email" name="email" id="id_email" class="form-control{% if form.email.errors %} is-invalid{% endif %}" value="{{ form.email.value|default:'' }}" placeholder="staff@example.com" required>
+                {% for error in form.email.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="id_password">Password</label>
+                <input type="password" name="password" id="id_password" class="form-control{% if form.password.errors %} is-invalid{% endif %}" placeholder="••••••••" required>
+                {% for error in form.password.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="col-12">
+                <label class="form-label" for="id_role">Role</label>
+                <select name="role" id="id_role" class="form-select{% if form.role.errors %} is-invalid{% endif %}">
+                  {% for value, label in form.fields.role.choices %}
+                    <option value="{{ value }}" {% if form.role.value == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+                <small class="text-muted">Role determines default permissions. You can override below.</small>
+                {% for error in form.role.errors %}
+                  <div class="invalid-feedback d-block">{{ error }}</div>
+                {% endfor %}
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Permissions</label>
+                <p class="text-muted small mb-2">Defaults are pre-selected based on role. Customize by checking/unchecking.</p>
+                <div class="border rounded p-3 bg-light" id="permissions-container">
+                  <div class="row g-2">
+                    {% for value, label in form.fields.permissions.choices %}
+                      <div class="col-12 col-md-6">
+                        <div class="form-check">
+                          <input type="checkbox" name="permissions" value="{{ value }}" id="perm_{{ value }}" class="form-check-input permission-cb">
+                          <label class="form-check-label small" for="perm_{{ value }}">{{ label }}</label>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="d-flex justify-content-between gap-2">
+              <a href="{% url 'staff:list' %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary">
+                Create staff member
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
-
-    <div class="row">
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label class="form-label" for="id_first_name">First name</label>
-          <input type="text"
-                 name="first_name"
-                 class="form-control{% if form.first_name.errors %} is-invalid{% endif %}"
-                 id="id_first_name"
-                 value="{{ form.first_name.value|default_if_none:'' }}"
-                 required>
-          {% for error in form.first_name.errors %}
-            <div class="invalid-feedback">{{ error }}</div>
-          {% endfor %}
-        </div>
-      </div>
-
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label class="form-label" for="id_last_name">Last name</label>
-          <input type="text"
-                 name="last_name"
-                 class="form-control{% if form.last_name.errors %} is-invalid{% endif %}"
-                 id="id_last_name"
-                 value="{{ form.last_name.value|default_if_none:'' }}"
-                 required>
-          {% for error in form.last_name.errors %}
-            <div class="invalid-feedback">{{ error }}</div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-6">
-        <div class="mb-3">
-          <label class="form-label" for="id_password">Password</label>
-          <input type="password"
-                 name="password"
-                 class="form-control{% if form.password.errors %} is-invalid{% endif %}"
-                 id="id_password"
-                 required>
-          {% for error in form.password.errors %}
-            <div class="invalid-feedback">{{ error }}</div>
-          {% endfor %}
-        </div>
-      </div>
-    </div>
-
-    <div class="d-flex justify-content-between mt-4">
-      <a href="{% url 'staff:list' store_id=request.resolver_match.kwargs.store_id %}"
-         class="btn btn-outline-secondary">
-        Cancel
-      </a>
-      <button type="submit" class="btn btn-success">
-        Create Staff Member
-      </button>
-    </div>
-  </form>
+  </div>
 </div>
-{% endblock %}
 
+<script>
+(function() {
+  var roleDefaults = {{ role_default_permissions_json|safe }};
+  var roleSelect = document.getElementById('id_role');
+  var permissionCbs = document.querySelectorAll('.permission-cb');
+
+  function applyRoleDefaults(role) {
+    var perms = roleDefaults[role] || [];
+    permissionCbs.forEach(function(cb) {
+      cb.checked = perms.indexOf(cb.value) >= 0;
+    });
+  }
+
+  if (roleSelect) {
+    roleSelect.addEventListener('change', function() {
+      applyRoleDefaults(this.value);
+    });
+    applyRoleDefaults(roleSelect.value);
+  }
+})();
+</script>
+{% endblock %}

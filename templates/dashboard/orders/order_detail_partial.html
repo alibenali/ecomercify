@@ -14,7 +14,7 @@
             </div>
             
             <!-- Confirmation Statuses Section -->
-            <div class="card shadow-sm">
+            <div class="card shadow-sm mb-3">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="card-title mb-0">Confirmation statuses</h5>
@@ -27,6 +27,61 @@
                             </select>
                             <textarea class="form-control" rows="2" placeholder="Your comment..."></textarea>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- History Section -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title mb-0">History</h5>
+                    </div>
+                    <div class="history-list" style="max-height: 260px; overflow-y: auto;">
+                        {% if order.status_history.all %}
+                            <ul class="list-unstyled mb-0 small">
+                                {% for h in order.status_history.all %}
+                                    <li class="mb-2">
+                                        <div class="fw-semibold">
+                                            {{ h.changed_at|date:"Y-m-d H:i" }}
+                                            {% if h.changed_by %} · {{ h.changed_by.get_full_name }}{% endif %}
+                                        </div>
+                                        <div>
+                                            {% if h.action == 'status_change' %}
+                                                Status changed from 
+                                                <strong>{{ h.get_previous_status_display }}</strong>
+                                                to
+                                                <strong>{{ h.get_new_status_display }}</strong>.
+                                            {% elif h.action == 'order_update' %}
+                                                Order <strong>{{ h.field_name }}</strong> changed
+                                                from <code>{{ h.previous_value }}</code>
+                                                to <code>{{ h.new_value }}</code>.
+                                            {% elif h.action == 'item_update' %}
+                                                Item 
+                                                {% if h.order_item %}<strong>{{ h.order_item.get_sku }}</strong>{% else %}<strong>#{{ h.order_item_id }}</strong>{% endif %}
+                                                <strong>{{ h.field_name }}</strong> changed
+                                                from <code>{{ h.previous_value }}</code>
+                                                to <code>{{ h.new_value }}</code>.
+                                            {% elif h.action == 'item_add' %}
+                                                Item added:
+                                                <code>{{ h.new_value }}</code>.
+                                            {% elif h.action == 'item_delete' %}
+                                                Item deleted:
+                                                <code>{{ h.previous_value }}</code>.
+                                            {% else %}
+                                                {{ h.action }}:
+                                                {% if h.field_name %}<strong>{{ h.field_name }}</strong>{% endif %}
+                                                {% if h.previous_value or h.new_value %}
+                                                    {{ h.previous_value }} → {{ h.new_value }}
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted mb-0 small">No changes recorded yet.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -59,9 +114,10 @@
                                                     class="btn btn-link btn-sm p-1" 
                                                     title="Delete item"
                                                     hx-post="{% url 'orders:delete_order_item' item_id=order_item.id %}"
-                                                    hx-target="#order-item-{{ order_item.id }}"
-                                                    hx-swap="outerHTML"
+                                                    hx-target="#order-details-{{ order.id }}"
+                                                    hx-swap="innerHTML"
                                                     hx-trigger="click"
+                                                    hx-on::after-request="if(event.detail.successful) SoundAlert('success');"
                                                     style="line-height: 1;">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="16" width="16">
                                                     <path d="M17.25,21H6.75a1.5,1.5,0,0,1-1.5-1.5V6h13.5V19.5A1.5,1.5,0,0,1,17.25,21Z" 
@@ -86,16 +142,22 @@
                                         </td>
                                         <td>{{ order_item.get_sku }}</td>
                                         <td class="text-start">
-                                            {% if order_item.variation.options.exists %}
+                                            {% if order_item.variant %}
+                                              {% if order_item.variant.is_offer %}
+                                                <span class="badge bg-warning text-dark">
+                                                  🏷️ {{ order_item.variant.offer_label|default:order_item.variant.SKU }}
+                                                </span>
+                                              {% else %}
                                                 <ul class="mb-0 list-unstyled small text-muted">
-                                                    {% for option in order_item.variation.options.all %}
-                                                        <li><strong>{{ option.name }}:</strong> {{ option.value }}</li>
-                                                    {% endfor %}
+                                                  {% for ov in order_item.variant.option_values.all %}
+                                                    <li><strong>{{ ov.option.name }}:</strong> {{ ov.value }}</li>
+                                                  {% endfor %}
                                                 </ul>
+                                              {% endif %}
                                             {% else %}
-                                                <span class="text-muted fst-italic">No options</span>
+                                              <span class="text-muted fst-italic">No options</span>
                                             {% endif %}
-                                        </td>
+                                          </td>
                                         <td>
                                             <input type="number" class="form-control form-control-sm w-auto"
                                                 name="price_per_unit"
@@ -131,11 +193,51 @@
                                         </td>
                                     </tr>
                                     {% endfor %}
-
-
-
-                                
-
+                                    <!-- Add Order Item Row -->
+                                    <tr id="add-order-item-row-{{ order.id }}" class="table-light">
+                                        <td colspan="8" class="py-3">
+                                            <form id="add-order-item-form-{{ order.id }}"
+                                                hx-post="{% url 'orders:add_order_item' order_id=order.id %}"
+                                                hx-target="#order-details-{{ order.id }}"
+                                                hx-swap="innerHTML"
+                                                hx-on::after-request="if(event.detail.successful) SoundAlert('success');"
+                                                class="row g-2 align-items-center">
+                                                {% csrf_token %}
+                                                <div class="col-auto">
+                                                    <label class="form-label visually-hidden">Product</label>
+                                                    <select name="product_variant" class="form-select form-select-sm add-item-product-select" style="min-width: 200px;" required
+                                                        onchange="var opt=this.options[this.selectedIndex]; var price=opt.getAttribute('data-price'); if(price){this.form.querySelector('.add-item-price').value=price;}">
+                                                        <option value="">Select product...</option>
+                                                        {% for product in products %}
+                                                            <optgroup label="{{ product.name }}">
+                                                                <option value="product_{{ product.id }}" data-price="{{ product.price }}">
+                                                                    — Base ({{ product.price }} DA)
+                                                                </option>
+                                                                {% for variant in product.variants.all %}
+                                                                    <option value="variant_{{ variant.id }}" data-product="{{ product.id }}" data-price="{{ variant.price }}">
+                                                                        {{ variant.offer_label|default:variant.SKU }} — {{ variant.price }} DA
+                                                                    </option>
+                                                                {% endfor %}
+                                                            </optgroup>
+                                                        {% empty %}
+                                                            <option value="">No products in this store</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <label class="form-label visually-hidden">Qty</label>
+                                                    <input type="number" name="quantity" class="form-control form-control-sm" value="1" min="1" style="width: 70px;" required>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <label class="form-label visually-hidden">Price</label>
+                                                    <input type="number" name="price_per_unit" class="form-control form-control-sm add-item-price" step="100" placeholder="Price" style="width: 100px;" required>
+                                                </div>
+                                                <div class="col-auto">
+                                                    <button type="submit" class="btn btn-sm btn-primary">Add item</button>
+                                                </div>
+                                            </form>
+                                        </td>
+                                    </tr>
                             </tbody>
                         </table>
                     </div>
@@ -145,7 +247,7 @@
                         <div class="col-md-6 ms-auto">
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Subtotal:</span>
-                                <span><input type="number" class="form-control form-control-sm w-auto" name="sub_total" value="{{ order.sub_total }}" readonly></span>
+                                <span><input type="number" class="form-control form-control-sm w-auto" name="sub_total" value="{{ order.sub_total|floatformat:'-2' }}" readonly></span>
                             </div>
                             <div class="d-flex justify-content-between mb-2">
                                 <span>Delivery:</span>

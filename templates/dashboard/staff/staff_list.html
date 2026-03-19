@@ -4,93 +4,131 @@
 {% block title %}Staff{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <h1 class="h2">Staff</h1>
-
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive"
-                 data-list='{"valueNames": ["name", "email", "role", "created_at", "action"], "page": 10}'
-                 id="staffList">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <input class="form-control list-search mw-300px" type="search" placeholder="Search staff">
-
-                    <a class="btn btn-secondary btn-sm mx-4"
-                       href="{% url 'staff:create' store_id=request.resolver_match.kwargs.store_id %}">
-                        Add Staff Member
-                    </a>
-                </div>
-
-                <table class="table table-nowrap">
-                    <thead class="thead-light">
-                        <tr>
-                            <th>
-                                <a href="javascript:void(0);" class="text-muted list-sort" data-sort="name">
-                                    Name
-                                </a>
-                            </th>
-                            <th>
-                                <a href="javascript:void(0);" class="text-muted list-sort" data-sort="email">
-                                    Email
-                                </a>
-                            </th>
-                            <th>
-                                <a href="javascript:void(0);" class="text-muted list-sort" data-sort="role">
-                                    Role
-                                </a>
-                            </th>
-                            <th>
-                                <a href="javascript:void(0);" class="text-muted list-sort" data-sort="created_at">
-                                    Added On
-                                </a>
-                            </th>
-                            <th>
-                                <a href="javascript:void(0);" class="text-muted list-sort" data-sort="action">
-                                    Action
-                                </a>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="list">
-                        {% for member in staff_members %}
-                            <tr>
-                                <td class="name">
-                                    {{ member.user.get_full_name|default:member.user.email }}
-                                </td>
-                                <td class="email">
-                                    {{ member.user.email }}
-                                </td>
-                                <td class="role text-capitalize">
-                                    {{ member.get_role_display }}
-                                </td>
-                                <td class="created_at">
-                                    {{ member.created_at|date:"Y-m-d H:i" }}
-                                </td>
-                                <td class="action">
-                                    <a class="btn btn-primary btn-sm"
-                                       href="{% url 'staff:update' store_id=request.resolver_match.kwargs.store_id pk=member.pk %}">
-                                        Edit
-                                    </a>
-                                    <a class="btn btn-danger btn-sm"
-                                       href="{% url 'staff:delete' store_id=request.resolver_match.kwargs.store_id pk=member.pk %}">
-                                        Delete
-                                    </a>
-                                </td>
-                            </tr>
-                        {% empty %}
-                            <tr>
-                                <td colspan="5" class="text-center">
-                                    No staff members yet.
-                                    <a href="{% url 'staff:create' store_id=request.resolver_match.kwargs.store_id %}">
-                                        Add the first one.
-                                    </a>
-                                </td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<div class="container-fluid py-4">
+  <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3 mb-4">
+    <div>
+      <h1 class="h3 fw-semibold text-body mb-1">Staff</h1>
+      <p class="text-muted mb-0 small">View and manage staff across all of your stores.</p>
     </div>
+    <div>
+      <a href="{% url 'staff:create' %}" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="me-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add staff member
+      </a>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-body">
+      <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <input class="form-control list-search mw-300px" type="search" placeholder="Search by name, email, store..." id="staffSearch">
+
+        <form method="get" class="d-flex align-items-center gap-2">
+          <label for="store-filter" class="form-label mb-0 small text-muted">Store</label>
+          <select id="store-filter" name="store" class="form-select form-select-sm" style="min-width: 180px;" onchange="this.form.submit()">
+            <option value="">All stores</option>
+            {% for store in stores %}
+              <option value="{{ store.id }}" {% if selected_store_id|stringformat:'s' == store.id|stringformat:'s' %}selected{% endif %}>
+                {{ store.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+
+      <div class="table-responsive" data-list='{"valueNames": ["name", "email", "role", "store", "created_at", "action"], "page": 10}' id="staffList">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col" class="list-sort" data-sort="name">Name</th>
+              <th scope="col" class="list-sort" data-sort="email">Email</th>
+              <th scope="col" class="list-sort" data-sort="role">Role</th>
+              <th scope="col" class="d-none d-md-table-cell list-sort" data-sort="store">Store</th>
+              <th scope="col" class="d-none d-lg-table-cell list-sort" data-sort="created_at">Added</th>
+              <th scope="col" class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="list">
+            {% for member in staff_members %}
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <span class="avatar avatar-sm avatar-circle bg-primary-soft text-primary">
+                      {{ member.user.first_name|default:member.user.email|slice:":1"|upper }}
+                    </span>
+                    <span class="name fw-medium text-body">
+                      {{ member.user.get_full_name|default:member.user.email }}
+                    </span>
+                  </div>
+                </td>
+                <td class="email text-muted small">
+                  {{ member.user.email }}
+                </td>
+                <td class="role">
+                  {% if member.role == "manager" %}
+                    <span class="badge bg-primary">Manager</span>
+                  {% elif member.role == "confirmation_assistant" %}
+                    <span class="badge bg-info">Confirmation</span>
+                  {% elif member.role == "delivery_assistant" %}
+                    <span class="badge bg-success">Delivery</span>
+                  {% else %}
+                    <span class="badge bg-secondary">{{ member.get_role_display }}</span>
+                  {% endif %}
+                  {% if member.permissions %}
+                    <span class="badge bg-light text-dark border ms-1" title="Custom permissions">Custom</span>
+                  {% endif %}
+                </td>
+                <td class="store text-muted small d-none d-md-table-cell">
+                  {{ member.store.name }}
+                </td>
+                <td class="created_at text-muted small d-none d-lg-table-cell">
+                  {{ member.created_at|date:"M d, Y" }}
+                </td>
+                <td class="action text-end">
+                  <div class="btn-group btn-group-sm" role="group">
+                    <a href="{% url 'staff:update' member.pk %}" class="btn btn-outline-secondary" title="Edit">
+                      Edit
+                    </a>
+                    <a href="{% url 'staff:delete' member.pk %}" class="btn btn-outline-danger" title="Remove">
+                      Delete
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" class="text-center py-5">
+                  <div class="text-muted">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" class="text-secondary mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                    <p class="mb-2">No staff members yet.</p>
+                    <a href="{% url 'staff:create' %}" class="btn btn-sm btn-primary">
+                      Add the first staff member
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 </div>
+
+<script>
+(function() {
+  var search = document.getElementById('staffSearch');
+  if (!search) return;
+  var table = document.getElementById('staffList');
+  var rows = table ? table.querySelectorAll('tbody tr') : [];
+  search.addEventListener('input', function() {
+    var q = this.value.toLowerCase().trim();
+    rows.forEach(function(row) {
+      if (row.cells.length < 2) return;
+      var text = (row.cells[0].textContent + ' ' + row.cells[1].textContent + ' ' + (row.cells[3] ? row.cells[3].textContent : '')).toLowerCase();
+      row.style.display = q === '' || text.indexOf(q) >= 0 ? '' : 'none';
+    });
+  });
+})();
+</script>
 {% endblock %}

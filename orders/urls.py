@@ -12,7 +12,8 @@ urlpatterns = [
     path("<int:order_id>/order_client_info/", orders.order_client_info, name="order_client_info"),
     path("<int:order_id>/edit_client_info/", orders.edit_client_info, name="edit_client_info"),
     
-    path("order_item/update/<int:item_id>/", orders.update_order_item, name="update_order_item"), 
+    path("order_item/add/<int:order_id>/", orders.add_order_item, name="add_order_item"),
+    path("order_item/update/<int:item_id>/", orders.update_order_item, name="update_order_item"),
     path("order_item/delete/<int:item_id>/", orders.delete_order_item, name="delete_order_item"),
 
     path("order/archive/<int:order_id>/", orders.archive_order, name="archive_order"),

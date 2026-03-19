@@ -1,682 +1,750 @@
-{% load static%}
 <!DOCTYPE html>
-<html lang="en" data-theme="light" >
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta content="Webinning" name="author">
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YouBuild.store — Build Your Dream Store</title>
+<style>
+  :root {
+    --teal: #00b5c2;
+    --navy: #0c3549;
+    --dark: #0e2238;
+    --teal-dim: rgba(0,181,194,0.12);
+    --teal-glow: rgba(0,181,194,0.35);
+    --white: #f8fbfd;
+    --muted: rgba(248,251,253,0.55);
+  }
 
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap">
-        <link rel="stylesheet" media="print" onload="this.onload=null;this.removeAttribute('media');" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap">
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        <!-- no-JS fallback -->
-        <noscript>
-            <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap">
-        </noscript>
+  html { scroll-behavior: smooth; }
 
-        <!-- Theme CSS -->
-            <link rel="stylesheet" href="{% static 'css/theme.bundle.css' %}">
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--dark);
+    color: var(--white);
+    overflow-x: hidden;
+  }
 
-        <script>
-         // Theme switcher
-        
-            let themeSwitcher = document.getElementById('themeSwitcher');
-        
-            const getPreferredTheme = () => {
-                if (localStorage.getItem('theme') != null) {
-                    return localStorage.getItem('theme');
-                }
-        
-                return document.documentElement.dataset.theme;
-            };
-        
-            const setTheme = function (theme) {
-                if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-                    document.documentElement.dataset.theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                } else {
-                    document.documentElement.dataset.theme = theme;
-                }
-        
-                localStorage.setItem('theme', theme);
-            };
-        
-            const showActiveTheme = theme => {
-                const activeBtn = document.querySelector(`[data-theme-value="${theme}"]`);
-        
-                document.querySelectorAll('[data-theme-value]').forEach(element => {
-                    element.classList.remove('active');
-                });
-        
-                activeBtn && activeBtn.classList.add('active');
-        
-             // Set button if demo mode is enabled
-                document.querySelectorAll('[data-theme-control="theme"]').forEach(element => {
-                    if (element.value == theme) {
-                        element.checked = true;
-                    }
-                });
-            };
-        
-            function reloadPage() {
-                window.location = window.location.pathname;
-            }
-        
-        
-            setTheme(getPreferredTheme());
-        
-            if(typeof themeSwitcher != 'undefined') {
-                window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
-                    if(localStorage.getItem('theme') != null) {
-                        if (localStorage.getItem('theme') == 'auto') {
-                            reloadPage();
-                        }
-                    }
-                });
-        
-                window.addEventListener('load', () => {
-                    showActiveTheme(getPreferredTheme());
-                    
-                    document.querySelectorAll('[data-theme-value]').forEach(element => {
-                        element.addEventListener('click', () => {
-                            const theme = element.getAttribute('data-theme-value');
-        
-                            localStorage.setItem('theme', theme);
-                            reloadPage();
-                        })
-                    })
-                });
-            }
-        </script>
-        <!-- Favicon -->
-        <link rel="icon" href="{% static 'favicon/favicon_custom.ico' %}" sizes="any">
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 6vw;
+    background: rgba(14,34,56,0.72);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0,181,194,0.1);
+  }
 
-        <!-- Page Title -->
-        <title>{{ SITE_NAME}}</title>
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    color: var(--white);
+    text-decoration: none;
+  }
 
-    </head>
-    
-    <body>
-        <!-- HEADER -->
-        <header class="navbar navbar-expand-lg px-0">
-            <div class="container">
-                <a class="navbar-brand" href="./index.html">
-                    <img src="{% static 'images/logo.png' %}" class="navbar-brand-img logo-light logo-large" alt="..." width="125" height="25">
-                    <img src="{% static 'images/logo-dark.png' %}" class="navbar-brand-img logo-dark logo-large" alt="..." width="125" height="25">
-                </a>
+  .logo span { color: var(--teal); }
 
-                <a href="javascript: void(0);" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menuCollapse" aria-controls="menuCollapse" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </a>
+  .nav-links {
+    display: flex; gap: 2.5rem; list-style: none;
+  }
 
-                <div class="collapse navbar-collapse" id="menuCollapse">
-                    <ul class="navbar-nav mx-auto py-5 py-lg-0">
-                        {% comment %} <li class="nav-item">
-                            <a class="nav-link" href="./docs/index.html">Documentation<span class="badge text-bg-primary rounded-pill ms-1">v1.3</span></a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="mailto:support@{{ SITE_NAME}}-theme.com">Support</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="https://themes.getbootstrap.com/product/{{ SITE_NAME}}-admin-dashboard-template/" target="_blank">Buy now</a>
-                        </li> {% endcomment %}
-                    </ul>
+  .nav-links a {
+    color: var(--muted); font-size: .9rem; font-weight: 400;
+    text-decoration: none; transition: color .2s;
+  }
 
-                    <div class="d-flex">
-                        <div class="dropdown" id="themeSwitcher">
-                            <a href="javascript: void(0);" class="dropdown-toggle no-arrow d-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm mx-1 mx-lg-2 w-40px h-40px link-secondary" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="18" width="18"><g><path d="M12,4.64A7.36,7.36,0,1,0,19.36,12,7.37,7.37,0,0,0,12,4.64Zm0,12.72A5.36,5.36,0,1,1,17.36,12,5.37,5.37,0,0,1,12,17.36Z" style="fill: currentColor"/><path d="M12,3.47a1,1,0,0,0,1-1V1a1,1,0,0,0-2,0V2.47A1,1,0,0,0,12,3.47Z" style="fill: currentColor"/><path d="M4.55,6a1,1,0,0,0,.71.29A1,1,0,0,0,6,6,1,1,0,0,0,6,4.55l-1-1A1,1,0,0,0,3.51,4.93Z" style="fill: currentColor"/><path d="M2.47,11H1a1,1,0,0,0,0,2H2.47a1,1,0,1,0,0-2Z" style="fill: currentColor"/><path d="M4.55,18l-1,1a1,1,0,0,0,0,1.42,1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l1-1A1,1,0,0,0,4.55,18Z" style="fill: currentColor"/><path d="M12,20.53a1,1,0,0,0-1,1V23a1,1,0,0,0,2,0V21.53A1,1,0,0,0,12,20.53Z" style="fill: currentColor"/><path d="M19.45,18A1,1,0,0,0,18,19.45l1,1a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.42Z" style="fill: currentColor"/><path d="M23,11H21.53a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z" style="fill: currentColor"/><path d="M18.74,6.26A1,1,0,0,0,19.45,6l1-1a1,1,0,1,0-1.42-1.42l-1,1A1,1,0,0,0,18,6,1,1,0,0,0,18.74,6.26Z" style="fill: currentColor"/></g></svg>
-                            </a>
-                
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <button type="button" class="dropdown-item active" data-theme-value="light">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="me-2" height="18" width="18"><g><path d="M12,4.64A7.36,7.36,0,1,0,19.36,12,7.37,7.37,0,0,0,12,4.64Zm0,12.72A5.36,5.36,0,1,1,17.36,12,5.37,5.37,0,0,1,12,17.36Z" style="fill: currentColor"/><path d="M12,3.47a1,1,0,0,0,1-1V1a1,1,0,0,0-2,0V2.47A1,1,0,0,0,12,3.47Z" style="fill: currentColor"/><path d="M4.55,6a1,1,0,0,0,.71.29A1,1,0,0,0,6,6,1,1,0,0,0,6,4.55l-1-1A1,1,0,0,0,3.51,4.93Z" style="fill: currentColor"/><path d="M2.47,11H1a1,1,0,0,0,0,2H2.47a1,1,0,1,0,0-2Z" style="fill: currentColor"/><path d="M4.55,18l-1,1a1,1,0,0,0,0,1.42,1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29l1-1A1,1,0,0,0,4.55,18Z" style="fill: currentColor"/><path d="M12,20.53a1,1,0,0,0-1,1V23a1,1,0,0,0,2,0V21.53A1,1,0,0,0,12,20.53Z" style="fill: currentColor"/><path d="M19.45,18A1,1,0,0,0,18,19.45l1,1a1,1,0,0,0,.71.29,1,1,0,0,0,.71-.29,1,1,0,0,0,0-1.42Z" style="fill: currentColor"/><path d="M23,11H21.53a1,1,0,0,0,0,2H23a1,1,0,0,0,0-2Z" style="fill: currentColor"/><path d="M18.74,6.26A1,1,0,0,0,19.45,6l1-1a1,1,0,1,0-1.42-1.42l-1,1A1,1,0,0,0,18,6,1,1,0,0,0,18.74,6.26Z" style="fill: currentColor"/></g></svg>
-                                        Light mode
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" class="dropdown-item" data-theme-value="dark">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="me-2" height="18" width="18"><path d="M19.57,23.34a1,1,0,0,0,0-1.9,9.94,9.94,0,0,1,0-18.88,1,1,0,0,0,.68-.94,1,1,0,0,0-.68-.95A11.58,11.58,0,0,0,8.88,2.18,12.33,12.33,0,0,0,3.75,12a12.31,12.31,0,0,0,5.11,9.79A11.49,11.49,0,0,0,15.61,24,12.55,12.55,0,0,0,19.57,23.34ZM10,20.17A10.29,10.29,0,0,1,5.75,12a10.32,10.32,0,0,1,4.3-8.19A9.34,9.34,0,0,1,15.59,2a.17.17,0,0,1,.17.13.18.18,0,0,1-.07.2,11.94,11.94,0,0,0-.18,19.21.25.25,0,0,1-.16.45A9.5,9.5,0,0,1,10,20.17Z" style="fill: currentColor"/></svg>
-                                        Dark mode
-                                    </button>
-                                </li>
-                                <li>
-                                    <button type="button" class="dropdown-item" data-theme-value="auto">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="me-2" height="18" width="18"><path d="M24,12a1,1,0,0,0-1-1H19.09a.51.51,0,0,1-.49-.4,6.83,6.83,0,0,0-.94-2.28.5.5,0,0,1,.06-.63l2.77-2.76a1,1,0,1,0-1.42-1.42L16.31,6.28a.5.5,0,0,1-.63.06A6.83,6.83,0,0,0,13.4,5.4a.5.5,0,0,1-.4-.49V1a1,1,0,0,0-2,0V4.91a.51.51,0,0,1-.4.49,6.83,6.83,0,0,0-2.28.94.5.5,0,0,1-.63-.06L4.93,3.51A1,1,0,0,0,3.51,4.93L6.28,7.69a.5.5,0,0,1,.06.63A6.83,6.83,0,0,0,5.4,10.6a.5.5,0,0,1-.49.4H1a1,1,0,0,0,0,2H4.91a.51.51,0,0,1,.49.4,6.83,6.83,0,0,0,.94,2.28.5.5,0,0,1-.06.63L3.51,19.07a1,1,0,1,0,1.42,1.42l2.76-2.77a.5.5,0,0,1,.63-.06,6.83,6.83,0,0,0,2.28.94.5.5,0,0,1,.4.49V23a1,1,0,0,0,2,0V19.09a.51.51,0,0,1,.4-.49,6.83,6.83,0,0,0,2.28-.94.5.5,0,0,1,.63.06l2.76,2.77a1,1,0,1,0,1.42-1.42l-2.77-2.76a.5.5,0,0,1-.06-.63,6.83,6.83,0,0,0,.94-2.28.5.5,0,0,1,.49-.4H23A1,1,0,0,0,24,12Zm-8.74,2.5A5.76,5.76,0,0,1,9.5,8.74a5.66,5.66,0,0,1,.16-1.31A.49.49,0,0,1,10,7.07a5.36,5.36,0,0,1,1.8-.31,5.47,5.47,0,0,1,5.46,5.46,5.36,5.36,0,0,1-.31,1.8.49.49,0,0,1-.35.32A5.53,5.53,0,0,1,15.26,14.5Z" style="fill: currentColor"/></svg>
-                                        Auto
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-    
-                        <!-- Divider -->
-                        <div class="vr bg-gray-700 mx-1 mx-md-2 mx-lg-3"></div>
-    
-                        <!-- Link -->
-                        <a href="{% url 'accounts:login' %}" class="btn btn-dark mx-1 mx-lg-2 px-4 px-lg-5">
-                            LOGIN
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </header>
+  .nav-links a:hover { color: var(--teal); }
 
-        <!-- MAIN CONTENT -->
-        <main>
-            <section class="position-relative py-8" style="background: linear-gradient(0deg, rgba(0,186,199,0.05) 0%, rgba(255,255,255,0) 100%)">
-                <div class="container">
-                    <div class="row align-items-center vh-75">
-                        <div class="col-lg-6 col-xxl-5 d-flex flex-column h-100">
-                            <div class="my-auto">
-                                <h1 class="display-1 mb-5 lh-sm">Admin & Dashboard Template</h1>
-                                <p class="fs-3 mb-8">Lorem ipsum dolor sit amet, consectetur adipiscing elit. <br>Cras eget metus ornare sem tincidunt bibendum <br>vivamus vitae pharetra tortor</p>
-                                <div class="input-group input-group-lg mw-400px mb-5">
-                                    <input type="text" class="form-control bg-light-green" placeholder="Enter your email" aria-label="Email address" aria-describedby="email-addon">
-                                    <button class="btn btn-primary" type="button" id="email-addon">Try for Free</button>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-auto mb-5">
-                                <p class="text-secondary mb-1">Join thousands of businesses who trust in us</p>
-                                <div class="d-flex align-items-center">
-                                    <span class="avatar avatar-lg d-flex align-items-center me-6">
-                                        <img src="{% static 'images/logos/logo-amazon.svg' %}" class="img-fluid ft-grayscale-100 opacity-50' %}" alt="...">
-                                    </span>
-                                    <span class="avatar avatar-lg d-flex align-items-center me-6">
-                                        <img src="{% static 'images/logos/logo-salesforce-full.svg' %}" class="img-fluid ft-grayscale-100 opacity-50" alt="...">
-                                    </span>
-                                    <span class="avatar avatar-lg d-flex align-items-center me-6">
-                                        <img src="{% static 'images/logos/logo-shopify-full.svg' %}" class="img-fluid ft-grayscale-100 opacity-50" alt="...">
-                                    </span>
-                                    <span class="avatar avatar-lg d-flex align-items-center">
-                                        <img src="{% static 'images/logos/logo-samsung.svg' %}" class="img-fluid ft-grayscale-100 opacity-50" alt="...">
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 position-absolute top-50 end-0 translate-middle-y pe-0 d-none d-lg-block">
-                            <div class="bg-size-cover bg-repeat-no-repeat vh-75 shadow-lg rounded-5 rounded-end-0" style="background-image: url({% static 'images/printscreens/dashboard.jpg' %});"></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+  .nav-cta {
+    background: var(--teal); color: var(--dark);
+    padding: .55rem 1.4rem; border-radius: 100px;
+    font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .88rem;
+    text-decoration: none; transition: opacity .2s, transform .2s;
+    white-space: nowrap;
+  }
 
-            {% comment %} <section class="py-10">
-                <div class="container">
-                    <div class="row justify-content-between mb-8 align-items-center">
-                        <div class="col-lg-5 col-xl-6">
-                            <h3 class="text-uppercase text-primary h4 mb-3">Our services</h3>
-                            <h2 class="display-3 lh-sm mb-5 mb-xl-0">What we offer</h2>
-                        </div>
-                        <div class="col-lg-7 col-xl-6">
-                            <p class="lh-lg mb-0 fw-semibold">Proin interdum justo erat, eu aliquam dui eleifend et. Interdum et malesuada fames ac ante ipsum primis in faucibus. Aliquam nunc sem, maximus id felis non, condimentum cursus tortor.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 col-xl-3 mb-7 mb-xl-0">
-                            <img src="{% static 'images/backgrounds/background-02.jpeg' %}" class="img-fluid rounded-4 shadow mb-6" alt="...">
-                            <h4 class="h2 mb-2">Access and Buy Standards</h4>
-                            <p class="text-secondary mb-0">Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
-                        </div>
+  .nav-cta:hover { opacity: .88; transform: translateY(-1px); }
 
-                        <div class="col-md-6 col-xl-3 mb-7 mb-xl-0">
-                            <img src="{% static 'images/backgrounds/background-03.jpeg' %}" class="img-fluid rounded-4 shadow mb-6" alt="...">
-                            <h4 class="h2 mb-2">Online Subscription</h4>
-                            <p class="text-secondary mb-0">Interdum et malesuada fames ac ante ipsum primis in faucibus. Cras ex quam, luctus laoreet nisl sit amet, ultrices ultrices libero. Praesent imperdiet, erat vitae vulputate suscipit.</p>
-                        </div>
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 130px 6vw 80px;
+    position: relative;
+    overflow: hidden;
+  }
 
-                        <div class="col-md-6 col-xl-3 mb-7 mb-md-0">
-                            <img src="{% static 'images/backgrounds/background-04.jpeg' %}" class="img-fluid rounded-4 shadow mb-6" alt="...">
-                            <h4 class="h2 mb-2">Network Discovery</h4>
-                            <p class="text-secondary mb-0">Nullam volutpat commodo cursus. Morbi et euismod eros. Suspendisse ligula dolor, volutpat eget feugiat et, euismod non velit. Duis nec pharetra felis. Cras ultrices, nisl vitae.</p>
-                        </div>
+  /* background mesh */
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,181,194,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 50% 40% at 85% 60%, rgba(12,53,73,0.7) 0%, transparent 60%),
+      linear-gradient(160deg, var(--dark) 0%, var(--navy) 100%);
+  }
 
-                        <div class="col-md-6 col-xl-3">
-                            <img src="{% static 'images/backgrounds/background-05.jpeg' %}" class="img-fluid rounded-4 shadow mb-6" alt="...">
-                            <h4 class="h2 mb-2">Remote Support</h4>
-                            <p class="text-secondary mb-0">Vivamus consectetur ullamcorper convallis. Cras facilisis ullamcorper dolor id lacinia. Curabitur fermentum bibendum augue, vitae ultricies risus convallis nec.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
+  /* grid lines */
+  .hero::after {
+    content: '';
+    position: absolute; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(rgba(0,181,194,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,181,194,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black, transparent);
+  }
 
-            <section class="py-10 bg-light-green">
-                <div class="container">
-                    <h3 class="text-uppercase text-primary h4 mb-3">Our features</h3>
-                    <h2 class="display-3 lh-sm mb-8">Explore the key features</h2>
+  .hero > * { position: relative; z-index: 1; }
 
-                    <div class="row gx-xl-9">
-                        <div class="col-lg-4 mb-7 mb-lg-0">
-                            <ul class="nav nav-pills flex-column" id="features-tab" role="tablist">
-                                <li class="nav-item bg-white rounded shadow mb-4" role="presentation">
-                                    <a class="nav-link active" href="javascript: void(0);" id="featureTabOne" data-bs-toggle="pill" data-bs-target="#featureOne" role="tab" aria-controls="featureOne" aria-selected="true">
-                                        <span class="d-flex mb-3 align-items-center">
-                                            <span class="w-30px h-30px rounded-1 bg-gray-300 bg-opacity-50 me-3 d-flex align-items-center justify-content-center">
-                                                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M1.25,20.75h3.5A.25.25,0,0,0,5,20.5V18.25a.5.5,0,0,0-.5-.5h-3a.5.5,0,0,0-.5.5V20.5A.25.25,0,0,0,1.25,20.75Z" style="fill: currentColor"/><path d="M7.5,12.75a.5.5,0,0,0-.5.5V20.5a.25.25,0,0,0,.25.25h3.5A.25.25,0,0,0,11,20.5V13.25a.5.5,0,0,0-.5-.5Z" style="fill: currentColor"/><path d="M13.5,14.75a.5.5,0,0,0-.5.5V20.5a.25.25,0,0,0,.25.25h3.5A.25.25,0,0,0,17,20.5V15.25a.5.5,0,0,0-.5-.5Z" style="fill: currentColor"/><path d="M19.5,7.75a.5.5,0,0,0-.5.5V20.5a.25.25,0,0,0,.25.25h3.5A.25.25,0,0,0,23,20.5V8.25a.5.5,0,0,0-.5-.5Z" style="fill: currentColor"/><path d="M1,23.75H23a1,1,0,0,0,0-2H1a1,1,0,0,0,0,2Z" style="fill: currentColor"/><path d="M20.11,4.17a.25.25,0,0,1,.18.08l.86.85a.47.47,0,0,0,.35.15.43.43,0,0,0,.19,0A.5.5,0,0,0,22,4.75v-4a.5.5,0,0,0-.5-.5h-4A.5.5,0,0,0,17,.56a.47.47,0,0,0,.11.54l1,1a.25.25,0,0,1,0,.35L15,6a.77.77,0,0,1-.79.2L10.45,4.92a3.24,3.24,0,0,0-3.11.58L2.2,9.79A1.25,1.25,0,0,0,2,11.55,1.24,1.24,0,0,0,3,12a1.22,1.22,0,0,0,.8-.29L9,7.42a.75.75,0,0,1,.71-.13l3.72,1.24a3.24,3.24,0,0,0,3.41-.88l3.14-3.4A.37.37,0,0,1,20.11,4.17Z" style="fill: currentColor"/></g></svg>
-                                            </span>
-                                            <span class="h4 mb-0">Sales Report</span> 
-                                        </span>
-                                        <span>Pellentesque commodo neque vitae ligula congue faucibus. Suspendisse elit tellus, vestibulum et risus in, congue sollicitudin ligula.</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item bg-white rounded shadow mb-4" role="presentation">
-                                    <a class="nav-link" href="javascript: void(0);" id="featureTabTwo" data-bs-toggle="pill" data-bs-target="#featureTwo" role="tab" aria-controls="featureTwo" aria-selected="false">
-                                        <span class="d-flex mb-3 align-items-center">
-                                            <span class="w-30px h-30px rounded-1 bg-gray-300 bg-opacity-50 me-3 d-flex align-items-center justify-content-center">
-                                                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><circle cx="19.49" cy="17.15" r="2.32" style="fill: currentColor"/><circle cx="4.52" cy="17.15" r="2.32" style="fill: currentColor"/><path d="M18.16,24H24a4.94,4.94,0,0,0-5.66-2.4,5.3,5.3,0,0,0-1.16.54A8.59,8.59,0,0,1,18.16,24Z" style="fill: currentColor"/><path d="M6.76,22.11a4.76,4.76,0,0,0-1.1-.51A4.94,4.94,0,0,0,0,24H5.74A9.51,9.51,0,0,1,6.76,22.11Z" style="fill: currentColor"/><path d="M17.07,24A5.74,5.74,0,0,0,12,20.31,5.76,5.76,0,0,0,6.83,24Z" style="fill: currentColor"/><g>  <circle cx="11.95" cy="7.42" r="1.6" style="fill: currentColor"/>  <path d="M17,7.75a.5.5,0,0,1,0-.67L18.09,6a1.87,1.87,0,0,0,.25-2.25,1.86,1.86,0,0,0-2.06-.89l-1.5.35a.5.5,0,0,1-.57-.34l-.45-1.48a1.89,1.89,0,0,0-3.62,0L9.69,2.82a.48.48,0,0,1-.56.34L7.62,2.81a1.85,1.85,0,0,0-2.06.89A1.89,1.89,0,0,0,5.81,6L6.87,7.08a.5.5,0,0,1,0,.67L5.81,8.88a1.89,1.89,0,0,0-.25,2.25A1.84,1.84,0,0,0,7.62,12l1.51-.34a.47.47,0,0,1,.56.33l.27.86a3.89,3.89,0,0,1,4,.05l.28-.91a.49.49,0,0,1,.57-.33l1.5.34a1.83,1.83,0,0,0,2.06-.89,1.87,1.87,0,0,0-.25-2.25ZM12,10.61a3.2,3.2,0,1,1,3.2-3.19A3.19,3.19,0,0,1,12,10.61Z" style="fill: currentColor"/></g><circle cx="11.9" cy="16.25" r="2.91" style="fill: currentColor"/></g></svg>
-                                            </span>
-                                            <span class="h4 mb-0">User Management</span>
-                                        </span>
-                                        <span>Fusce porttitor magna sed tortor elementum dapibus. Duis feugiat aliquam lorem, non hendrerit sapien suscipit quis.</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item bg-white rounded shadow mb-4" role="presentation">
-                                    <a class="nav-link" href="javascript: void(0);" id="featureTabThree" data-bs-toggle="pill" data-bs-target="#featureThree" role="tab" aria-controls="featureThree" aria-selected="false">
-                                        <span class="d-flex mb-3 align-items-center">
-                                            <span class="w-30px h-30px rounded-1 bg-gray-300 bg-opacity-50 me-3 d-flex align-items-center justify-content-center">
-                                                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M21.5,3H18.75a.25.25,0,0,1-.25-.25V1a1,1,0,0,0-2,0V5.75a.75.75,0,0,1-1.5,0V3.5a.5.5,0,0,0-.5-.5H8.25A.25.25,0,0,1,8,2.75V1A1,1,0,0,0,6,1V5.75a.75.75,0,0,1-1.5,0V3.5A.5.5,0,0,0,4,3H2.5a2,2,0,0,0-2,2V22a2,2,0,0,0,2,2h19a2,2,0,0,0,2-2V5A2,2,0,0,0,21.5,3Zm0,18.5a.5.5,0,0,1-.5.5H3a.5.5,0,0,1-.5-.5V9.5A.5.5,0,0,1,3,9H21a.5.5,0,0,1,.5.5Z" style="fill: currentColor"/><path d="M9.65,11.15a1.51,1.51,0,0,0-1.59.18L6.38,12.68a1,1,0,1,0,1.24,1.56l.88-.7V19a1,1,0,0,0,2,0V12.5A1.5,1.5,0,0,0,9.65,11.15Z" style="fill: currentColor"/><path d="M16,11H13a1,1,0,0,0,0,2h2.21l-2.62,5.58a1,1,0,0,0,.49,1.33,1,1,0,0,0,1.33-.48l3-6.34A1.51,1.51,0,0,0,16,11Z" style="fill: currentColor"/></g></svg>
-                                            </span>
-                                            <span class="h4 mb-0">Schedule Calendar</span>
-                                        </span>
-                                        <span>Sed commodo magna purus, non volutpat mi convallis nec. Nam eget ornare magna. Donec ac orci vitae dolor lacinia pellentesque nec a odio.</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item bg-white rounded shadow" role="presentation">
-                                    <a class="nav-link" href="javascript: void(0);" id="featureTabFour" data-bs-toggle="pill" data-bs-target="#featureFour" role="tab" aria-controls="featureFour" aria-selected="false">
-                                        <span class="d-flex mb-3 align-items-center">
-                                            <span class="w-30px h-30px rounded-1 bg-gray-300 bg-opacity-50 me-3 d-flex align-items-center justify-content-center">
-                                                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M7.29,17.79,6,19.09V17.5a1,1,0,0,0-1-1H2.5A.5.5,0,0,1,2,16V2.5A.5.5,0,0,1,2.5,2H19a.5.5,0,0,1,.5.5V8a1,1,0,0,0,2,0V2a2,2,0,0,0-2-2H2A2,2,0,0,0,0,2V16.5a2,2,0,0,0,2,2H4v3a1,1,0,0,0,1.71.71l3-3a1,1,0,0,0-1.42-1.42Z" style="fill: currentColor"/><path d="M22,10.5H12.5a2,2,0,0,0-2,2V19a2,2,0,0,0,2,2h3.17l3.73,2.8a1,1,0,0,0,1.05.09A1,1,0,0,0,21,23V21h1a2,2,0,0,0,2-2V12.5A2,2,0,0,0,22,10.5Zm0,8a.5.5,0,0,1-.5.5H20a1,1,0,0,0-1,1v1l-2.4-1.8A1,1,0,0,0,16,19H13a.5.5,0,0,1-.5-.5V13a.5.5,0,0,1,.5-.5h8.5a.5.5,0,0,1,.5.5Z" style="fill: currentColor"/><path d="M16.25,6.5a.76.76,0,0,0-.75-.75H5a.75.75,0,0,0,0,1.5H15.5A.76.76,0,0,0,16.25,6.5Z" style="fill: currentColor"/><path d="M5,10.75a.75.75,0,0,0,0,1.5H8a.75.75,0,0,0,0-1.5Z" style="fill: currentColor"/></g></svg>
-                                            </span>
-                                            <span class="h4 mb-0">Meeting and Chatting</span>
-                                        </span>
-                                        <span>Aliquam erat volutpat. Phasellus porta nibh risus, a mattis orci volutpat a. In fermentum finibus posuere. Maecenas eget faucibus erat.</span>
-                                    </a>
-                                </li>
-                            </ul>                        
-                        </div>
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: .5rem;
+    background: var(--teal-dim); border: 1px solid rgba(0,181,194,0.25);
+    color: var(--teal); font-size: .78rem; font-weight: 500;
+    padding: .35rem 1rem; border-radius: 100px;
+    margin-bottom: 2rem;
+    animation: fadeUp .6s ease both;
+  }
 
-                        <div class="col">
-                            <div class="tab-content h-100" id="features-tabContent">
-                                <div class="tab-pane fade h-100 show active" id="featureOne" role="tabpanel" aria-labelledby="featureTabOne">
-                                    <img src="{% static 'images/printscreens/sales-report.jpg' %}" class="w-100 h-100 object-fit-contain" alt="...">
-                                </div>
-                                <div class="tab-pane fade h-100" id="featureTwo" role="tabpanel" aria-labelledby="featureTabTwo">
-                                    <img src="{% static 'images/printscreens/user-management.jpg' %}" class="w-100 h-100 object-fit-contain" alt="...">
-                                </div>
-                                <div class="tab-pane fade h-100" id="featureThree" role="tabpanel" aria-labelledby="featureTabThree">
-                                    <img src="{% static 'images/printscreens/calendar.jpg' %}" class="w-100 h-100 object-fit-contain" alt="...">
-                                </div>
-                                <div class="tab-pane fade h-100" id="featureFour" role="tabpanel" aria-labelledby="featureTabFour">
-                                    <img src="{% static 'images/printscreens/chat.jpg' %}" class="w-100 h-100 object-fit-contain" alt="...">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+  .hero-badge .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--teal);
+    animation: pulse 2s ease infinite;
+  }
 
-            <section class="py-10">
-                <div class="container">
-                    <div class="row gx-xl-10 mt-5">
-                        <div class="col-xl-7 mb-7 mb-xl-0">
-                            <div class="row gy-6">
-                                <div class="col-md-6">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <span class="avatar avatar-lg text-bg-gray-300 d-flex align-items-center justify-content-center mb-8">
-                                                <img src="{% static 'images/logos/logo-slack.svg' %}" class="img-fluid" width="42" alt="...">
-                                            </span>
-                                            
-                                            <span class="h3 card-title d-block mb-2">Slack</span>
-                                            <span class="small text-muted mb-0">Slack is an instant messaging program designed by Slack Technologies and owned by Salesforce.</span>
-                                        </div>
-                                    </div>
-                                </div>
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .5; transform: scale(1.3); }
+  }
 
-                                <div class="col-md-6">
-                                    <div class="card h-100 text-bg-primary shadow-lg mt-xl-n5 me-xl-n5">
-                                        <div class="card-body">
-                                            <span class="avatar avatar-lg text-bg-gray-300 d-flex align-items-center justify-content-center mb-8">
-                                                <img src="{% static 'images/logos/logo-teams.svg' %}" class="img-fluid" width="42" alt="...">
-                                            </span>
-                                            
-                                            <span class="h3 card-title d-block mb-2">Microsoft Teams</span>
-                                            <span class="small mb-0">Microsoft Teams is a proprietary business communication platform developed by Microsoft, as part of the Microsoft 365 family of products.</span>
-                                        </div>
-                                    </div>
-                                </div>
+  h1 {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(2.8rem, 6vw, 5rem);
+    line-height: 1.05; letter-spacing: -0.03em;
+    max-width: 780px;
+    animation: fadeUp .7s .1s ease both;
+  }
 
-                                <div class="col-md-6">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <span class="avatar avatar-lg text-bg-gray-300 d-flex align-items-center justify-content-center mb-8">
-                                                <img src="{% static 'images/logos/logo-facebook.svg' %}" class="img-fluid" width="42" alt="...">
-                                            </span>
-                                            
-                                            <span class="h3 card-title d-block mb-2">Facebook</span>
-                                            <span class="small text-muted mb-0">Facebook is an American multinational technology conglomerate based in Menlo Park, California.</span>
-                                        </div>
-                                    </div>
-                                </div>
+  h1 .accent { color: var(--teal); }
 
-                                <div class="col-md-6">
-                                    <div class="card h-100">
-                                        <div class="card-body">
-                                            <span class="avatar avatar-lg text-bg-gray-300 d-flex align-items-center justify-content-center mb-8">
-                                                <img src="{% static 'images/logos/logo-shopify.svg' %}" class="img-fluid" width="42" alt="...">
-                                            </span>
-                                            
-                                            <span class="h3 card-title d-block mb-2">Shopify</span>
-                                            <span class="small text-muted mb-0">Shopify is a Canadian multinational e-commerce company headquartered in Ottawa, Ontario.</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+  .hero-sub {
+    margin-top: 1.4rem;
+    color: var(--muted); font-size: clamp(.95rem, 1.4vw, 1.1rem);
+    font-weight: 300; max-width: 520px; line-height: 1.7;
+    animation: fadeUp .7s .2s ease both;
+  }
 
-                        <div class="col-xl-5 d-flex align-items-center">
-                            <div>
-                                <h3 class="text-uppercase text-primary h4 mb-3">Our integrations</h3>
-                                <h2 class="display-3 lh-sm mb-3">Connect {{ SITE_NAME}} to the tools you already use</h2>
-                                <p class="lh-lg fw-semibold">Sed sit amet mollis lacus. Mauris eget tincidunt nisl, at efficitur dui. Vivamus maximus neque orci, non bibendum nibh euismod vel. Vestibulum sollicitudin turpis sed magna ultricies.</p>
-                            
-                                <ul class="list-unstyled lh-lg">
-                                    <li class="mb-3">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20" class="text-bg-primary rounded p-1 me-2"><path d="M23.37.29a1.49,1.49,0,0,0-2.09.34L7.25,20.2,2.56,15.51A1.5,1.5,0,0,0,.44,17.63l5.93,5.94a1.53,1.53,0,0,0,2.28-.19l15.07-21A1.49,1.49,0,0,0,23.37.29Z" style="fill: currentColor"></path></svg>
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit
-                                    </li>
-                                    <li class="mb-3">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20" class="text-bg-primary rounded p-1 me-2"><path d="M23.37.29a1.49,1.49,0,0,0-2.09.34L7.25,20.2,2.56,15.51A1.5,1.5,0,0,0,.44,17.63l5.93,5.94a1.53,1.53,0,0,0,2.28-.19l15.07-21A1.49,1.49,0,0,0,23.37.29Z" style="fill: currentColor"></path></svg>
-                                        Cras ut metus vel ante fermentum lobortis non at nulla
-                                    </li>
-                                    <li class="mb-3">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20" class="text-bg-primary rounded p-1 me-2"><path d="M23.37.29a1.49,1.49,0,0,0-2.09.34L7.25,20.2,2.56,15.51A1.5,1.5,0,0,0,.44,17.63l5.93,5.94a1.53,1.53,0,0,0,2.28-.19l15.07-21A1.49,1.49,0,0,0,23.37.29Z" style="fill: currentColor"></path></svg>
-                                        Donec non odio sit amet lacus sagittis tempor
-                                    </li>
-                                    <li class="mb-3">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20" class="text-bg-primary rounded p-1 me-2"><path d="M23.37.29a1.49,1.49,0,0,0-2.09.34L7.25,20.2,2.56,15.51A1.5,1.5,0,0,0,.44,17.63l5.93,5.94a1.53,1.53,0,0,0,2.28-.19l15.07-21A1.49,1.49,0,0,0,23.37.29Z" style="fill: currentColor"></path></svg>
-                                        Phasellus nec diam sollicitudin, tempor velit sed, eleifend metus
-                                    </li>
-                                    <li>
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20" class="text-bg-primary rounded p-1 me-2"><path d="M23.37.29a1.49,1.49,0,0,0-2.09.34L7.25,20.2,2.56,15.51A1.5,1.5,0,0,0,.44,17.63l5.93,5.94a1.53,1.53,0,0,0,2.28-.19l15.07-21A1.49,1.49,0,0,0,23.37.29Z" style="fill: currentColor"></path></svg>
-                                        Donec placerat orci id tortor blandit, vitae sagittis ex molestie
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+  .hero-actions {
+    display: flex; gap: 1rem; flex-wrap: wrap;
+    justify-content: center; margin-top: 2.5rem;
+    animation: fadeUp .7s .3s ease both;
+  }
 
-            <section class="py-10 bg-light-green">
-                <div class="container">
+  .btn-primary {
+    background: var(--teal); color: var(--dark);
+    padding: .8rem 2rem; border-radius: 100px;
+    font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .95rem;
+    text-decoration: none; transition: all .2s;
+    box-shadow: 0 0 30px var(--teal-glow);
+  }
 
-                    <div class="text-center">
-                        <h3 class="text-uppercase text-primary h4 mb-3">Our pricing</h3>
-                        <h2 class="display-3 lh-sm">Find the right plan<br>for your needs</h2>
-                        <p class="lh-lg mb-8 fw-semibold">All our plans include a <span class="text-primary">15-day</span> free trial</p>
-                    </div>
-                    <div class="row justify-content-center">
-                        <div class="col-xl-9">
-                            <div class="row">
-                                <div class="col">
-                                    <div class="card mb-0">
-                                        <div class="card-body">
-                                            <div class="table-responsive">
-                                                <table class="table table-striped table-nowrap mb-0">
-                                                    <thead>
-                                                        <tr>
-                                                            <th class="align-middle">
-                                                                <img src="{% static 'images/illustrations/keynote-illustration.svg' %}" class="img-fluid w-75 mt-5" alt="...">
-                                                            </th>
-                                                            <th>
-                                                                <div class="p-5 pt-7 mb-5 text-center text-body">
-                                                                    <span class="h4 text-uppercase mb-3 d-block">Standard</span>
-                                                                    <span class="h3 display-3 d-block">$49</span>
-                                                                    <span class="h4 small text-muted d-block">Perfect for starter <br>businesses or single users</span>
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 45px var(--teal-glow); }
 
-                                                                    <!-- Button -->
-                                                                    <a class="btn btn-primary w-100" href="javascript: void(0);">Get started</a>
-                                                                </div>
-                                                            </th>
-                                                            <th>
-                                                                <div class="p-5 pt-7 mb-5 text-center text-bg-primary rounded">
-                                                                    <span class="h4 text-uppercase mb-3 d-block">Pro</span>
-                                                                    <span class="h3 display-3 d-block">$149</span>
-                                                                    <span class="h4 small opacity-80 d-block">Enjoy it without <br>any product limitation</span>
+  .btn-ghost {
+    border: 1px solid rgba(248,251,253,0.18); color: var(--white);
+    padding: .8rem 2rem; border-radius: 100px;
+    font-family: 'DM Sans', sans-serif; font-weight: 400; font-size: .95rem;
+    text-decoration: none; transition: all .2s;
+    background: rgba(255,255,255,0.04);
+  }
 
-                                                                    <!-- Button -->
-                                                                    <a class="btn btn-white link-primary w-100" href="javascript: void(0);">Get started</a>
-                                                                </div>
-                                                            </th>
-                                                            <th>
-                                                                <div class="p-5 pt-7 mb-5 text-center text-body">
-                                                                    <span class="h4 text-uppercase mb-3 d-block">Enterprise</span>
-                                                                    <span class="h3 display-3 d-block">$599</span>
-                                                                    <span class="h4 small text-muted d-block">Take your business into <br>the next level</span>
+  .btn-ghost:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-dim); }
 
-                                                                    <!-- Button -->
-                                                                    <a class="btn btn-primary w-100" href="javascript: void(0);">Get started</a>
-                                                                </div>
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <th>Build numbers</th>
-                                                            <td class="text-center">50</td>
-                                                            <td class="text-center">100</td>
-                                                            <td class="text-center">Unlimited</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Team members</th>
-                                                            <td class="text-center">20</td>
-                                                            <td class="text-center">100</td>
-                                                            <td class="text-center">Unlimited</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Storage</th>
-                                                            <td class="text-center">100 GB</td>
-                                                            <td class="text-center">500 GB</td>
-                                                            <td class="text-center">5 TB</td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Live preview</th>
-                                                            <td class="text-center">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20" class="text-bg-primary rounded p-1 me-2 opacity-30"><path d="M14.3,12.18a.24.24,0,0,1,0-.35l9.26-9.27a1.49,1.49,0,0,0,0-2.12,1.51,1.51,0,0,0-2.12,0L12.18,9.7a.25.25,0,0,1-.36,0L2.56.44A1.51,1.51,0,0,0,.44.44a1.49,1.49,0,0,0,0,2.12L9.7,11.83a.24.24,0,0,1,0,.35L.44,21.44a1.49,1.49,0,0,0,0,2.12,1.51,1.51,0,0,0,2.12,0l9.26-9.26a.25.25,0,0,1,.36,0l9.26,9.26a1.51,1.51,0,0,0,2.12,0,1.49,1.49,0,0,0,0-2.12Z" style="fill: currentColor"></path></svg>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20" class="text-bg-primary rounded p-1 me-2"><path d="M23.37.29a1.49,1.49,0,0,0-2.09.34L7.25,20.2,2.56,15.51A1.5,1.5,0,0,0,.44,17.63l5.93,5.94a1.53,1.53,0,0,0,2.28-.19l15.07-21A1.49,1.49,0,0,0,23.37.29Z" style="fill: currentColor"/></svg>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20" class="text-bg-primary rounded p-1 me-2"><path d="M23.37.29a1.49,1.49,0,0,0-2.09.34L7.25,20.2,2.56,15.51A1.5,1.5,0,0,0,.44,17.63l5.93,5.94a1.53,1.53,0,0,0,2.28-.19l15.07-21A1.49,1.49,0,0,0,23.37.29Z" style="fill: currentColor"/></svg>
-                                                            </td>
-                                                        </tr>
-                                                        <tr>
-                                                            <th>Premium support</th>
-                                                            <td class="text-center">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20" class="text-bg-primary rounded p-1 me-2 opacity-30"><path d="M14.3,12.18a.24.24,0,0,1,0-.35l9.26-9.27a1.49,1.49,0,0,0,0-2.12,1.51,1.51,0,0,0-2.12,0L12.18,9.7a.25.25,0,0,1-.36,0L2.56.44A1.51,1.51,0,0,0,.44.44a1.49,1.49,0,0,0,0,2.12L9.7,11.83a.24.24,0,0,1,0,.35L.44,21.44a1.49,1.49,0,0,0,0,2.12,1.51,1.51,0,0,0,2.12,0l9.26-9.26a.25.25,0,0,1,.36,0l9.26,9.26a1.51,1.51,0,0,0,2.12,0,1.49,1.49,0,0,0,0-2.12Z" style="fill: currentColor"></path></svg>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20" class="text-bg-primary rounded p-1 me-2 opacity-30"><path d="M14.3,12.18a.24.24,0,0,1,0-.35l9.26-9.27a1.49,1.49,0,0,0,0-2.12,1.51,1.51,0,0,0-2.12,0L12.18,9.7a.25.25,0,0,1-.36,0L2.56.44A1.51,1.51,0,0,0,.44.44a1.49,1.49,0,0,0,0,2.12L9.7,11.83a.24.24,0,0,1,0,.35L.44,21.44a1.49,1.49,0,0,0,0,2.12,1.51,1.51,0,0,0,2.12,0l9.26-9.26a.25.25,0,0,1,.36,0l9.26,9.26a1.51,1.51,0,0,0,2.12,0,1.49,1.49,0,0,0,0-2.12Z" style="fill: currentColor"></path></svg>
-                                                            </td>
-                                                            <td class="text-center">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20" class="text-bg-primary rounded p-1 me-2"><path d="M23.37.29a1.49,1.49,0,0,0-2.09.34L7.25,20.2,2.56,15.51A1.5,1.5,0,0,0,.44,17.63l5.93,5.94a1.53,1.53,0,0,0,2.28-.19l15.07-21A1.49,1.49,0,0,0,23.37.29Z" style="fill: currentColor"/></svg>
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
+  /* hero store preview card */
+  .hero-preview {
+    margin-top: 5rem;
+    width: 100%; max-width: 860px;
+    background: rgba(12,53,73,0.55);
+    border: 1px solid rgba(0,181,194,0.18);
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(0,181,194,0.06);
+    animation: fadeUp .8s .45s ease both;
+  }
 
-            <section class="py-10">
-                <div class="container">
-                    <div class="row justify-content-center">
-                        <div class="col-lg-10 col-xxl-8">
-                            <div class="text-center">
-                                <h3 class="text-uppercase text-primary h4 mb-3">Our help</h3>
-                                <h2 class="display-3 lh-sm">Frequently Asked Questions</h2>
-                                <p class="lh-lg mb-8 fw-semibold">Nulla dolor nulla, molestie vel luctus ut.</p>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-xl-6">
-                                    <div class="d-flex mb-6">
-                                        <div class="text-primary me-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20"><path d="M12,0A12,12,0,1,0,24,12,12,12,0,0,0,12,0Zm0,19a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,12,19Zm1.6-6.08a1,1,0,0,0-.6.92,1,1,0,0,1-2,0,3,3,0,0,1,1.8-2.75A2,2,0,1,0,10,9.25a1,1,0,0,1-2,0,4,4,0,1,1,5.6,3.67Z" style="fill: currentColor"></path></svg>
-                                        </div>
-                                        <div>
-                                            <h3 class="h4 mb-1">Vivamus dapibus libero sed ultricies dapibus?</h3>
-                                            <p class="mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam nibh sem, convallis id tincidunt et, tempor vitae turpis.</p>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex mb-6">
-                                        <div class="text-primary me-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20"><path d="M12,0A12,12,0,1,0,24,12,12,12,0,0,0,12,0Zm0,19a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,12,19Zm1.6-6.08a1,1,0,0,0-.6.92,1,1,0,0,1-2,0,3,3,0,0,1,1.8-2.75A2,2,0,1,0,10,9.25a1,1,0,0,1-2,0,4,4,0,1,1,5.6,3.67Z" style="fill: currentColor"></path></svg>
-                                        </div>
-                                        <div>
-                                            <h3 class="h4 mb-1">Nullam gravida orci id venenatis facilisis?</h3>
-                                            <p class="mb-0">Donec non diam nec leo efficitur congue ut ac nisi. Integer ut tincidunt ligula, nec cursus augue. Proin sed augue magna.</p>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex mb-6 mb-xl-0">
-                                        <div class="text-primary me-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20"><path d="M12,0A12,12,0,1,0,24,12,12,12,0,0,0,12,0Zm0,19a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,12,19Zm1.6-6.08a1,1,0,0,0-.6.92,1,1,0,0,1-2,0,3,3,0,0,1,1.8-2.75A2,2,0,1,0,10,9.25a1,1,0,0,1-2,0,4,4,0,1,1,5.6,3.67Z" style="fill: currentColor"></path></svg>
-                                        </div>
-                                        <div>
-                                            <h3 class="h4 mb-1">Suspendisse non odio et nisl aliquet consequat?</h3>
-                                            <p class="mb-0">Quisque varius vulputate leo non blandit. Sed iaculis justo nec nisl consequat, ut varius dolor efficitur.</p>
-                                        </div>
-                                    </div>
-                                </div>
+  .preview-bar {
+    background: rgba(14,34,56,0.8);
+    padding: 12px 18px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid rgba(0,181,194,0.1);
+  }
 
-                                <div class="col-xl-6">
-                                    <div class="d-flex mb-6">
-                                        <div class="text-primary me-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20"><path d="M12,0A12,12,0,1,0,24,12,12,12,0,0,0,12,0Zm0,19a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,12,19Zm1.6-6.08a1,1,0,0,0-.6.92,1,1,0,0,1-2,0,3,3,0,0,1,1.8-2.75A2,2,0,1,0,10,9.25a1,1,0,0,1-2,0,4,4,0,1,1,5.6,3.67Z" style="fill: currentColor"></path></svg>
-                                        </div>
-                                        <div>
-                                            <h3 class="h4 mb-1">Duis consectetur mauris tristique luctus vehicula?</h3>
-                                            <p class="mb-0">Phasellus pretium urna sed risus scelerisque tristique. Integer sodales commodo ullamcorper.</p>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex mb-6">
-                                        <div class="text-primary me-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20"><path d="M12,0A12,12,0,1,0,24,12,12,12,0,0,0,12,0Zm0,19a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,12,19Zm1.6-6.08a1,1,0,0,0-.6.92,1,1,0,0,1-2,0,3,3,0,0,1,1.8-2.75A2,2,0,1,0,10,9.25a1,1,0,0,1-2,0,4,4,0,1,1,5.6,3.67Z" style="fill: currentColor"></path></svg>
-                                        </div>
-                                        <div>
-                                            <h3 class="h4 mb-1">Ut ut urna ut felis vulputate bibendum eu quis leo?</h3>
-                                            <p class="mb-0">Nunc fermentum gravida nisi, vehicula consectetur libero mattis eu. Vestibulum pharetra massa in purus ullamcorper.</p>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex">
-                                        <div class="text-primary me-2">
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="20" width="20"><path d="M12,0A12,12,0,1,0,24,12,12,12,0,0,0,12,0Zm0,19a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,12,19Zm1.6-6.08a1,1,0,0,0-.6.92,1,1,0,0,1-2,0,3,3,0,0,1,1.8-2.75A2,2,0,1,0,10,9.25a1,1,0,0,1-2,0,4,4,0,1,1,5.6,3.67Z" style="fill: currentColor"></path></svg>
-                                        </div>
-                                        <div>
-                                            <h3 class="h4 mb-1">Curabitur sed velit et elit pretium sodales?</h3>
-                                            <p class="mb-0">Curabitur dictum turpis vitae commodo tincidunt. Nam id faucibus tortor, donec elementum nunc diam.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div> <!-- / .row -->
-                        </div>
-                    </div>
-                </div>
-            </section> {% endcomment %}
+  .preview-dots { display: flex; gap: 6px; }
+  .preview-dots span {
+    width: 10px; height: 10px; border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+  }
+  .preview-dots span:first-child { background: #ff6058; }
+  .preview-dots span:nth-child(2) { background: #ffbd2e; }
+  .preview-dots span:nth-child(3) { background: #28c840; }
 
-            <footer class="text-bg-dark">
-                <div class="container pt-8 pb-4">
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <img src="{% static 'images/logo-dark.png' %}" class="img-fluid mb-5" alt="...">
-                            <p class="lh-lg text-secondary">Clean, clear and flexible layouts <br class="d-none d-lg-block">allow for easy build of web applications.</p>
-                            <ul class="list-inline">
-                                <li class="list-inline-item">
-                                    <a href="javascript: void(0);" class="d-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm w-40px h-40px text-dark">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="18" width="18"><path d="M18.14,7.17A.5.5,0,0,0,17.77,7H14V5.59c0-.28.06-.6.51-.6h3a.42.42,0,0,0,.35-.15A.47.47,0,0,0,18,4.5V.5a.5.5,0,0,0-.5-.5H13.17C8.37,0,8,4.1,8,5.35V7H5.5a.5.5,0,0,0-.5.5v4a.5.5,0,0,0,.5.5H8V23.5a.5.5,0,0,0,.5.5h5a.5.5,0,0,0,.5-.5V12h3.35a.5.5,0,0,0,.5-.45l.41-4A.47.47,0,0,0,18.14,7.17Z" style="fill: currentColor"/></svg>
-                                    </a>
-                                </li>
-                                <li class="list-inline-item">
-                                    <a href="javascript: void(0);" class="d-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm w-40px h-40px text-dark">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="18" width="18"><path d="M23.32,6.44a.5.5,0,0,0-.2-.87l-.79-.19A.49.49,0,0,1,22,5.1a.5.5,0,0,1,0-.43l.45-.89a.5.5,0,0,0-.59-.7l-2,.56a.48.48,0,0,1-.43-.09,5,5,0,0,0-8,4v.36a.25.25,0,0,1-.22.25c-2.81.33-5.5-1.1-8.4-4.44a.5.5,0,0,0-.51-.16A.49.49,0,0,0,2,4a7.52,7.52,0,0,0,.46,4.92.27.27,0,0,1,0,.26.24.24,0,0,1-.25.1L1.08,9.06a.52.52,0,0,0-.44.15.51.51,0,0,0-.13.44,5.15,5.15,0,0,0,2.37,3.78.25.25,0,0,1,.12.23.24.24,0,0,1-.15.22l-.54.21a.53.53,0,0,0-.28.29.51.51,0,0,0,0,.4,4.36,4.36,0,0,0,3.2,2.48.27.27,0,0,1,.19.22.26.26,0,0,1-.15.26A11,11,0,0,1,1,18.56a.49.49,0,0,0-.2,1,19.92,19.92,0,0,0,8.14,1.93,12.6,12.6,0,0,0,7-2A12.48,12.48,0,0,0,21.5,9.06V8.19a.49.49,0,0,1,.18-.38Z" style="fill: currentColor"/></svg>
-                                    </a>
-                                </li>
-                                <li class="list-inline-item">
-                                    <a href="javascript: void(0);" class="d-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm w-40px h-40px text-dark">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" height="18" width="18"><g><path d="M6.1,7.4a.5.5,0,0,0,.69-.06A7,7,0,0,1,12,5a6.9,6.9,0,0,1,5.1,2.21.5.5,0,0,0,.71,0l2.92-2.74a.49.49,0,0,0,0-.7,12,12,0,0,0-17.84.4.49.49,0,0,0-.12.37A.51.51,0,0,0,3,4.9Z" style="fill: currentColor"/><path d="M5.24,14.79a.52.52,0,0,0,.14-.54A6.94,6.94,0,0,1,5,12a7.06,7.06,0,0,1,.36-2.21.48.48,0,0,0-.16-.55L2,6.64a.51.51,0,0,0-.43-.1.49.49,0,0,0-.34.27A12,12,0,0,0,0,12a11.81,11.81,0,0,0,1.33,5.46.5.5,0,0,0,.36.27.54.54,0,0,0,.42-.12Z" style="fill: currentColor"/><path d="M24,10.5a.51.51,0,0,0-.5-.5h-10a.5.5,0,0,0-.5.5v4a.5.5,0,0,0,.5.5h4.84a6.42,6.42,0,0,1-1.14,1.67.5.5,0,0,0,0,.67l2.67,3a.5.5,0,0,0,.37.17.51.51,0,0,0,.37-.15A12,12,0,0,0,24,12.6Z" style="fill: currentColor"/><path d="M15.52,18.46a.52.52,0,0,0-.59-.12,6.93,6.93,0,0,1-8.1-1.63.49.49,0,0,0-.7,0l-3,2.67a.5.5,0,0,0,0,.71,12,12,0,0,0,15,2.25.5.5,0,0,0,.12-.76Z" style="fill: currentColor"/></g></svg>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="col-md-4 col-lg-2 mb-3 mb-lg-0">
-                            <h4>Company</h4>
-                            <ul class="list-unstyled">
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">About</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Pricing</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Jobs</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Blog</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-md-4 col-lg-2 mb-3 mb-lg-0">
-                            <h4>Product</h4>
-                            <ul class="list-unstyled">
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Sales software</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Features</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Privacy & Security</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Marketpalce</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Status</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">API</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-md-4 col-lg-2 mb-3 mb-lg-0">
-                            <h4>Discover</h4>
-                            <ul class="list-unstyled">
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Partner Program</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Get our newsletter</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">What is CRM?</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">CRM Comparison</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Resources</a></li>
-                            </ul>
-                        </div>
-                        <div class="col-md-4 col-lg-2 mb-3 mb-lg-0">
-                            <h4>Help Center</h4>
-                            <ul class="list-unstyled">
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Community</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Knowledge base</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Academy</a></li>
-                                <li class="mt-2"><a href="javascript: void(0);" class="link-secondary">Support</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+  .preview-url {
+    flex: 1; background: rgba(255,255,255,0.06);
+    border-radius: 6px; padding: 5px 12px;
+    font-size: .75rem; color: var(--muted); font-family: monospace;
+    max-width: 340px; margin: 0 auto;
+  }
 
-                <hr>
+  .preview-body {
+    padding: 28px 28px 36px;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px;
+  }
 
-                <div class="container pb-6 text-secondary">
-                    <div class="row justify-content-between">
-                        <div class="col">
-                            © {{ SITE_NAME }}. 2025 Webinning.
-                        </div>
-            
-                        <div class="col-auto">
-                            v1.0.0
-                        </div>
-                    </div> <!-- / .row -->
-                </div>
-            </footer>
-        </main> <!-- / main -->
+  .preview-card {
+    background: rgba(14,34,56,0.6);
+    border: 1px solid rgba(0,181,194,0.1);
+    border-radius: 10px; padding: 16px;
+    transition: border-color .3s, transform .3s;
+  }
 
-        <!-- JAVASCRIPT-->
-        <!-- Theme JS -->
-        <script src="{% static 'js/theme.bundle.js' %}"></script>    </body>
+  .preview-card:hover { border-color: rgba(0,181,194,0.4); transform: translateY(-3px); }
+
+  .preview-img {
+    width: 100%; aspect-ratio: 4/3;
+    border-radius: 6px; margin-bottom: 10px;
+  }
+
+  .preview-card:nth-child(1) .preview-img { background: linear-gradient(135deg, #0c3549, #00b5c2); }
+  .preview-card:nth-child(2) .preview-img { background: linear-gradient(135deg, #0e2238, #0c5a6e); }
+  .preview-card:nth-child(3) .preview-img { background: linear-gradient(135deg, #0c3549 30%, #007a84); }
+
+  .preview-label {
+    font-size: .72rem; font-weight: 500; color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .preview-price {
+    font-family: 'Syne', sans-serif;
+    font-size: .9rem; font-weight: 700; color: var(--teal);
+  }
+
+  .preview-addcart {
+    display: block; width: 100%; margin-top: 10px;
+    background: var(--teal-dim); border: 1px solid rgba(0,181,194,0.2);
+    color: var(--teal); font-size: .7rem; font-weight: 500;
+    padding: 6px; border-radius: 6px; text-align: center;
+    cursor: default;
+  }
+
+  /* ── LOGOS ── */
+  .logos {
+    padding: 32px 6vw;
+    border-top: 1px solid rgba(0,181,194,0.08);
+    border-bottom: 1px solid rgba(0,181,194,0.08);
+    text-align: center;
+  }
+
+  .logos-label {
+    font-size: .78rem; color: var(--muted); letter-spacing: .12em;
+    text-transform: uppercase; margin-bottom: 1.5rem;
+  }
+
+  .logos-row {
+    display: flex; flex-wrap: wrap; justify-content: center;
+    gap: 2.5rem 4rem; align-items: center;
+  }
+
+  .logo-item {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: .9rem; color: rgba(248,251,253,0.25);
+    letter-spacing: .04em;
+    transition: color .2s;
+  }
+
+  .logo-item:hover { color: rgba(248,251,253,0.5); }
+
+  /* ── FEATURES ── */
+  .features {
+    padding: 110px 6vw;
+    max-width: 1100px; margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: .75rem; font-weight: 500; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--teal);
+    margin-bottom: 1rem;
+  }
+
+  .section-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+    letter-spacing: -0.025em; line-height: 1.15;
+    max-width: 540px;
+  }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5px;
+    margin-top: 4rem;
+    border: 1.5px solid rgba(0,181,194,0.12);
+    border-radius: 16px; overflow: hidden;
+  }
+
+  .feat {
+    padding: 38px 34px;
+    background: rgba(12,53,73,0.25);
+    transition: background .25s;
+    position: relative;
+  }
+
+  .feat::after {
+    content: '';
+    position: absolute; inset: 0;
+    border: 1.5px solid rgba(0,181,194,0.12);
+    pointer-events: none;
+  }
+
+  .feat:hover { background: rgba(0,181,194,0.07); }
+
+  .feat-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--teal-dim); border: 1px solid rgba(0,181,194,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; margin-bottom: 1.4rem;
+  }
+
+  .feat h3 {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+    margin-bottom: .6rem;
+  }
+
+  .feat p {
+    font-size: .87rem; color: var(--muted); line-height: 1.65; font-weight: 300;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .how {
+    padding: 100px 6vw;
+    background: linear-gradient(180deg, transparent, rgba(12,53,73,0.25), transparent);
+  }
+
+  .how-inner {
+    max-width: 1100px; margin: 0 auto;
+  }
+
+  .how-steps {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 0; margin-top: 4rem;
+    position: relative;
+  }
+
+  .how-steps::before {
+    content: '';
+    position: absolute; top: 28px; left: calc(16.6% + 14px); right: calc(16.6% + 14px);
+    height: 1px;
+    background: linear-gradient(90deg, var(--teal), rgba(0,181,194,0.2), var(--teal));
+  }
+
+  .step { text-align: center; padding: 0 24px; }
+
+  .step-num {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--navy); border: 2px solid var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+    color: var(--teal); margin: 0 auto 1.5rem;
+    position: relative; z-index: 1;
+    box-shadow: 0 0 20px var(--teal-glow);
+  }
+
+  .step h3 {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+    margin-bottom: .6rem;
+  }
+
+  .step p { font-size: .85rem; color: var(--muted); line-height: 1.65; font-weight: 300; }
+
+  /* ── PRICING ── */
+  .pricing {
+    padding: 100px 6vw;
+    max-width: 1000px; margin: 0 auto;
+    text-align: center;
+  }
+
+  .plans {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 1rem; margin-top: 3.5rem;
+  }
+
+  .plan {
+    background: rgba(12,53,73,0.3);
+    border: 1px solid rgba(0,181,194,0.12);
+    border-radius: 16px; padding: 34px 28px;
+    text-align: left; transition: border-color .25s, transform .25s;
+    position: relative;
+  }
+
+  .plan:hover { border-color: rgba(0,181,194,0.35); transform: translateY(-4px); }
+
+  .plan.featured {
+    background: linear-gradient(160deg, rgba(0,181,194,0.18), rgba(12,53,73,0.5));
+    border-color: rgba(0,181,194,0.45);
+    box-shadow: 0 0 40px rgba(0,181,194,0.15);
+  }
+
+  .plan-badge {
+    position: absolute; top: -12px; left: 50%; transform: translateX(-50%);
+    background: var(--teal); color: var(--dark);
+    font-size: .7rem; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; padding: .25rem .9rem; border-radius: 100px;
+    white-space: nowrap;
+  }
+
+  .plan-name {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: .88rem; letter-spacing: .08em; text-transform: uppercase;
+    color: var(--teal); margin-bottom: 1rem;
+  }
+
+  .plan-price {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 2.4rem; letter-spacing: -0.03em; margin-bottom: .3rem;
+  }
+
+  .plan-price sup { font-size: 1rem; vertical-align: top; margin-top: .5rem; margin-right: 2px; }
+  .plan-period { font-size: .8rem; color: var(--muted); margin-bottom: 1.6rem; }
+
+  .plan-feats { list-style: none; margin-bottom: 2rem; }
+
+  .plan-feats li {
+    font-size: .84rem; color: var(--muted); padding: .45rem 0;
+    border-bottom: 1px solid rgba(0,181,194,0.07);
+    display: flex; align-items: center; gap: .6rem;
+  }
+
+  .plan-feats li::before {
+    content: '✓'; color: var(--teal); font-weight: 700; font-size: .8rem;
+    flex-shrink: 0;
+  }
+
+  .plan-btn {
+    display: block; width: 100%; text-align: center;
+    padding: .7rem; border-radius: 100px;
+    font-family: 'DM Sans', sans-serif; font-weight: 600; font-size: .87rem;
+    text-decoration: none; transition: all .2s; cursor: pointer; border: none;
+  }
+
+  .plan-btn.primary { background: var(--teal); color: var(--dark); }
+  .plan-btn.primary:hover { opacity: .88; }
+  .plan-btn.outline {
+    background: transparent; color: var(--white);
+    border: 1px solid rgba(248,251,253,0.2);
+  }
+  .plan-btn.outline:hover { border-color: var(--teal); color: var(--teal); }
+
+  /* ── CTA BANNER ── */
+  .cta-banner {
+    margin: 0 6vw 100px;
+    border-radius: 20px; overflow: hidden;
+    background: linear-gradient(135deg, var(--navy), #0a4a5c);
+    border: 1px solid rgba(0,181,194,0.25);
+    padding: 72px 8vw;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 2rem; flex-wrap: wrap;
+    position: relative;
+  }
+
+  .cta-banner::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 280px; height: 280px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,181,194,0.2), transparent 70%);
+    pointer-events: none;
+  }
+
+  .cta-banner h2 {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(1.6rem, 2.8vw, 2.2rem);
+    letter-spacing: -0.025em; line-height: 1.2;
+    position: relative;
+  }
+
+  .cta-banner p {
+    color: var(--muted); font-size: .9rem; margin-top: .6rem;
+    font-weight: 300;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid rgba(0,181,194,0.1);
+    padding: 48px 6vw 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 1.5rem;
+  }
+
+  .footer-logo {
+    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
+    color: var(--white); text-decoration: none;
+  }
+
+  .footer-logo span { color: var(--teal); }
+
+  .footer-links {
+    display: flex; gap: 2rem; list-style: none; flex-wrap: wrap;
+  }
+
+  .footer-links a {
+    font-size: .82rem; color: var(--muted); text-decoration: none;
+    transition: color .2s;
+  }
+
+  .footer-links a:hover { color: var(--teal); }
+
+  .footer-copy {
+    font-size: .78rem; color: rgba(248,251,253,0.28);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(22px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 760px) {
+    .nav-links { display: none; }
+    .preview-body { grid-template-columns: 1fr 1fr; }
+    .preview-card:last-child { display: none; }
+    .how-steps { grid-template-columns: 1fr; gap: 2.5rem; }
+    .how-steps::before { display: none; }
+    .plans { grid-template-columns: 1fr; }
+    .cta-banner { flex-direction: column; text-align: center; }
+    footer { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">YouBuild<span>.store</span></a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#">Templates</a></li>
+  </ul>
+  <a href="#pricing" class="nav-cta">Start Free →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-badge">
+    <span class="dot"></span>
+    Now with AI-powered store builder
+  </div>
+
+  <h1>Your store,<br>built <span class="accent">your way.</span></h1>
+
+  <p class="hero-sub">
+    Launch a beautiful online store in minutes — no code, no designers, no limits.
+    Everything you need to sell online, in one place.
+  </p>
+
+  <div class="hero-actions">
+    <a href="#pricing" class="btn-primary">Start building free</a>
+    <a href="#how" class="btn-ghost">See how it works</a>
+  </div>
+
+  <div class="hero-preview">
+    <div class="preview-bar">
+      <div class="preview-dots">
+        <span></span><span></span><span></span>
+      </div>
+      <div class="preview-url">myshop.youbuild.store</div>
+    </div>
+    <div class="preview-body">
+      <div class="preview-card">
+        <div class="preview-img"></div>
+        <div class="preview-label">Wireless Headphones</div>
+        <div class="preview-price">$89.00</div>
+        <div class="preview-addcart">+ Add to cart</div>
+      </div>
+      <div class="preview-card">
+        <div class="preview-img"></div>
+        <div class="preview-label">Smart Watch Series X</div>
+        <div class="preview-price">$229.00</div>
+        <div class="preview-addcart">+ Add to cart</div>
+      </div>
+      <div class="preview-card">
+        <div class="preview-img"></div>
+        <div class="preview-label">Portable Speaker</div>
+        <div class="preview-price">$59.00</div>
+        <div class="preview-addcart">+ Add to cart</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOGOS -->
+<div class="logos">
+  <p class="logos-label">Trusted by 40,000+ entrepreneurs worldwide</p>
+  <div class="logos-row">
+    <span class="logo-item">VERITAS</span>
+    <span class="logo-item">NEXLANE</span>
+    <span class="logo-item">DROPLY</span>
+    <span class="logo-item">ARCHVIBE</span>
+    <span class="logo-item">CRAFTICA</span>
+    <span class="logo-item">LOOPMART</span>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <p class="section-label">What you get</p>
+  <h2 class="section-title">Everything to run a<br>thriving online store</h2>
+
+  <div class="features-grid">
+    <div class="feat">
+      <div class="feat-icon">🎨</div>
+      <h3>Drag & Drop Builder</h3>
+      <p>Design stunning storefronts with our intuitive visual editor. Zero code needed — just drag, drop, and publish.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">⚡</div>
+      <h3>Blazing Fast Stores</h3>
+      <p>Pages load in under 1s on any device. Our edge network ensures your customers never wait.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">💳</div>
+      <h3>Payments Built In</h3>
+      <p>Accept cards, wallets, and local payment methods in 135+ currencies from day one. No setup fees.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">📦</div>
+      <h3>Inventory & Orders</h3>
+      <p>Manage products, variants, stock levels, and fulfillment from a single clean dashboard.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">📊</div>
+      <h3>Live Analytics</h3>
+      <p>Track sales, sessions, conversion rates, and top products with beautiful real-time charts.</p>
+    </div>
+    <div class="feat">
+      <div class="feat-icon">🤖</div>
+      <h3>AI Copywriter</h3>
+      <p>Generate product descriptions, SEO titles, and ad copy in seconds with built-in AI tools.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <p class="section-label">How it works</p>
+    <h2 class="section-title">Up and selling<br>in three steps</h2>
+
+    <div class="how-steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Pick a template</h3>
+        <p>Choose from 80+ professionally designed store templates across any niche. Fully customisable.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Add your products</h3>
+        <p>Import from a CSV, connect suppliers, or add manually. AI fills in descriptions for you instantly.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Launch & grow</h3>
+        <p>Publish your store on your free subdomain or custom domain. Start selling in minutes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <p class="section-label">Pricing</p>
+  <h2 class="section-title" style="margin: 0 auto; text-align: center;">Simple, transparent pricing</h2>
+
+  <div class="plans">
+    <div class="plan featured">
+      <div class="plan-name">BETA TESTER</div>
+      <div class="plan-price"><sup>$</sup>0</div>
+      <div class="plan-period">Free testing period</div>
+      <ul class="plan-feats">
+        <li>Unlimited stores</li>
+        <li>Unlimited products</li>
+        <li>YouBuild subdomain</li>
+        <li>Basic analytics</li>
+        <li>0% transaction fee</li>
+      </ul>
+      <a href="{% url 'accounts:register' %}" class="plan-btn outline">Get started free</a>
+    </div>
+
+    <div class="plan">
+      <!-- <div class="plan-badge">Comming soon</div> -->
+      <div class="plan-name"></div>
+      <div class="plan-price"><sup>$</sup>.....</div>
+      <div class="plan-period">....</div>
+      <ul class="plan-feats">
+        <li>.....</li>
+        <li>.....</li>
+        <li>.....</li>
+        <li>.....</li>
+        <li>.....</li>
+        <li>.....</li>
+      </ul>
+      <a href="#" class="plan-btn primary disabled">Coming soon</a>
+    </div>
+
+    <div class="plan">
+        <!-- <div class="plan-badge">Comming soon</div> -->
+        <div class="plan-name"></div>
+        <div class="plan-price"><sup>$</sup>.....</div>
+        <div class="plan-period">....</div>
+        <ul class="plan-feats">
+          <li>.....</li>
+          <li>.....</li>
+          <li>.....</li>
+          <li>.....</li>
+          <li>.....</li>
+          <li>.....</li>
+        </ul>
+        <a href="#" class="plan-btn primary disabled">Coming soon</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<div class="cta-banner">
+  <div>
+    <h2>Ready to build your store?</h2>
+    <p>Join 40,000+ sellers already growing with YouBuild.store</p>
+  </div>
+  <a href="#pricing" class="btn-primary" style="flex-shrink:0;">Start for free →</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">YouBuild<span>.store</span></a>
+  <ul class="footer-links">
+    <li><a href="#">Features</a></li>
+    <li><a href="#">Pricing</a></li>
+    <li><a href="#">Templates</a></li>
+    <li><a href="#">Blog</a></li>
+    <li><a href="#">Privacy</a></li>
+    <li><a href="#">Terms</a></li>
+  </ul>
+  <span class="footer-copy">© 2026 YouBuild.store</span>
+</footer>
+
+</body>
 </html>

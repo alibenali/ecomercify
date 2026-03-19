@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.validators import MinValueValidator
 
 class Store(models.Model):
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="stores")
@@ -24,6 +25,20 @@ class Store(models.Model):
     def __str__(self):
         return self.name
 
+class City(models.Model):
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="cities")
+    name = models.CharField(max_length=255)
+    delivery_cost = models.DecimalField(max_digits=10, decimal_places=2, validators=[MinValueValidator(0)])
+
+    class Meta:
+        unique_together = ("store", "name")  # ✅ uniqueness per store
+        constraints = [
+            models.UniqueConstraint(fields=["store", "name"], name="unique_store_city")
+        ]
+
+    def __str__(self):
+        return f"{self.store.name} - {self.name}"
+
 
 
 class FacebookPixel(models.Model):
@@ -36,3 +51,4 @@ class FacebookPixel(models.Model):
         return self.pixel_code[:150]
     def __str__(self):
         return f"{self.store.name} - Pixel {self.id}"
+

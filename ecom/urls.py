@@ -19,7 +19,7 @@ urlpatterns = [
     path("upload/", upload_image, name="upload_image"),
     path("upload-paste/", upload_paste_image, name="upload_paste_image"),
 
-    path('stores/<int:store_id>/<str:code>/', landing_page, name="landing_page"),
+    path('<str:code>/', landing_page, name="landing_page"),
     
 ]
 

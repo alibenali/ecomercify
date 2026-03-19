@@ -4,83 +4,6 @@ from products.models import Product
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-class City(models.Model):
-    CITY_CHOICES = (
-        ("أدرار", "أدرار"),
-        (" الشلف", " الشلف"),
-        ("الأغواط", "الأغواط"),
-        ("أم البواقي", "أم البواقي"),
-        ("باتنة", "باتنة"),
-        (" بجاية", " بجاية"),
-        ("بسكرة", "بسكرة"),
-        ("بشار", "بشار"),
-        ("البليدة", "البليدة"),
-        ("البويرة", "البويرة"),
-        ("تمنراست", "تمنراست"),
-        ("تبسة", "تبسة"),
-        ("تلمسان", "تلمسان"),
-        ("تيارت", "تيارت"),
-        ("تيزي وزو", "تيزي وزو"),
-        ("الجزائر", "الجزائر"),
-        ("الجلفة", "الجلفة"),
-        ("جيجل", "جيجل"),
-        ("سطيف", "سطيف"),
-        ("سعيدة", "سعيدة"),
-        ("سكيكدة", "سكيكدة"),
-        ("سيدي بلعباس", "سيدي بلعباس"),
-        ("عنابة", "عنابة"),
-        ("قالمة", "قالمة"),
-        ("قسنطينة", "قسنطينة"),
-        ("المدية", "المدية"),
-        ("مستغانم", "مستغانم"),
-        ("المسيلة", "المسيلة"),
-        ("معسكر", "معسكر"),
-        ("ورقلة", "ورقلة"),
-        ("وهران", "وهران"),
-        ("البيض", "البيض"),
-        ("إليزي", "إليزي"),
-        ("برج بوعريريج", "برج بوعريريج"),
-        ("بومرداس", "بومرداس"),
-        ("الطارف", "الطارف"),
-        ("تندوف", "تندوف"),
-        ("تيسمسيلت", "تيسمسيلت"),
-        ("الوادي", "الوادي"),
-        ("خنشلة", "خنشلة"),
-        ("سوق أهراس", "سوق أهراس"),
-        ("تيبازة", "تيبازة"),
-        ("ميلة", "ميلة"),
-        ("عين الدفلة", "عين الدفلة"),
-        ("النعامة", "النعامة"),
-        ("عين تيموشنت", "عين تيموشنت"),
-        ("غرداية", "غرداية"),
-        ("غليزان", "غليزان"),
-        ("تيميمون", "تيميمون"),
-        ("برج باجي مختار", "برج باجي مختار"),
-        ("أولاد جلال", "أولاد جلال"),
-        ("بني عباس", "بني عباس"),
-        ("عين صالح", "عين صالح"),
-        ("عين قزام", "عين قزام"),
-        ("تقرت", "تقرت"),
-        ("جانت", "جانت"),
-        ("المغير", "المغير"),
-        ("المنيعة", "المنيعة"),
-
-    )
-    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="cities")
-    name = models.CharField(max_length=255, choices=CITY_CHOICES,)
-    delivery_cost = models.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        unique_together = ("store", "name")  # ✅ uniqueness per store
-
-        # OR the modern way (recommended since Django 2.2+):
-        constraints = [
-            models.UniqueConstraint(fields=["store", "name"], name="unique_store_city")
-        ]
-
-    def __str__(self):
-        return f"{self.store.name} - {self.name}"
-
 
 class LandingPage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name="landingpages")
@@ -136,14 +59,3 @@ class LandingPage(models.Model):
     @property
     def webhook(self):
         return self.custom_webhook or self.product.store.sheet_webhook
-    
-
-    
-
-# ✅ Create all cities automatically when a Store is created
-@receiver(post_save, sender=Store)
-def create_cities_for_store(sender, instance, created, **kwargs):
-    if created:
-        for city_name, _ in City.CITY_CHOICES:
-            City.objects.get_or_create(store=instance, name=city_name, defaults={"delivery_cost": 0})
-

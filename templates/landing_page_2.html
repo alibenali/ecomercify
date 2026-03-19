@@ -10,17 +10,13 @@
     <title>{{landing_page.name}} - {{ SITE_NAME }}</title>
     <link rel="icon" href="{% static 'favicon/favicon_custom.ico' %}" sizes="any">
 
-    <!-- Preconnect to external origins for faster FCP -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 
-    <!-- Critical: load main layout CSS first (blocking is OK for stable first paint) -->
     <link rel="stylesheet" href="{% static 'css/landing_page.css' %}">
-    <!-- Google Font with display=swap so text shows immediately -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap"></noscript>
-    <!-- Font Awesome: non-blocking so it doesn't delay FCP -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
 
@@ -29,15 +25,9 @@
     {% endfor %}
 
     <style>
-      /* Enhanced Modern Design Styles */
-      html {
-        scroll-behavior: smooth;
-      }
+      html { scroll-behavior: smooth; }
 
-      body {
-        direction: rtl;
-        text-align: right;
-      }
+      body { direction: rtl; text-align: right; }
 
       .hero {
         background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
@@ -45,52 +35,34 @@
         min-height: auto;
       }
 
-      .content2 {
-        gap: 30px;
-        align-items: stretch;
-      }
+      .content2 { gap: 30px; align-items: stretch; }
 
       .hero-img {
         border: none !important;
         border-radius: 20px;
         overflow: hidden;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         background: white;
         padding: 15px;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
       }
-
-      .hero-img:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
-      }
-
-      .hero-img img {
-        border-radius: 15px;
-        object-fit: cover;
-      }
+      .hero-img:hover { transform: translateY(-5px); box-shadow: 0 15px 50px rgba(0,0,0,0.15); }
+      .hero-img img { border-radius: 15px; object-fit: cover; }
 
       .hero-text {
         border: none !important;
         background: white;
         border-radius: 20px;
         padding: 35px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         align-items: stretch;
       }
+      .hero-text h1 { font-size: 32px; font-weight: 800; color: #1a1a1a; margin-bottom: 20px; line-height: 1.3; text-align: center; }
 
-      .hero-text h1 {
-        font-size: 32px;
-        font-weight: 800;
-        color: #1a1a1a;
-        margin-bottom: 20px;
-        line-height: 1.3;
-        text-align: center;
-      }
-
+      /* ── Price container ── */
       .price-container {
         display: flex;
         justify-content: center;
@@ -99,281 +71,96 @@
         gap: 15px;
         margin-bottom: 20px;
         padding: 15px 20px;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
+        background: linear-gradient(135deg,rgba(255,255,255,.9) 0%,rgba(248,249,250,.9) 100%);
         border-radius: 15px;
         flex-wrap: wrap;
         position: relative;
-        box-shadow: 
-          0 6px 20px rgba(0, 0, 0, 0.06),
-          inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        box-shadow: 0 6px 20px rgba(0,0,0,.06),inset 0 1px 0 rgba(255,255,255,.9);
         backdrop-filter: blur(10px);
       }
-
       .price-container::after {
-        content: '';
-        position: absolute;
-        top: -1px;
-        right: -1px;
-        bottom: -1px;
-        left: -1px;
-        background: linear-gradient(135deg, #2ecc71, #27ae60, #ff4757, #ee5a6f);
-        border-radius: 15px;
-        z-index: -1;
-        opacity: 0.08;
-        filter: blur(8px);
+        content:''; position:absolute; top:-1px; right:-1px; bottom:-1px; left:-1px;
+        background:linear-gradient(135deg,#2ecc71,#27ae60,#ff4757,#ee5a6f);
+        border-radius:15px; z-index:-1; opacity:.08; filter:blur(8px);
       }
 
-      .old-price-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        flex-direction: column;
-        gap: 6px;
-      }
+      .old-price-wrapper { display:flex; align-items:center; justify-content:center; position:relative; flex-direction:column; gap:6px; }
 
       .savings-badge {
-        font-size: 11px;
-        font-weight: 700;
-        color: white;
-        background: linear-gradient(135deg, #ff4757 0%, #ee5a6f 100%);
-        padding: 4px 10px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(255, 71, 87, 0.3);
-        text-align: center;
-        white-space: nowrap;
-        position: relative;
-        overflow: hidden;
+        font-size:11px; font-weight:700; color:white;
+        background:linear-gradient(135deg,#ff4757 0%,#ee5a6f 100%);
+        padding:4px 10px; border-radius:12px;
+        box-shadow:0 2px 8px rgba(255,71,87,.3);
+        text-align:center; white-space:nowrap; position:relative; overflow:hidden;
       }
-
-      .savings-badge::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        animation: badgeShine 2.5s infinite;
-      }
-
-      @keyframes badgeShine {
-        0% { left: -100%; }
-        100% { left: 100%; }
-      }
-
-      .savings-badge span {
-        position: relative;
-        z-index: 1;
-      }
+      .savings-badge::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent); animation:badgeShine 2.5s infinite; }
+      @keyframes badgeShine { 0%{left:-100%} 100%{left:100%} }
+      .savings-badge span { position:relative; z-index:1; }
 
       .old-price {
-        font-size: 20px;
-        color: #ff4757;
-        text-decoration: line-through;
-        margin: 0;
-        font-weight: 700;
-        position: relative;
-        text-decoration-thickness: 2px;
-        text-decoration-color: #ff4757;
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        padding: 8px 15px;
-        background: linear-gradient(135deg, rgba(255, 71, 87, 0.1) 0%, rgba(255, 71, 87, 0.05) 100%);
-        border-radius: 12px;
-        border: 1.5px solid rgba(255, 71, 87, 0.3);
-        box-shadow: 0 4px 12px rgba(255, 71, 87, 0.12),
-                    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-        backdrop-filter: blur(10px);
-        position: relative;
-        overflow: hidden;
+        font-size:20px; color:#ff4757; text-decoration:line-through; margin:0; font-weight:700;
+        text-decoration-thickness:2px; text-decoration-color:#ff4757;
+        display:flex; align-items:center; gap:5px;
+        padding:8px 15px;
+        background:linear-gradient(135deg,rgba(255,71,87,.1) 0%,rgba(255,71,87,.05) 100%);
+        border-radius:12px; border:1.5px solid rgba(255,71,87,.3);
+        box-shadow:0 4px 12px rgba(255,71,87,.12),inset 0 1px 0 rgba(255,255,255,.5);
+        backdrop-filter:blur(10px); position:relative; overflow:hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
       }
+      .old-price::before { content:''; position:absolute; top:-50%; right:-50%; width:200%; height:200%; background:radial-gradient(circle,rgba(255,71,87,.1) 0%,transparent 70%); animation:shimmer 3s infinite; }
+      @keyframes shimmer { 0%,100%{transform:rotate(0deg)} 50%{transform:rotate(180deg)} }
+      .old-price span { position:relative; z-index:1; }
+      .old-price:hover { transform:translateY(-1px); box-shadow:0 6px 18px rgba(255,71,87,.15),inset 0 1px 0 rgba(255,255,255,.5); }
 
-      .old-price::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(circle, rgba(255, 71, 87, 0.1) 0%, transparent 70%);
-        animation: shimmer 3s infinite;
-      }
-
-      @keyframes shimmer {
-        0%, 100% { transform: rotate(0deg); }
-        50% { transform: rotate(180deg); }
-      }
-
-      .old-price span {
-        position: relative;
-        z-index: 1;
-      }
-
-      .right-price {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 6px;
-        position: relative;
-      }
-
+      .right-price { opacity:1; transform:scale(1) translateY(0); display:flex; flex-direction:column; align-items:center; gap:6px; position:relative; }
       .right-price p {
-        font-size: 32px;
-        font-weight: 900;
-        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 50%, #229954 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        margin: 0;
+        font-size:32px; font-weight:900;
+        background:linear-gradient(135deg,#2ecc71 0%,#27ae60 50%,#229954 100%);
+        -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+        margin:0; display:flex; align-items:center; gap:6px;
+        padding:12px 20px; background-color:rgba(46,204,113,.1); border-radius:15px; border:2px solid transparent;
+        background-image:linear-gradient(white,white),linear-gradient(135deg,#2ecc71 0%,#27ae60 100%);
+        background-origin:border-box; background-clip:padding-box,border-box;
+        box-shadow:0 6px 20px rgba(46,204,113,.2),0 2px 8px rgba(46,204,113,.12),inset 0 1px 0 rgba(255,255,255,.6);
+        position:relative; overflow:hidden; transition:all .3s ease; cursor:default;
+      }
+      .right-price p:hover { transform:translateY(-2px) scale(1.01); box-shadow:0 8px 25px rgba(46,204,113,.25),0 3px 10px rgba(46,204,113,.15),inset 0 1px 0 rgba(255,255,255,.6); }
+      .right-price p::before { content:''; position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:linear-gradient(45deg,transparent,rgba(255,255,255,.3),transparent); transform:rotate(45deg); animation:shine 3s infinite; }
+      @keyframes shine { 0%{transform:translateX(-100%) translateY(-100%) rotate(45deg)} 100%{transform:translateX(100%) translateY(100%) rotate(45deg)} }
+      .right-price p span { position:relative; z-index:1; background:linear-gradient(135deg,#2ecc71 0%,#27ae60 50%,#229954 100%); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; filter:drop-shadow(0 2px 4px rgba(46,204,113,.3)); }
+
+      .price-label { font-size:10px; color:white; font-weight:700; padding:4px 12px; background:linear-gradient(135deg,#2ecc71 0%,#27ae60 100%); border-radius:12px; display:inline-block; box-shadow:0 2px 8px rgba(46,204,113,.3); text-transform:uppercase; letter-spacing:.5px; position:relative; overflow:hidden; }
+      .price-label::before { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent); animation:labelShine 2s infinite; }
+      @keyframes labelShine { 0%{left:-100%} 100%{left:100%} }
+      .price-label span { position:relative; z-index:1; }
+      .left-price { display:none; }
+
+      .stars { color:#ffc107; font-size:24px; text-align:center; margin:15px 0; letter-spacing:3px; }
+
+      .Please_fill_out_the_form_below { color:#27a44f; font-weight:700; text-align:center; margin:20px 0; font-size:18px; padding:12px; background:#e8f5e9; border-radius:10px; border-right:4px solid #27a44f; }
+
+      /* ── Option variant pills ── */
+      .variant-section { margin-bottom: 20px; }
+      .variant-section-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: #444;
+        margin-bottom: 10px;
         display: flex;
         align-items: center;
-        gap: 6px;
-        padding: 12px 20px;
-        background-color: rgba(46, 204, 113, 0.1);
-        border-radius: 15px;
-        border: 2px solid transparent;
-        background-image: 
-          linear-gradient(white, white),
-          linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-        background-origin: border-box;
-        background-clip: padding-box, border-box;
-        box-shadow: 
-          0 6px 20px rgba(46, 204, 113, 0.2),
-          0 2px 8px rgba(46, 204, 113, 0.12),
-          inset 0 1px 0 rgba(255, 255, 255, 0.6);
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        cursor: default;
+        gap: 8px;
       }
+      .variant-section-title i { color: #27a44f; }
 
-      .right-price p:hover {
-        transform: translateY(-2px) scale(1.01);
-        box-shadow: 
-          0 8px 25px rgba(46, 204, 113, 0.25),
-          0 3px 10px rgba(46, 204, 113, 0.15),
-          inset 0 1px 0 rgba(255, 255, 255, 0.6);
-      }
-
-      .old-price:hover {
-        transform: translateY(-1px);
-        box-shadow: 
-          0 6px 18px rgba(255, 71, 87, 0.15),
-          inset 0 1px 0 rgba(255, 255, 255, 0.5);
-      }
-
-      .right-price p::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        transform: rotate(45deg);
-        animation: shine 3s infinite;
-      }
-
-      @keyframes shine {
-        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
-      }
-
-      .right-price p span {
-        position: relative;
-        z-index: 1;
-        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 50%, #229954 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        filter: drop-shadow(0 2px 4px rgba(46, 204, 113, 0.3));
-      }
-
-      .price-label {
-        font-size: 10px;
-        color: white;
-        font-weight: 700;
-        padding: 4px 12px;
-        background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
-        border-radius: 12px;
-        display: inline-block;
-        box-shadow: 0 2px 8px rgba(46, 204, 113, 0.3);
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        position: relative;
-        overflow: hidden;
-      }
-
-      .price-label::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        animation: labelShine 2s infinite;
-      }
-
-      @keyframes labelShine {
-        0% { left: -100%; }
-        100% { left: 100%; }
-      }
-
-      .price-label span {
-        position: relative;
-        z-index: 1;
-      }
-
-      .left-price {
-        display: none;
-      }
-
-      .stars {
-        color: #ffc107;
-        font-size: 24px;
-        text-align: center;
-        margin: 15px 0;
-        letter-spacing: 3px;
-      }
-
-      .Please_fill_out_the_form_below {
-        color: #27a44f;
-        font-weight: 700;
-        text-align: center;
-        margin: 20px 0;
-        font-size: 18px;
-        padding: 12px;
-        background: #e8f5e9;
-        border-radius: 10px;
-        border-right: 4px solid #27a44f;
-      }
-
-      .variation-section {
-        margin: 20px 0;
-      }
-
-      .variation-label {
-        font-weight: 700;
-        font-size: 16px;
-        color: #333;
-        margin-bottom: 12px;
-        display: block;
-      }
-
-      .variation-options {
+      .variant-pills {
         display: flex;
         flex-wrap: wrap;
         gap: 10px;
-        margin-bottom: 15px;
       }
 
       .size-card, .color-card {
-        padding: 12px 24px;
+        padding: 10px 22px;
         margin: 0 !important;
         border: 2px solid #e0e0e0;
         border-radius: 25px;
@@ -385,21 +172,128 @@
         color: #333;
         min-width: 60px;
         text-align: center;
+        user-select: none;
       }
-
       .size-card:hover, .color-card:hover {
         border-color: #27a44f;
         background: #f1f8f4;
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(39, 164, 79, 0.2);
+        box-shadow: 0 4px 12px rgba(39,164,79,.2);
+      }
+      .size-card.active, .color-card.active {
+        background: #27a44f;
+        border-color: #27a44f;
+        color: white;
+        transform: scale(1.05);
+        box-shadow: 0 4px 14px rgba(39,164,79,.35);
       }
 
-      .form {
-        margin-top: 25px;
+      /* ── Offer variant cards ── */
+      .offer-cards { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+
+      .offer-card {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 14px 18px;
+        border: 2px solid #e0e0e0;
+        border-radius: 16px;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+      .offer-card::before {
+        content: '';
+        position: absolute;
+        top: 0; right: 0; bottom: 0;
+        width: 4px;
+        background: #e0e0e0;
+        border-radius: 0 16px 16px 0;
+        transition: background 0.3s;
+      }
+      .offer-card:hover {
+        border-color: #27a44f;
+        background: #f9fdf9;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(39,164,79,.15);
+      }
+      .offer-card:hover::before { background: #27a44f; }
+
+      .offer-card.active {
+        border-color: #27a44f;
+        background: linear-gradient(135deg, #f0fbf4 0%, #e6f7ec 100%);
+        box-shadow: 0 6px 20px rgba(39,164,79,.2);
+      }
+      .offer-card.active::before { background: #27a44f; }
+
+      .offer-radio {
+        width: 20px; height: 20px;
+        border: 2px solid #ccc;
+        border-radius: 50%;
+        flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.3s;
+      }
+      .offer-card.active .offer-radio {
+        border-color: #27a44f;
+        background: #27a44f;
+      }
+      .offer-card.active .offer-radio::after {
+        content: '';
+        width: 8px; height: 8px;
+        border-radius: 50%;
+        background: white;
+        display: block;
       }
 
-      .form input,
-      .form select {
+      .offer-info { flex: 1; }
+      .offer-label-text { font-size: 15px; font-weight: 700; color: #1a1a1a; }
+      .offer-card.active .offer-label-text { color: #1a7a3e; }
+      .offer-sku { font-size: 12px; color: #999; margin-top: 2px; }
+
+      .offer-price-tag {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 3px;
+        flex-shrink: 0;
+      }
+      .offer-price-new {
+        font-size: 18px;
+        font-weight: 900;
+        color: #27a44f;
+      }
+      .offer-price-old {
+        font-size: 13px;
+        font-weight: 600;
+        color: #ff4757;
+        text-decoration: line-through;
+      }
+
+      .offer-badge {
+        position: absolute;
+        top: 10px;
+        left: 14px;
+        font-size: 10px;
+        font-weight: 700;
+        color: white;
+        background: linear-gradient(135deg,#ff4757,#ee5a6f);
+        padding: 3px 9px;
+        border-radius: 10px;
+        box-shadow: 0 2px 6px rgba(255,71,87,.3);
+      }
+
+      /* ── Variants section separator ── */
+      .variants-separator {
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #e0e0e0, transparent);
+        margin: 18px 0;
+      }
+
+      .form { margin-top: 25px; }
+      .form input, .form select {
         border: 2px solid #e0e0e0;
         padding: 0 20px;
         margin-bottom: 15px;
@@ -409,256 +303,64 @@
         transition: all 0.3s ease;
         background: #fafafa;
       }
-
-      .form input:focus,
-      .form select:focus {
+      .form input:focus, .form select:focus {
         border-color: #27a44f;
         background: white;
-        box-shadow: 0 0 0 3px rgba(39, 164, 79, 0.1);
+        box-shadow: 0 0 0 3px rgba(39,164,79,.1);
         outline: none;
       }
 
-      .select-div {
-        position: relative;
-        margin-bottom: 15px;
-      }
+      .select-div { position: relative; margin-bottom: 15px; }
+      .select-div .arrow-down { left: 20px; right: auto; top: 50%; transform: translateY(-50%); color: #666; pointer-events: none; }
+      .select-div select { padding-right: 20px; padding-left: 45px; }
 
-      .select-div .arrow-down {
-        left: 20px;
-        right: auto;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #666;
-        pointer-events: none;
-      }
-
-      .select-div select {
-        padding-right: 20px;
-        padding-left: 45px;
-      }
-
-      .total-card {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border: 2px solid #e0e0e0;
-        border-radius: 15px;
-        padding: 20px;
-        margin: 20px 0;
-      }
-
-      .total-card-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 0;
-        font-size: 16px;
-      }
-
-      .total-card-item span:first-child {
-        color: #666;
-        font-weight: 500;
-      }
-
-      .total-card-item span:last-child {
-        color: #333;
-        font-weight: 700;
-      }
-
-      .total-card hr {
-        border: none;
-        border-top: 2px solid #ddd;
-        margin: 10px 0;
-      }
-
-      .total-card-total {
-        font-size: 20px;
-        padding-top: 15px;
-        margin-top: 10px;
-        border-top: 2px solid #ddd;
-      }
-
-      .total-card-total span:first-child {
-        color: #1a1a1a;
-        font-weight: 800;
-      }
-
-      .total-card-total span:last-child {
-        color: #27a44f;
-        font-size: 24px;
-      }
+      .total-card { background: linear-gradient(135deg,#f8f9fa 0%,#e9ecef 100%); border: 2px solid #e0e0e0; border-radius: 15px; padding: 20px; margin: 20px 0; }
+      .total-card-item { display:flex; justify-content:space-between; align-items:center; padding:10px 0; font-size:16px; }
+      .total-card-item span:first-child { color:#666; font-weight:500; }
+      .total-card-item span:last-child { color:#333; font-weight:700; }
+      .total-card hr { border:none; border-top:2px solid #ddd; margin:10px 0; }
+      .total-card-total { font-size:20px; padding-top:15px; margin-top:10px; border-top:2px solid #ddd; }
+      .total-card-total span:first-child { color:#1a1a1a; font-weight:800; }
+      .total-card-total span:last-child { color:#27a44f; font-size:24px; }
 
       .order-now {
-        background: linear-gradient(135deg, #27a44f 0%, #1e8e3e 100%);
-        border-radius: 12px;
-        height: 55px;
-        font-size: 18px;
-        font-weight: 700;
-        margin-top: 20px;
-        box-shadow: 0 6px 20px rgba(39, 164, 79, 0.3);
-        transition: all 0.3s ease;
-        position: relative;
-        overflow: hidden;
+        background: linear-gradient(135deg,#27a44f 0%,#1e8e3e 100%);
+        border-radius: 12px; height: 55px; font-size: 18px; font-weight: 700;
+        margin-top: 20px; box-shadow: 0 6px 20px rgba(39,164,79,.3);
+        transition: all 0.3s ease; position: relative; overflow: hidden;
       }
+      .order-now:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(39,164,79,.4); }
+      .order-now:active { transform: translateY(0); }
+      .order-now::before { content:''; position:absolute; top:0; right:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.2),transparent); transition:right .5s; }
+      .order-now:hover::before { right:100%; }
 
-      .order-now:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(39, 164, 79, 0.4);
-      }
+      .website { background: white; padding: 50px 0; }
+      .desc { line-height: 1.8; font-size: 18px; color: #444; }
+      .ling-link { display:inline-block; margin-top:30px; padding:15px 40px; border-radius:12px; font-weight:700; font-size:18px; transition:all .3s ease; box-shadow:0 6px 20px rgba(39,164,79,.3); }
+      .ling-link:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(39,164,79,.4); }
 
-      .order-now:active {
-        transform: translateY(0);
-      }
+      footer { background: linear-gradient(135deg,#1a1a1a 0%,#2d2d2d 100%); padding: 50px 0; margin-top: 0; }
+      footer .card { padding: 20px; }
+      footer .card h1 { color:white; font-size:22px; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid #27a44f; display:inline-block; }
+      footer .card p { color:#ccc; margin-bottom:10px; font-size:15px; }
+      footer .card a { color:#ccc; margin-bottom:10px; display:block; transition:color .3s ease; }
+      footer .card a:hover { color:#27a44f; padding-right:5px; }
+      .footer-icons a { display:inline-flex; align-items:center; justify-content:center; width:45px; height:45px; background:rgba(255,255,255,.1); border-radius:50%; margin-left:10px; transition:all .3s ease; }
+      .footer-icons a:hover { background:#27a44f; transform:translateY(-3px); }
+      .skill { display:none; }
 
-      .order-now::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: right 0.5s;
-      }
-
-      .order-now:hover::before {
-        right: 100%;
-      }
-
-      .website {
-        background: white;
-        padding: 50px 0;
-      }
-
-      .desc {
-        line-height: 1.8;
-        font-size: 18px;
-        color: #444;
-      }
-
-      .ling-link {
-        display: inline-block;
-        margin-top: 30px;
-        padding: 15px 40px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 18px;
-        transition: all 0.3s ease;
-        box-shadow: 0 6px 20px rgba(39, 164, 79, 0.3);
-      }
-
-      .ling-link:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(39, 164, 79, 0.4);
-      }
-
-      footer {
-        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-        padding: 50px 0;
-        margin-top: 0;
-      }
-
-      footer .card {
-        padding: 20px;
-      }
-
-      footer .card h1 {
-        color: white;
-        font-size: 22px;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 2px solid #27a44f;
-        display: inline-block;
-      }
-
-      footer .card p {
-        color: #ccc;
-        margin-bottom: 10px;
-        font-size: 15px;
-      }
-
-      footer .card a {
-        color: #ccc;
-        margin-bottom: 10px;
-        display: block;
-        transition: color 0.3s ease;
-      }
-
-      footer .card a:hover {
-        color: #27a44f;
-        padding-right: 5px;
-      }
-
-      .footer-icons a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 45px;
-        height: 45px;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 50%;
-        margin-left: 10px;
-        transition: all 0.3s ease;
-      }
-
-      .footer-icons a:hover {
-        background: #27a44f;
-        transform: translateY(-3px);
-      }
-
-      /* Hide skill bars (strikethrough decoration) */
-      .skill {
-        display: none;
-      }
-
-      /* Responsive improvements */
       @media (max-width: 667px) {
-        .hero-text {
-          padding: 25px 20px;
-        }
-
-        .hero-text h1 {
-          font-size: 24px;
-        }
-
-        .right-price p {
-          font-size: 28px;
-          padding: 10px 18px;
-        }
-
-        .old-price {
-          font-size: 18px;
-          padding: 6px 12px;
-        }
-
-        .price-container {
-          flex-direction: column;
-          gap: 12px;
-          padding: 12px 15px;
-        }
-
-        .price-label {
-          font-size: 9px;
-          padding: 3px 10px;
-          margin-bottom: 5px;
-          display: block;
-        }
-
-        .right-price {
-          text-align: center;
-          width: 100%;
-        }
-
-        .old-price-wrapper {
-          width: 100%;
-        }
-
-        .savings-badge {
-          font-size: 10px;
-          padding: 3px 8px;
-        }
-
-        .variation-options {
-          justify-content: center;
-        }
+        .hero-text { padding: 25px 20px; }
+        .hero-text h1 { font-size: 24px; }
+        .right-price p { font-size: 28px; padding: 10px 18px; }
+        .old-price { font-size: 18px; padding: 6px 12px; }
+        .price-container { flex-direction: column; gap: 12px; padding: 12px 15px; }
+        .price-label { font-size:9px; padding:3px 10px; margin-bottom:5px; display:block; }
+        .right-price { text-align:center; width:100%; }
+        .old-price-wrapper { width:100%; }
+        .savings-badge { font-size:10px; padding:3px 8px; }
+        .offer-card { flex-wrap: wrap; }
+        .offer-badge { position: static; margin-bottom: 4px; align-self: flex-start; }
       }
     </style>
 
@@ -671,86 +373,85 @@
         <div class="hero-img" style="border-color:{{ THEME_COLOR }}">
           <img src="{{ landing_page.image.url }}" alt="{{ landing_page.name }}" fetchpriority="high" decoding="async">
         </div>
+
         <div class="hero-text" id="hero" style="border-color:{{ THEME_COLOR }}">
           <h1>{{ landing_page.name }}</h1>
           <p class="stars">★★★★★</p>
+
+          {# ── Price display (updated dynamically by JS) ── #}
+          <div class="price-container">
+            <div class="old-price-wrapper">
+              {% if product.fake_price %}
+                <div class="savings-badge">
+                  <span>
+                    {% widthratio product.fake_price 1 1 as fp %}
+                    {% widthratio product.price 1 1 as rp %}
+                    وفّر {{ product.fake_price|floatformat:0|add:"-"|add:product.price|floatformat:0 }} د.ج
+                  </span>
+                </div>
+                <div class="old-price"><span>{{ product.fake_price|floatformat:0 }} د.ج</span></div>
+              {% endif %}
+            </div>
+            <div class="right-price">
+              <div class="price-label"><span>السعر الحالي</span></div>
+              <p><span id="display-price">{{ landing_page.price|floatformat:0 }}</span> <span>د.ج</span></p>
+            </div>
+          </div>
+
+      
+
           <p class="Please_fill_out_the_form_below">
             <i class="fas fa-info-circle" style="margin-left: 8px;"></i>
             المرجوا ملإ الاستماره اسفله
           </p>
-          {% if size_variations_count > 0 %}
-            <div class="variation-section">
-              <label class="variation-label">
-                <i class="fas fa-ruler" style="margin-left: 8px;"></i>
-                المقاس
-              </label>
-              <div class="variation-options">
-                {% for variant in size_variations %}
-                  <input style="appearance: none;" type="radio" name="size_variant" value="{{ variant.SKU }}" id="input-{{ variant.SKU }}" form="form">
-                  <label for="input-{{ variant.SKU }}" class="size-card" id="{{ variant.SKU }}" onclick="changeSize('{{ variant.SKU }}',this);">{{ variant.name }}</label>
-                  {% if variant.default %}
-                    <script>document.addEventListener("DOMContentLoaded", function(){changeSize('{{ variant.SKU }}',document.getElementById('{{ variant.SKU }}'))})</script>
-                  {% endif %}
-                {% endfor %}
-              </div>
-            </div>
-          {% endif %}
-          {% if color_variations_count %}
-            <div class="variation-section">
-              <label class="variation-label">
-                <i class="fas fa-palette" style="margin-left: 8px;"></i>
-                اللون
-              </label>
-              <div class="variation-options">
-                {% for variant in color_variations %}
-                  <input style="appearance: none;" type="radio" name="color_variant" value="{{ variant.SKU }}" id="input-{{ variant.SKU }}" form="form">
-                  <label for="input-{{ variant.SKU }}" class="color-card" id="{{ variant.SKU }}" onclick="changeColor('{{ variant.SKU }}',this)">{{ variant.name }}</label>
-                  {% if variant.default %}
-                    <script>document.addEventListener("DOMContentLoaded", function(){changeColor('{{ variant.SKU }}',document.getElementById('{{ variant.SKU }}'))})</script>
-                  {% endif %}
-                {% endfor %}
-              </div>
-            </div>
-          {% endif %}
+
           <form id="form" class="form" method="POST" action="{% url 'landing_page' landing_page.code %}">
             {% csrf_token %}
             <input type="hidden" name="code" value="{{ landing_page.code }}">
+
+            {# Variant hidden inputs #}
+            <input type="hidden" id="selected_variant_sku" name="variant_sku" value="">
+            <input type="hidden" id="selected_offer_sku" name="offer_sku" value="">
+
+            {# Legacy fields kept for backward compat #}
             <input type="hidden" id="size" name="size" value="">
             <input type="hidden" id="color" name="color" value="">
-            <input type="hidden" id="total_price" name="total_price" value="">
+
+            <input type="hidden" id="total_price" name="total_price" value="{{ landing_page.price }}">
             <input type="hidden" id="ref" name="ref" value="">
-            
-            <div style="position: relative; width: 100%;">
-              <i class="fas fa-user" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none;"></i>
-              <input type="text" required name="name" id="" placeholder="الاسم" style="padding-right: 50px; width: 100%;">
+
+            <div style="position:relative;width:100%;">
+              <i class="fas fa-user" style="position:absolute;right:20px;top:50%;transform:translateY(-50%);color:#999;pointer-events:none;"></i>
+              <input type="text" required name="name" placeholder="الاسم" style="padding-right:50px;width:100%;">
             </div>
-            
-            <div style="position: relative; width: 100%;">
-              <i class="fas fa-phone" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none;"></i>
-              <input type="tel" required name="phone" id="" placeholder="رقم الهاتف" dir="rtl" style="padding-right: 50px; width: 100%;">
+
+            <div style="position:relative;width:100%;">
+              <i class="fas fa-phone" style="position:absolute;right:20px;top:50%;transform:translateY(-50%);color:#999;pointer-events:none;"></i>
+              <input type="tel" required name="phone" placeholder="رقم الهاتف" dir="rtl" style="padding-right:50px;width:100%;">
             </div>
-            
+
             {% if landing_page.show_address %}
-              <div style="position: relative; width: 100%;">
-                <i class="fas fa-map-marker-alt" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none;"></i>
-                <input type="text" name="address" id="address" placeholder="العنوان الكامل (العنوان.البلديه.الولاية)" style="padding-right: 50px;">
+              <div style="position:relative;width:100%;">
+                <i class="fas fa-map-marker-alt" style="position:absolute;right:20px;top:50%;transform:translateY(-50%);color:#999;pointer-events:none;"></i>
+                <input type="text" name="address" id="address" placeholder="العنوان الكامل (العنوان.البلديه.الولاية)" style="padding-right:50px;">
               </div>
             {% endif %}
+
             {% if landing_page.show_state %}
               <div class="select-div">
-                <i class="fas fa-map-marker-alt" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none; z-index: 1;"></i>
-                <select name="province" id="city" onChange="changePrice()" required style="padding-right: 50px;">
+                <i class="fas fa-map-marker-alt" style="position:absolute;right:20px;top:50%;transform:translateY(-50%);color:#999;pointer-events:none;z-index:1;"></i>
+                <select name="province" id="city" onChange="changePrice()" required style="padding-right:50px;">
                   <option value="" selected disabled>يرجى إختيار ولايتك</option>
                   {% for city in cities %}
-                    <option data-price="{{city.delivery_cost|floatformat:0}}" value="{{ city.name }}">{{ city.name }}</option>
+                    <option data-price="{{ city.delivery_cost|floatformat:0 }}" value="{{ city.name }}">{{ city.name }}</option>
                   {% endfor %}
                 </select>
                 <i class="fa-solid fa-sort-down arrow-down"></i>
               </div>
               {% if landing_page.show_city %}
                 <div class="select-div">
-                  <i class="fas fa-city" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none; z-index: 1;"></i>
-                  <select name="municipality" id="municipality" style="padding-right: 50px;">
+                  <i class="fas fa-city" style="position:absolute;right:20px;top:50%;transform:translateY(-50%);color:#999;pointer-events:none;z-index:1;"></i>
+                  <select name="municipality" id="municipality" style="padding-right:50px;">
                     <option disabled selected>اختر البلدية</option>
                   </select>
                   <i class="fa-solid fa-sort-down arrow-down"></i>
@@ -758,79 +459,139 @@
               {% endif %}
             {% endif %}
 
-            {% if offer_variations_count > 0 %}
-              <div class="select-div">
-                <i class="fas fa-gift" style="position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #999; pointer-events: none; z-index: 1;"></i>
-                <select name="variation" onChange="changePrice()" id="cars" required style="padding-right: 50px;">
-                  {% for variation in product.variations.all %}
-                    {% if variation.type == 'offer' %}
-                      <option data-price="{{variation.price|floatformat:0}}" value="{{ variation.SKU }}" {% if variation.default %}selected{% endif %}>{{ variation.name }}</option>
-                    {% endif %}
+            {# ── OFFER variants ── #}
+
+            {# Django doesn't allow method calls with args in templates, so we pass them from the view context #}
+            {% if offer_variants %}
+              <div class="variant-section">
+                <div class="variant-section-title">
+                  <i class="fas fa-tags"></i>
+                  اختر العرض المناسب
+                </div>
+  
+                {# Default "no offer" option #}
+                <div class="offer-cards">
+                  <div
+                    class="offer-card active"
+                    onclick="selectOffer(this, '', {{ landing_page.price }}, '')"
+                    data-sku=""
+                    data-price="{{ landing_page.price }}"
+                  >
+                    <div class="offer-radio"></div>
+                    <div class="offer-info">
+                      <div class="offer-label-text">قطعة واحدة</div>
+                      <div class="offer-sku">السعر الأساسي</div>
+                    </div>
+                    <div class="offer-price-tag">
+                      <div class="offer-price-new">{{ landing_page.price|floatformat:0 }} د.ج</div>
+                      {% if product.fake_price %}
+                        <div class="offer-price-old">{{ product.fake_price|floatformat:0 }} د.ج</div>
+                      {% endif %}
+                    </div>
+                  </div>
+  
+                  {% for variant in offer_variants %}
+                    <div
+                      class="offer-card"
+                      onclick="selectOffer(this, '{{ variant.SKU }}', {{ variant.price }}, '{{ variant.offer_label|default:'' }}')"
+                      data-sku="{{ variant.SKU }}"
+                      data-price="{{ variant.price }}"
+                    >
+                      <div class="offer-radio"></div>
+                      <div class="offer-info">
+                        <div class="offer-label-text">{{ variant.offer_label|default:variant.SKU }}</div>
+                        <div class="offer-sku">{{ variant.SKU }}</div>
+                      </div>
+                      <div class="offer-price-tag">
+                        <div class="offer-price-new">{{ variant.price|floatformat:0 }} د.ج</div>
+                        <div class="offer-price-old">{{ landing_page.price|floatformat:0 }} د.ج</div>
+                      </div>
+                      {# Savings badge if cheaper than base price #}
+                      {% if variant.price < landing_page.price %}
+                        <div class="offer-badge">خصم</div>
+                      {% endif %}
+                    </div>
                   {% endfor %}
-                </select>
-                <i class="fa-solid fa-sort-down arrow-down"></i>
+                </div>
               </div>
+              <div class="variants-separator"></div>
             {% endif %}
-           
+  
+            {# ── OPTION variants (grouped by option name) ── #}
+            {% if option_groups %}
+              {% for option_name, values in option_groups.items %}
+                <div class="variant-section">
+                  <div class="variant-section-title">
+                    <i class="fas fa-layer-group"></i>
+                    {{ option_name }}
+                  </div>
+                  <div class="variant-pills">
+                    {% for val in values %}
+                      <div
+                        class="size-card"
+                        onclick="selectOptionValue(this, '{{ val.sku }}', '{{ option_name }}')"
+                        data-option="{{ option_name }}"
+                        data-sku="{{ val.sku }}"
+                      >
+                        {{ val.label }}
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              {% endfor %}
+              <div class="variants-separator"></div>
+            {% endif %}
+
             {% if landing_page.show_final_cost %}
               <div class="total-card">
                 <div class="total-card-item">
-                  <span><i class="fas fa-tag" style="margin-left: 8px;"></i>سعر المنتج</span>
-                  <span id="product_cost">{{ landing_page.price|floatformat:0 }} <span>د.ج</span></span>   
+                  <span><i class="fas fa-tag" style="margin-left:8px;"></i>سعر المنتج</span>
+                  <span id="product_cost">{{ landing_page.price|floatformat:0 }} <span>د.ج</span></span>
                 </div>
                 <div class="total-card-item">
-                  <span><i class="fas fa-truck" style="margin-left: 8px;"></i>سعر التوصيل</span>
-                  <span id="delivery_cost">___ <span>د.ج</span></span>   
+                  <span><i class="fas fa-truck" style="margin-left:8px;"></i>سعر التوصيل</span>
+                  <span id="delivery_cost">___ <span>د.ج</span></span>
                 </div>
                 <hr>
                 <div class="total-card-item total-card-total">
-                  <span><i class="fas fa-calculator" style="margin-left: 8px;"></i>مجموع الطلبية</span>
-                  <span id="totla_cost">{{ landing_page.price|floatformat:0 }} <span>د.ج</span></span>   
+                  <span><i class="fas fa-calculator" style="margin-left:8px;"></i>مجموع الطلبية</span>
+                  <span id="totla_cost">{{ landing_page.price|floatformat:0 }} <span>د.ج</span></span>
                 </div>
               </div>
             {% endif %}
-            
+
             <button type="submit" class="order-now mt-3">
-              <i class="fas fa-shopping-cart" style="margin-left: 10px;"></i>
+              <i class="fas fa-shopping-cart" style="margin-left:10px;"></i>
               للطلب اضغط هنا
             </button>
           </form>
+
         </div>
       </div>
-
     </div>
 
     <div class="website">
       <div class="content">
-        <div class="desc">
-          {{landing_page.description|safe}}
-        </div>
-        <a href="#hero" class="ling-link" data-aos="fade-left" animate__delay="20s" data-aos-duration="1200" animate__repeat-1="1">
-          <i class="fas fa-arrow-up" style="margin-left: 10px;"></i>
+        <div class="desc">{{ landing_page.description|safe }}</div>
+        <a href="#hero" class="ling-link">
+          <i class="fas fa-arrow-up" style="margin-left:10px;"></i>
           إضغط هنا للطلب
         </a>
       </div>
     </div>
 
-
     <footer>
       <div class="content">
         <div class="card">
-          <h1><i class="fas fa-phone-alt" style="margin-left: 8px;"></i>تواصل معنا</h1>
-          <p><i class="fas fa-mobile-alt" style="margin-left: 8px; color: #27a44f;"></i>رقم الهاتف : {{PHONE}}</p>
-          <p><i class="fas fa-envelope" style="margin-left: 8px; color: #27a44f;"></i>البريد الالكرتوني : {{EMAIL}}</p>
+          <h1><i class="fas fa-phone-alt" style="margin-left:8px;"></i>تواصل معنا</h1>
+          <p><i class="fas fa-mobile-alt" style="margin-left:8px;color:#27a44f;"></i>رقم الهاتف : {{PHONE}}</p>
+          <p><i class="fas fa-envelope" style="margin-left:8px;color:#27a44f;"></i>البريد الالكرتوني : {{EMAIL}}</p>
         </div>
-
         <div class="card">
-          <h1><i class="fas fa-file-contract" style="margin-left: 8px;"></i>سياسة الموقع</h1>
-          {% comment %} <a href="{% url 'howtobuy' %}"><i class="fas fa-shopping-bag" style="margin-left: 8px;"></i>كيف تشتري من موقعنا</a>
-          <a href="{% url 'exchange-policy' %}"><i class="fas fa-exchange-alt" style="margin-left: 8px;"></i>سياسة الاستبدال</a>
-          <a href="{% url 'policy' %}"><i class="fas fa-shield-alt" style="margin-left: 8px;"></i>سياسة الخصوصيه</a>
-          <a href="{% url 'payment-policy' %}"><i class="fas fa-money-bill-wave" style="margin-left: 8px;"></i>سياسه الدفع عند الاستلام</a> {% endcomment %}
+          <h1><i class="fas fa-file-contract" style="margin-left:8px;"></i>سياسة الموقع</h1>
         </div>
-
         <div class="card">
-          <h1><i class="fas fa-share-alt" style="margin-left: 8px;"></i>تابعنا عبر</h1>
+          <h1><i class="fas fa-share-alt" style="margin-left:8px;"></i>تابعنا عبر</h1>
           <div class="footer-icons">
             <a href="{{FB|safe}}" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
             <a href="{{INSTA|safe}}" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
@@ -839,115 +600,117 @@
       </div>
     </footer>
 
-<script>
+    <script>
+      // ── State ──────────────────────────────────────────────────────────────
+      var BASE_PRICE = {{ landing_page.price }};
+      var currentProductPrice = BASE_PRICE;   // changes when offer is picked
+      var currentDeliveryCost = 0;
+      var selectedOptions = {};               // { "Size": "L", "Color": "Red" }
 
-      function changePrice(){
+      // ── Helpers ────────────────────────────────────────────────────────────
+      function updatePriceDisplay(productPrice) {
+        currentProductPrice = productPrice;
+
+        document.getElementById('display-price').textContent = productPrice;
+        document.getElementById('total_price').value = productPrice + currentDeliveryCost;
+
+        if (document.getElementById('product_cost')) {
+          document.getElementById('product_cost').innerHTML = productPrice + ' <span>د.ج</span>';
+        }
+        if (document.getElementById('totla_cost')) {
+          document.getElementById('totla_cost').innerHTML =
+            (productPrice + currentDeliveryCost) + ' <span>د.ج</span>';
+        }
+      }
+
+      // ── City / delivery price ──────────────────────────────────────────────
+      function changePrice() {
         var selectElement = document.getElementById("city");
         if (selectElement && selectElement.selectedIndex > 0) {
           var selectedOption = selectElement.options[selectElement.selectedIndex];
-          var delivery_cost = selectedOption.getAttribute("data-price") || 0;
-          
+          currentDeliveryCost = parseInt(selectedOption.getAttribute("data-price") || 0);
+
           if (document.getElementById('delivery_cost')) {
-            document.getElementById('delivery_cost').innerHTML = delivery_cost + " <span>د.ج</span>";
+            document.getElementById('delivery_cost').innerHTML = currentDeliveryCost + " <span>د.ج</span>";
           }
-          
-          if (document.getElementById('totla_cost')) {
-            var total = parseInt(delivery_cost) + parseInt({{landing_page.price}});
-            document.getElementById('totla_cost').innerHTML = total + " <span>د.ج</span>";
-          }
-          
-          if (document.getElementById('total_price')) {
-            document.getElementById('total_price').value = parseInt(delivery_cost) + parseInt({{landing_page.price}});
-          }
+          updatePriceDisplay(currentProductPrice);
         }
       }
-    function changeColor(SKU, element) {
+
+      // ── Offer selection ────────────────────────────────────────────────────
+      function selectOffer(el, sku, price, label) {
+        // Deactivate all offer cards
+        document.querySelectorAll('.offer-card').forEach(function(c) {
+          c.classList.remove('active');
+        });
+        el.classList.add('active');
+
+        document.getElementById('selected_offer_sku').value = sku;
+        updatePriceDisplay(price);
+      }
+
+      // ── Option value selection ─────────────────────────────────────────────
+      function selectOptionValue(el, sku, optionName) {
+        // Deactivate pills belonging to the same option group only
+        document.querySelectorAll('.size-card[data-option="' + optionName + '"]').forEach(function(c) {
+          c.classList.remove('active');
+        });
+        el.classList.add('active');
+
+        selectedOptions[optionName] = sku;
+
+        // Build a combined string for the hidden input (e.g. "Size:L|Color:RED")
+        var combined = Object.entries(selectedOptions).map(function(e){ return e[0]+':'+e[1]; }).join('|');
+        document.getElementById('selected_variant_sku').value = combined;
+
+        // Legacy single-dimension support
+        document.getElementById('size').value = sku;
+      }
+
+      // Legacy color helper (kept so existing integrations don't break)
+      function changeColor(SKU, element) {
+        selectOptionValue(element, SKU, 'color');
         document.getElementById('color').value = SKU;
-        document.getElementById('input-' + SKU).click();
-    
-        // Get all elements with the class "color-card"
-        var colorCards = document.getElementsByClassName('color-card');
-    
-        // Loop through each element and reset styles
-        for (var i = 0; i < colorCards.length; i++) {
-            colorCards[i].style.background = 'white';
-            colorCards[i].style.borderColor = '#e0e0e0';
-            colorCards[i].style.color = '#333';
-            colorCards[i].style.transform = 'none';
-        }
-    
-        // Set the styles for the clicked element
-        element.style.background = '#27a44f';
-        element.style.borderColor = '#27a44f';
-        element.style.color = 'white';
-        element.style.transform = 'scale(1.05)';
-    }
+      }
 
-    function changeSize(SKU, element) {
-        document.getElementById('size').value = SKU;
-        document.getElementById('input-' + SKU).click();
-    
-        // Get all elements with the class "size-card"
-        var sizeCards = document.getElementsByClassName('size-card');
-        
-        // Loop through each element and reset styles
-        for (var i = 0; i < sizeCards.length; i++) {
-            sizeCards[i].style.background = 'white';
-            sizeCards[i].style.borderColor = '#e0e0e0';
-            sizeCards[i].style.color = '#333';
-            sizeCards[i].style.transform = 'none';
-        }
-    
-        // Set the styles for the clicked element
-        element.style.background = '#27a44f';
-        element.style.borderColor = '#27a44f';
-        element.style.color = 'white';
-        element.style.transform = 'scale(1.05)';
-    }
-      
-
+      function changeSize(SKU, element) {
+        selectOptionValue(element, SKU, 'size');
+      }
     </script>
 
     <script>
-      // get refferer
-      var referrer = document.referrer;
-      document.getElementById('ref').value = referrer;
+      // Referrer
+      document.getElementById('ref').value = document.referrer;
     </script>
 
-
     <script>
-      
       const citySelect = document.querySelector('#city');
       const municipalitySelect = document.querySelector('#municipality');
-      
-      citySelect.addEventListener('change', () => {
-        const city = citySelect.value;
-        if (city) {
-          fetch(`/landingpages/get_municipalities/${city}/`)
-            .then(response => response.json())
-            .then(data => {
-              municipalitySelect.innerHTML = '';
-              option = document.createElement('option');
-              option.textContent = 'اختر البلدية';
-              option.disabled = true;
-              option.selected = true;
-              municipalitySelect.appendChild(option);
-              
-              data.municipalities.forEach(municipality => {
-                const option = document.createElement('option');
-                option.textContent = municipality;
-                option.value = municipality;
-                municipalitySelect.appendChild(option);
-              });
-            });
-        } else {
-          municipalitySelect.innerHTML = '';
-        }
-      });
 
+      if (citySelect && municipalitySelect) {
+        citySelect.addEventListener('change', function() {
+          const city = citySelect.value;
+          if (city) {
+            fetch(`/stores/get_municipalities/${city}/`)
+              .then(r => r.json())
+              .then(data => {
+                municipalitySelect.innerHTML = '';
+                const placeholder = document.createElement('option');
+                placeholder.textContent = 'اختر البلدية';
+                placeholder.disabled = true;
+                placeholder.selected = true;
+                municipalitySelect.appendChild(placeholder);
+                data.municipalities.forEach(m => {
+                  const opt = document.createElement('option');
+                  opt.textContent = m;
+                  opt.value = m;
+                  municipalitySelect.appendChild(opt);
+                });
+              });
+          }
+        });
+      }
     </script>
 
-    
   </body>
-
 </html>

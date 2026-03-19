@@ -6,20 +6,138 @@
 <script src="{% static 'ckeditor/ckeditor.js' %}"></script>
 <link rel="stylesheet" href="{% static 'ckeditor/samples/css/samples.css' %}" />
 
+<style>
+  .variant-card {
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .variant-card:hover {
+    border-color: #ced4da;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.07);
+  }
+
+  /* Type toggle */
+  .variant-type-toggle {
+    display: flex;
+    gap: 0;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    overflow: hidden;
+    width: fit-content;
+  }
+  .variant-type-btn {
+    padding: 7px 22px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    background: white;
+    color: #6c757d;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .variant-type-btn:hover { background: #f8f9fa; color: #343a40; }
+  .variant-type-btn.active-option {
+    background: #0d6efd;
+    color: white;
+  }
+  .variant-type-btn.active-offer {
+    background: #f59e0b;
+    color: white;
+  }
+
+  /* Fields panels */
+  .fields-panel { display: none; }
+  .fields-panel.visible { display: block; }
+
+  /* Option rows */
+  .option-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .option-row input { flex: 1; }
+
+  /* Card header */
+  .variant-card-header {
+    background: #f8f9fa;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #e9ecef;
+  }
+  .variant-card-header .variant-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: #343a40;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .variant-type-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+  }
+  .badge-option { background: #dbeafe; color: #1d4ed8; }
+  .badge-offer  { background: #fef3c7; color: #b45309; }
+
+  #variants-container:empty::after {
+    content: 'No variants added yet. Click "+ Add Variant" to get started.';
+    display: block;
+    text-align: center;
+    color: #adb5bd;
+    font-size: 14px;
+    padding: 28px;
+    border: 2px dashed #dee2e6;
+    border-radius: 12px;
+  }
+</style>
+
 <div class="container mt-5">
   <h2 class="mb-4">Add New Product</h2>
-  {% comment %} Error messages {% endcomment %}
+
   {% if messages %}
   <ul class="messages">
-      {% for message in messages %}
-      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-      {% endfor %}
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
   </ul>
   {% endif %}
+
   <form method="POST" enctype="multipart/form-data" action="{% url 'products:add_product' %}">
     {% csrf_token %}
 
     <!-- Base Product Fields -->
+    <div class="mb-3">
+      <label class="form-label">Store</label>
+      {% if stores %}
+        <select class="form-select" name="store_id" required>
+          <option value="" {% if not selected_store_id %}selected{% endif %} disabled>Select a store</option>
+          {% for store in stores %}
+            <option value="{{ store.id }}" {% if selected_store_id == store.id|stringformat:'s' %}selected{% endif %}>
+              {{ store.name }}
+            </option>
+          {% endfor %}
+        </select>
+      {% else %}
+        <div class="alert alert-warning mb-0">
+          You don't have any stores yet.
+          <a href="{% url 'stores:create' %}">Create a store</a> before adding products.
+        </div>
+      {% endif %}
+    </div>
+
     <div class="mb-3">
       <label class="form-label">Product Name</label>
       <input type="text" name="name" class="form-control" required>
@@ -28,13 +146,15 @@
       <label class="form-label">SKU</label>
       <input type="text" name="SKU" class="form-control" required>
     </div>
-    <div class="mb-3">
-      <label class="form-label">Price</label>
-      <input type="number" step="0.01" name="price" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label class="form-label">Fake Price</label>
-      <input type="number" step="0.01" name="fake_price" class="form-control" required>
+    <div class="row">
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Price</label>
+        <input type="number" step="0.01" name="price" class="form-control" required>
+      </div>
+      <div class="col-md-6 mb-3">
+        <label class="form-label">Fake Price</label>
+        <input type="number" step="0.01" name="fake_price" class="form-control" required>
+      </div>
     </div>
     <div class="mb-3">
       <label class="form-label">Stock Quantity</label>
@@ -44,8 +164,6 @@
       <label class="form-label">Image</label>
       <input type="file" name="image" class="form-control">
     </div>
-
-
     <div class="mb-3">
       <label class="form-label">Description</label>
       <textarea name="description" id="editor" rows="10" class="form-control"></textarea>
@@ -53,92 +171,171 @@
 
     <hr>
 
-    <!-- Variants Section -->
-    <h4>Variants (Optional)</h4>
+    <!-- ── Variants Section ── -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h4 class="mb-0">Variants <span class="text-muted fs-6 fw-normal">(Optional)</span></h4>
+      <div class="d-flex gap-2">
+        <button type="button" class="btn btn-outline-primary btn-sm" onclick="addVariant('option')">
+          <i class="bi bi-sliders"></i> + Option Variant
+        </button>
+        <button type="button" class="btn btn-outline-warning btn-sm" onclick="addVariant('offer')">
+          <i class="bi bi-tag"></i> + Offer Variant
+        </button>
+      </div>
+    </div>
+
     <div id="variants-container"></div>
 
-    <button type="button" class="btn btn-outline-primary mt-3" onclick="addVariant()">+ Add Variant</button>
-
     <hr>
-
     <button type="submit" class="btn btn-success mt-3">Save Product</button>
   </form>
 </div>
 
 <script>
 CKEDITOR.replace('editor', {
-    extraPlugins: 'uploadimage,image2',
-    filebrowserUploadUrl: '/upload/',
-    filebrowserUploadMethod: 'form',
+  extraPlugins: 'uploadimage,image2',
+  filebrowserUploadUrl: '/upload/',
+  filebrowserUploadMethod: 'form',
 });
 </script>
 
 <script>
-  let variantCount = 0;
+let variantCount = 0;
 
-  function addVariant() {
-    const variantHTML = `
-      <div class="card variant-card" data-variant-index="${variantCount}">
-        <div class="card-body">
-          <h5 class="card-title">Variant #${variantCount + 1}</h5>
+function addVariant(type) {
+  const idx = variantCount++;
+  const isOffer = type === 'offer';
+  const typeLabel = isOffer ? 'Offer' : 'Option';
+  const badgeClass = isOffer ? 'badge-offer' : 'badge-option';
+  const icon = isOffer ? '🏷️' : '🎛️';
 
-          <div class="mb-2">
-            <label>Variant SKU</label>
-            <input type="text" name="variants[${variantCount}][SKU]" class="form-control">
-          </div>
-
-          <div class="mb-2">
-            <label>Price</label>
-            <input type="number" step="0.01" name="variants[${variantCount}][price]" class="form-control">
-          </div>
-
-          <div class="mb-2">
-            <label>Stock</label>
-            <input type="number" name="variants[${variantCount}][stock_quantity]" class="form-control">
-          </div>
-
-          <div class="mb-2">
-            <label>Image</label>
-            <input type="file" name="variants[${variantCount}][image]" class="form-control">
-          </div>
-
-          <div class="option-container mb-3">
-            <h6>Options</h6>
-            <div id="options-${variantCount}"></div>
-            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="addOption(${variantCount})">+ Add Option</button>
-          </div>
-
-          <button type="button" class="btn btn-sm btn-danger" onclick="removeVariant(this)">Remove Variant</button>
+  const html = `
+    <div class="variant-card" id="variant-card-${idx}" data-type="${type}">
+      <div class="variant-card-header">
+        <div class="variant-title">
+          ${icon} Variant #${idx + 1}
+          <span class="variant-type-badge ${badgeClass}" id="badge-${idx}">${typeLabel}</span>
         </div>
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="document.getElementById('variant-card-${idx}').remove()">
+          Remove
+        </button>
       </div>
-    `;
-    document.getElementById("variants-container").insertAdjacentHTML("beforeend", variantHTML);
-    variantCount++;
-  }
 
-  function addOption(variantIndex) {
-    const optionHTML = `
-      <div class="row option-group">
-        <div class="col-md-5">
-          <input type="text" name="variants[${variantIndex}][options][][name]" class="form-control" placeholder="Option Name (e.g., Color)">
+        <div class="card card-body mb-0">
+
+        <!-- Type toggle -->
+        <div class="mb-3">
+          <label class="form-label fw-semibold text-muted" style="font-size:13px;">VARIANT TYPE</label><br>
+          <div class="variant-type-toggle">
+            <button type="button"
+              class="variant-type-btn ${!isOffer ? 'active-option' : ''}"
+              id="btn-option-${idx}"
+              onclick="switchType(${idx}, 'option')">
+              🎛️ Option
+            </button>
+            <button type="button"
+              class="variant-type-btn ${isOffer ? 'active-offer' : ''}"
+              id="btn-offer-${idx}"
+              onclick="switchType(${idx}, 'offer')">
+              🏷️ Offer
+            </button>
+          </div>
+          <input type="hidden" name="variants[${idx}][type]" id="type-input-${idx}" value="${type}">
         </div>
-        <div class="col-md-5">
-          <input type="text" name="variants[${variantIndex}][options][][value]" class="form-control" placeholder="Option Value (e.g., Red)">
+
+        <!-- Shared fields -->
+        <div class="row">
+          <div class="col-md-4 mb-3">
+            <label class="form-label">SKU</label>
+            <input type="text" name="variants[${idx}][SKU]" class="form-control" placeholder="e.g. PROD-RED-L">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Price</label>
+            <input type="number" step="0.01" name="variants[${idx}][price]" class="form-control" placeholder="0.00">
+          </div>
+          <div class="col-md-4 mb-3">
+            <label class="form-label">Stock</label>
+            <input type="number" name="variants[${idx}][stock_quantity]" class="form-control" placeholder="0">
+          </div>
         </div>
-        <div class="col-md-2">
-          <button type="button" class="btn btn-danger btn-sm" onclick="this.closest('.option-group').remove()">×</button>
+        <div class="mb-3">
+          <label class="form-label">Variant Image</label>
+          <input type="file" name="variants[${idx}][image]" class="form-control">
         </div>
+
+        <!-- OFFER fields -->
+        <div class="fields-panel ${isOffer ? 'visible' : ''}" id="offer-fields-${idx}">
+          <div class="mb-3">
+            <label class="form-label">Offer Label
+              <span class="text-muted fw-normal" style="font-size:13px;">— shown to the customer</span>
+            </label>
+            <input type="text" name="variants[${idx}][offer_label]" class="form-control"
+              placeholder='e.g. "Buy 2 for 1500 DA" or "Family Pack"'>
+          </div>
+        </div>
+
+        <!-- OPTION fields -->
+        <div class="fields-panel ${!isOffer ? 'visible' : ''}" id="option-fields-${idx}">
+          <label class="form-label fw-semibold">Option Values
+            <span class="text-muted fw-normal" style="font-size:13px;">— e.g. Size: Large, Color: Red</span>
+          </label>
+          <div id="options-${idx}"></div>
+          <button type="button" class="btn btn-sm btn-outline-secondary mt-1" onclick="addOption(${idx})">
+            + Add Option
+          </button>
+        </div>
+
       </div>
-    `;
-    document.getElementById(`options-${variantIndex}`).insertAdjacentHTML("beforeend", optionHTML);
-  }
+    </div>
+  `;
 
-  function removeVariant(button) {
-    button.closest('.variant-card').remove();
-  }
+  document.getElementById('variants-container').insertAdjacentHTML('beforeend', html);
+
+  // Auto-add one option row for option variants
+  if (!isOffer) addOption(idx);
+}
+
+function switchType(idx, newType) {
+  const isOffer = newType === 'offer';
+
+  // Update hidden input
+  document.getElementById(`type-input-${idx}`).value = newType;
+
+  // Toggle button states
+  const btnOption = document.getElementById(`btn-option-${idx}`);
+  const btnOffer  = document.getElementById(`btn-offer-${idx}`);
+  btnOption.className = 'variant-type-btn' + (isOffer ? '' : ' active-option');
+  btnOffer.className  = 'variant-type-btn' + (isOffer ? ' active-offer' : '');
+
+  // Toggle badge
+  const badge = document.getElementById(`badge-${idx}`);
+  badge.textContent = isOffer ? 'Offer' : 'Option';
+  badge.className = 'variant-type-badge ' + (isOffer ? 'badge-offer' : 'badge-option');
+
+  // Toggle field panels
+  document.getElementById(`offer-fields-${idx}`).classList.toggle('visible', isOffer);
+  document.getElementById(`option-fields-${idx}`).classList.toggle('visible', !isOffer);
+
+  // Update card data attribute
+  document.getElementById(`variant-card-${idx}`).dataset.type = newType;
+}
+
+function addOption(variantIndex) {
+  const html = `
+    <div class="option-row">
+      <input type="text"
+        name="variants[${variantIndex}][options][][name]"
+        class="form-control"
+        placeholder="Option name (e.g. Color)">
+      <input type="text"
+        name="variants[${variantIndex}][options][][value]"
+        class="form-control"
+        placeholder="Value (e.g. Red)">
+      <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.option-row').remove()">×</button>
+    </div>
+  `;
+  document.getElementById(`options-${variantIndex}`).insertAdjacentHTML('beforeend', html);
+}
 </script>
 
-
-</body>
-</html>
 {% endblock %}

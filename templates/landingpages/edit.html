@@ -2,122 +2,215 @@
 {% load static %}
 {% block title %}Edit Landing Page{% endblock %}
 
+{% block upper_scripts %}
+  <style>
+    .lp-sticky-actions { position: sticky; top: 1rem; }
+    .lp-code-preview { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+  </style>
+{% endblock %}
+
 {% block content %}
-<script src="{% static 'ckeditor/ckeditor.js' %}"></script>
-<link rel="stylesheet" href="{% static 'ckeditor/samples/css/samples.css' %}" />
-
-
-<div class="container mt-4">
-  <h2>Edit Landing Page for {{ page.product.name }}</h2>
+<div class="container-fluid">
+  <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <div>
+      <div class="text-muted small mb-1">
+        <a href="{% url 'landingpages:list' %}">Landing pages</a>
+        <span class="mx-1">/</span>
+        <a class="lp-code-preview" href="{% url 'landingpages:detail' landingpage.code %}">{{ landingpage.code }}</a>
+      </div>
+      <h2 class="mb-0">Edit landing page</h2>
+      <div class="text-muted">Product: <strong>{{ landingpage.product.name }}</strong> · Store: <strong>{{ landingpage.product.store.name }}</strong></div>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'landing_page' landingpage.code %}" class="btn btn-outline-primary" target="_blank">Preview</a>
+      <a href="{% url 'landingpages:detail' landingpage.code %}" class="btn btn-light">Back</a>
+    </div>
+  </div>
 
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
 
-    <div class="mb-3">
-      <label class="form-label">Landing Page Code</label>
-      <input type="text" name="code" class="form-control" value="{{ landingpage.code }}" required>
-    </div>
-
-    <h4>Display Options</h4>
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" name="show_state" {% if landingpage.show_state %}checked{% endif %}>
-      <label class="form-check-label">Show State</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" name="show_city" {% if landingpage.show_city %}checked{% endif %}>
-      <label class="form-check-label">Show City</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" name="show_address" {% if landingpage.show_address %}checked{% endif %}>
-      <label class="form-check-label">Show Address</label>
-    </div>
-    <div class="form-check">
-      <input class="form-check-input" type="checkbox" name="show_final_cost" {% if landingpage.show_final_cost %}checked{% endif %}>
-      <label class="form-check-label">Show Final Cost</label>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Thank You Page</label>
-        <textarea name="thank_you_html" id="editor" rows="10" class="form-control">
-                <div class="container" dir="rtl">
-            <div class="success-icon" style="text-align:center"><strong><span style="color:#2ecc71"><span style="font-family:Verdana,Geneva,sans-serif"><span dir="rtl"><span style="font-size:26px">تم الطلب بنجاح!</span></span></span></span></strong></div>
-
-            <p style="text-align:center"><span style="color:#ffffff"><span style="font-family:Verdana,Geneva,sans-serif"><span dir="rtl"><span style="font-size:26px"><span style="background-color:#27ae60">شكراً لشرائك من متجرنا. تم تأكيد طلبك وهو الآن في طريقه إليك!</span></span></span></span></span></p>
+    <div class="row g-4">
+      <div class="col-12 col-lg-8">
+        <div class="card mb-4">
+          <div class="card-header">
+            <h4 class="mb-0">Basics</h4>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Landing page code</label>
+                <input type="text" name="code" class="form-control lp-code-preview" value="{{ landingpage.code }}" required>
+                <div class="form-text">Changing the code changes the public URL.</div>
+              </div>
             </div>
-        </textarea>
-    </div>
-
-    
-    <label for="pixels">Facebook Pixels:</label>
-    <select name="pixels" id="pixels" class="form-control" multiple>
-    {% for pixel in pixels %}
-        <option value="{{ pixel.id }}" 
-        {% if pixel in landingpage.pixels.all %}
-            selected
-        {% endif %}>
-            {{ pixel.firt_chars_pixel_code }}
-        </option>
-    {% endfor %}
-    </select>
-    <br>
-
-
-
-        <div class="accordion" id="accordionExample">
-    <div class="accordion-item">
-         <h2 class="accordion-header" id="flush-headingOne">
-            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-                Overrides (optional)
-            </button>
-        </h2>
-        <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-            <div class="accordion-body">
-                <div class="mb-3">
-                <label class="form-label">Custom Name</label>
-                <input type="text" name="custom_name" class="form-control" value="{{ landingpage.name }}">
-                </div>
-
-                <div class="mb-3">
-                <label class="form-label">Custom Description</label>
-                <textarea name="custom_description" class="form-control">{{ landingpage.description }}</textarea>
-                </div>
-
-                <div class="mb-3">
-                <label class="form-label">Custom Image</label><br>
-                {% if landingpage.custom_image %}
-                    <img src="{{ landingpage.image }}" alt="Custom Image" width="100"><br>
-                {% endif %}
-                <input type="file" name="custom_image" class="form-control">
-                </div>
-
-                <div class="mb-3">
-                <label class="form-label">Custom Price</label>
-                <input type="number" step="0.01" name="custom_price" class="form-control" value="{{ landingpage.price }}">
-                </div>
-
-                <div class="mb-3">
-                <label class="form-label">Custom Fake Price</label>
-                <input type="number" step="0.01" name="custom_fake_price" class="form-control" value="{{ landingpage.fake_price }}">
-                </div>
-
-                <div class="mb-3">
-                <label class="form-label">Custom Webhook</label>
-                <input type="text" name="custom_webhook" class="form-control" value="{{ landingpage.webhook }}">
-                </div>
-            </div>
+          </div>
         </div>
+
+        <div class="card mb-4">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h4 class="mb-0">Checkout fields</h4>
+            <span class="text-muted small">What the customer sees in the order form</span>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12 col-md-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" name="show_state" {% if landingpage.show_state %}checked{% endif %}>
+                  <label class="form-check-label">State</label>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" name="show_city" {% if landingpage.show_city %}checked{% endif %}>
+                  <label class="form-check-label">City</label>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" name="show_address" {% if landingpage.show_address %}checked{% endif %}>
+                  <label class="form-check-label">Address</label>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="form-check form-switch">
+                  <input class="form-check-input" type="checkbox" name="show_final_cost" {% if landingpage.show_final_cost %}checked{% endif %}>
+                  <label class="form-check-label">Final cost</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <h4 class="mb-0">Pixels</h4>
+          </div>
+          <div class="card-body">
+            <label class="form-label" for="pixels">Facebook pixels (optional)</label>
+            <select name="pixels" id="pixels" class="form-select" multiple size="6">
+              {% for pixel in pixels %}
+                <option value="{{ pixel.id }}" {% if pixel in landingpage.pixels.all %}selected{% endif %}>
+                  {{ pixel.firt_chars_pixel_code }}
+                </option>
+              {% endfor %}
+            </select>
+            <div class="form-text">Select one or more pixels to fire on this landing page.</div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h4 class="mb-0">Overrides (optional)</h4>
+            <span class="text-muted small">Leave blank to use product defaults</span>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <label class="form-label">Custom title</label>
+                <input type="text" name="custom_name" class="form-control" value="{{ landingpage.custom_name|default_if_none:'' }}" placeholder="{{ landingpage.product.name }}">
+                <div class="form-text">Effective title: <strong>{{ landingpage.name }}</strong></div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Custom description</label>
+                <textarea name="custom_description" class="form-control" rows="3" placeholder="Uses product description by default">{{ landingpage.custom_description|default_if_none:'' }}</textarea>
+                <div class="form-text">Effective description: {{ landingpage.description|default:"(empty)" }}</div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label">Custom price</label>
+                <input type="number" step="0.01" name="custom_price" class="form-control" value="{{ landingpage.custom_price|default_if_none:'' }}" placeholder="{{ landingpage.product.price }}">
+                <div class="form-text">Effective price: <strong>{{ landingpage.price }}</strong></div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label">Custom fake price</label>
+                <input type="number" step="0.01" name="custom_fake_price" class="form-control" value="{{ landingpage.custom_fake_price|default_if_none:'' }}" placeholder="{{ landingpage.product.fake_price }}">
+                <div class="form-text">Effective fake price: <strong>{{ landingpage.fake_price }}</strong></div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Custom webhook</label>
+                <input type="text" name="custom_webhook" class="form-control" value="{{ landingpage.custom_webhook|default_if_none:'' }}" placeholder="{{ landingpage.product.store.sheet_webhook }}">
+                <div class="form-text">Effective webhook: <span class="lp-code-preview">{{ landingpage.webhook }}</span></div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Custom image</label>
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                  <div class="border rounded p-2 bg-body">
+                    {% if landingpage.custom_image %}
+                      <img src="{{ landingpage.custom_image.url }}" alt="{{ landingpage.name }}" style="height:72px; width:auto;">
+                    {% elif landingpage.product.image %}
+                      <img src="{{ landingpage.product.image.url }}" alt="{{ landingpage.product.name }}" style="height:72px; width:auto;">
+                    {% else %}
+                      <span class="text-muted small">No image</span>
+                    {% endif %}
+                  </div>
+                  <div class="flex-grow-1">
+                    <input type="file" name="custom_image" class="form-control">
+                    <div class="form-text">Upload to replace the current image.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h4 class="mb-0">Thank you page</h4>
+            <span class="text-muted small">HTML</span>
+          </div>
+          <div class="card-body">
+            <textarea name="thank_you_html" id="editor" rows="12" class="form-control" placeholder="Leave empty to use the default thank-you template.">{{ landingpage.thank_you_html|default_if_none:''|escape }}</textarea>
+            <div class="form-text">Tip: keep it lightweight and mobile friendly.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-4">
+        <div class="lp-sticky-actions">
+          <div class="card mb-4">
+            <div class="card-header">
+              <h4 class="mb-0">Actions</h4>
+            </div>
+            <div class="card-body">
+              <button type="submit" class="btn btn-primary w-100 mb-2">Save changes</button>
+              <a href="{% url 'landingpages:detail' landingpage.code %}" class="btn btn-light w-100">Cancel</a>
+              <hr>
+              <a href="{% url 'landingpages:delete' landingpage.code %}" class="btn btn-outline-danger w-100"
+                 onclick="return confirm('Are you sure you want to delete this landing page?')">
+                Delete landing page
+              </a>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-body">
+              <div class="text-muted small mb-1">Public URL</div>
+              <div class="d-flex gap-2">
+                <input id="lpPublicUrl" class="form-control form-control-sm lp-code-preview" value="{% url 'landing_page' landingpage.code %}" readonly>
+                <button class="btn btn-sm btn-outline-secondary" type="button" onclick="navigator.clipboard && navigator.clipboard.writeText(document.getElementById('lpPublicUrl').value)">Copy</button>
+              </div>
+              <div class="form-text">Opens relative to your domain.</div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-
-
-
-    <br>
-    <button type="submit" class="btn btn-success">Save Changes</button>
-    <a href="{% url 'landingpages:list' %}" class="btn btn-secondary">Cancel</a>
   </form>
 </div>
+{% endblock %}
 
-<script src="{% static 'ckeditor/samples/js/sample.js' %}"></script>
-<script>
-	initSample();
-</script>
+{% block scripts %}
+  <script src="{% static 'ckeditor/ckeditor.js' %}"></script>
+  <script>
+    (function () {
+      if (window.CKEDITOR && !CKEDITOR.instances.editor) {
+        CKEDITOR.replace('editor', { height: 320 });
+      }
+    })();
+  </script>
 {% endblock %}
